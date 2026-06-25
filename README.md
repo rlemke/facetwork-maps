@@ -12,7 +12,7 @@ pipelines live in Facetwork and its domain packages.
 | Section | Maps |
 |---------|------|
 | **Census** | A per-county **metric explorer** (13 American Community Survey metrics + a dropdown), **state rankings**, and a **Social Vulnerability Index** choropleth — all 50 states + DC, county-level. |
-| **World** | **Nuclear power sites**, **major volcanoes**, and **LGBTQ+ bars & restaurants** (from OpenStreetMap), plus an **armed-conflict** country choropleth (UCDP / UNHCR / IDMC / IPC). |
+| **World** | **Nuclear power sites**, **major volcanoes**, and **LGBTQ+ bars & restaurants** (from OpenStreetMap); **recent earthquakes & fault lines** (USGS M4.5+ feed over the Bird-2002 tectonic plate boundaries); plus an **armed-conflict** country choropleth (UCDP / UNHCR / IDMC / IPC). |
 
 Every map is self-contained (inline GeoJSON + MapLibre GL), has a **name search**, a
 legend, a description, and a footer that links back to the **FFL workflow and the exact
