@@ -1,0 +1,552 @@
+        <!doctype html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <title>save-earth map — enclaves</title>
+          <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+          <style>html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system,
+  BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+#map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
+.panel {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  background: rgba(255,255,255,0.95); border-radius: 6px;
+  padding: 10px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  max-width: 260px; font-size: 13px;
+}
+.panel h3 { margin: 0 0 6px; font-size: 14px; }
+.info {
+  position: absolute; top: 10px; left: 10px; z-index: 5;
+  background: rgba(255,255,255,0.95); border-radius: 6px;
+  padding: 10px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  max-width: 300px; font-size: 12px; line-height: 1.4;
+}
+.info h3 { margin: 0 0 5px; font-size: 14px; }
+.info p { margin: 0; color: #444; }
+.panel label { display: block; margin: 4px 0; cursor: pointer; }
+.panel .swatch {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  vertical-align: middle; margin-right: 6px;
+}
+.ptlegend {
+  position: absolute; bottom: 10px; right: 10px; z-index: 5;
+  background: rgba(255,255,255,0.95); border-radius: 6px;
+  padding: 8px 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 12px;
+}
+.ptlegend b { display: block; margin-bottom: 4px; font-size: 13px; }
+.ptlegend .row { display: flex; align-items: center; margin: 2px 0; }
+.ptlegend .dot {
+  display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  margin-right: 7px; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+}
+.search { position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 6; width: 290px; max-width: 70%; }
+.search input { width: 100%; box-sizing: border-box; padding: 7px 11px;
+  border: 1px solid #aaa; border-radius: 6px; font-size: 13px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.search .results { background: #fff; border-radius: 0 0 6px 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2); max-height: 240px; overflow: auto; }
+.search .results div { padding: 6px 11px; cursor: pointer; font-size: 12px;
+  border-top: 1px solid #f0f0f0; }
+.search .results div:hover { background: #f3f3f3; }
+.search .results .sub { color: #888; }
+.maplibregl-popup-content { max-width: 340px; font-size: 12px; }
+.maplibregl-popup-content h4 { margin: 0 0 4px; font-size: 13px; }
+table.attrs { border-collapse: collapse; margin-top: 4px; }
+table.attrs td { padding: 1px 8px 1px 0; vertical-align: top; }
+table.attrs td.k { font-weight: 600; color: #555; white-space: nowrap; }
+.attribution {
+  position: absolute; bottom: 10px; left: 10px; z-index: 5;
+  background: rgba(255,255,255,0.92); border-radius: 6px;
+  padding: 6px 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  font-size: 11px; color: #444; max-width: 360px;
+}
+.attribution a { color: #1565c0; text-decoration: none; }
+.attribution a:hover { text-decoration: underline; }
+.attribution code { background: #f0f0f0; padding: 0 3px; border-radius: 3px; }
+</style>
+        </head>
+        <body>
+        <div id="map"></div>
+        <div class="search"><input id="vsearch" placeholder="Find by name…" autocomplete="off">
+          <div class="results" id="vresults"></div></div>
+        <div class="info"><p>Heritage-named enclave neighbourhoods worldwide, from OpenStreetMap (Chinatown, Japantown, Little Italy, Koreatown, ...). Each heritage is a separate coloured layer - toggle in the legend. OSM has no ethnicity attribute; the name is the signal. Click any point for its OSM tags + wikidata link.</p></div>
+        <div class="panel" id="panel">
+          <h3>Layers</h3>
+        </div>
+        <div class="ptlegend"><b>Legend</b><div class="row"><span class="dot" style="background:#d32f2f"></span>Chinese (Chinatown) (58)</div><div class="row"><span class="dot" style="background:#ec407a"></span>Japanese (Japantown / Little Tokyo) (8)</div><div class="row"><span class="dot" style="background:#5c6bc0"></span>Korean (Koreatown) (14)</div><div class="row"><span class="dot" style="background:#00897b"></span>Vietnamese (Little Saigon) (11)</div><div class="row"><span class="dot" style="background:#f9a825"></span>Thai (Thaitown) (2)</div><div class="row"><span class="dot" style="background:#f57c00"></span>South Asian (Little India) (7)</div><div class="row"><span class="dot" style="background:#2e7d32"></span>Italian (Little Italy) (27)</div><div class="row"><span class="dot" style="background:#0277bd"></span>Greek (Greektown) (5)</div><div class="row"><span class="dot" style="background:#6a1b9a"></span>Portuguese (Little Portugal) (3)</div><div class="row"><span class="dot" style="background:#455a64"></span>German (Germantown / Little Germany) (22)</div><div class="row"><span class="dot" style="background:#c2185b"></span>Mexican / Latino (4)</div><div class="row"><span class="dot" style="background:#00acc1"></span>Cuban (Little Havana) (1)</div><div class="row"><span class="dot" style="background:#795548"></span>Ethiopian / East African (3)</div><div class="row"><span class="dot" style="background:#d84315"></span>Armenian (Little Armenia) (1)</div><div class="row"><span class="dot" style="background:#558b2f"></span>Arab / Maghrebi (2)</div><div class="row"><span class="dot" style="background:#8e24aa"></span>Persian (Tehrangeles) (1)</div><div class="row"><span class="dot" style="background:#c62828"></span>Polish (Little Poland) (2)</div><div class="row"><span class="dot" style="background:#43a047"></span>Caribbean (2)</div><div class="row"><span class="dot" style="background:#1e88e5"></span>Scandinavian / Nordic (4)</div></div>
+        <div class="attribution">Generated by Facetwork workflow <code>save_earth.workflows.BuildEnclaveMap</code> &middot; <a href="https://github.com/rlemke/fwh_save_earth/blob/main/src/save_earth/ffl/save_earth.ffl" target="_blank" rel="noopener">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_save_earth" target="_blank" rel="noopener">source repo</a> &middot; generated 2026-06-26 14:36 UTC</div>
+        <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+        <script>
+        const LAYER_DATA = {"enclave_chinese":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-1.6200007,54.9726025]},"properties":{"name":"Chinatown","name:zh":"\u7ebd\u5361\u7d20\u5510\u4eba\u8857","place":"locality","wikidata":"Q5100153","wikipedia":"en:Chinatown, Newcastle","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":11243010,"osm_url":"https://www.openstreetmap.org/node/11243010"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[122.2433213,-17.9544454]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":53919248,"osm_url":"https://www.openstreetmap.org/node/53919248"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.2702386,37.7999301]},"properties":{"alt_name":"Oakland Chinatown","ele":"12","gnis:feature_id":"1693016","name":"Chinatown","place":"neighbourhood","wikidata":"Q5100154","wikipedia":"en:Chinatown, Oakland, California","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":150960053,"osm_url":"https://www.openstreetmap.org/node/150960053"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.2389626,34.0625115]},"properties":{"ele":"95","gnis:feature_id":"1682217","name":"New Chinatown","place":"neighbourhood","wikidata":"Q2555601","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":150964686,"osm_url":"https://www.openstreetmap.org/node/150964686"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.3224598,47.5983548]},"properties":{"name":"Chinatown-International District","name:zh":"\u5510\u4eba\u8857-\u570b\u969b\u5340","name:zh-Hans":"\u5510\u4eba\u8857-\u56fd\u9645\u533a","name:zh-Hant":"\u5510\u4eba\u8857-\u570b\u969b\u5340","old_name":"Chinatown/International District","place":"suburb","short_name":"CID","wikidata":"Q3153248","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":151201527,"osm_url":"https://www.openstreetmap.org/node/151201527"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.6331383,41.8516579]},"properties":{"ele":"183","gnis:feature_id":"1826609","name":"Chinatown","name:zh":"\u534e\u57e0","name:zh-Hans":"\u534e\u57e0","name:zh-Hant":"\u83ef\u57e0","place":"neighbourhood","wikidata":"Q2963739","wikipedia":"en:Chinatown, Chicago","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":153480529,"osm_url":"https://www.openstreetmap.org/node/153480529"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.9470279,38.726985]},"properties":{"description":"Originally company housing, the name \"Chinatown\" comes from 1900s coal miners' habits, who washed their clothes on their only day off in a week and strung them on clotheslines, similar to a Chinese laundry. Maryville had no Chinese residents at the time.","ele":"178","gnis:feature_id":"422547","name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":153491934,"osm_url":"https://www.openstreetmap.org/node/153491934"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.0211969,38.900327]},"properties":{"ele":"16","gnis:feature_id":"529267","name":"Chinatown","name:en":"Chinatown","name:zh":"\u5510\u4eba\u8857","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":158431204,"osm_url":"https://www.openstreetmap.org/node/158431204"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1558906,39.9554027]},"properties":{"ele":"12","name":"Chinatown","name:en":"Chinatown","name:zh":"\u8d39\u57ce\u534e\u57e0","place":"neighbourhood","wikidata":"Q1099025","wikipedia":"en:Chinatown, Philadelphia","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":158629905,"osm_url":"https://www.openstreetmap.org/node/158629905"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9962504,40.7164913]},"properties":{"alt_name":"\u66fc\u54c8\u9813\u83ef\u57e0","ele":"12","gnis:feature_id":"946588","name":"Chinatown","name:ko":"\ucc28\uc774\ub098\ud0c0\uc6b4","name:ru":"\u0427\u0430\u0439\u043d\u0430\u0442\u0430\u0443\u043d","name:sr":"\u041a\u0438\u043d\u0435\u0441\u043a\u0430 \u0447\u0435\u0442\u0432\u0440\u0442","name:sr-Latn":"Kineska \u010detvrt","name:zh":"\u5510\u4eba\u8857;\u83ef\u57e0;\u4e2d\u570b\u57ce","name:zh-Hans":"\u5510\u4eba\u8857","name:zh-Hant":"\u4e2d\u570b\u57ce","place":"neighbourhood","wikidata":"Q866332","wikipedia":"en:Chinatown, Manhattan","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":158856492,"osm_url":"https://www.openstreetmap.org/node/158856492"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.3980316,43.6529237]},"properties":{"is_in:city":"Toronto","is_in:district":"Old Toronto","name":"Chinatown","place":"neighbourhood","wikidata":"Q2963746","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":239164261,"osm_url":"https://www.openstreetmap.org/node/239164261"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.1960999,36.1258908]},"properties":{"name":"Chinatown","name:en":"Chinatown","name:zh-Hans":"\u5510\u4eba\u8857","name:zh-Hant":"\u5510\u4eba\u8857","place":"suburb","wikidata":"Q5100143","wikipedia":"en:Chinatown, Las Vegas","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":302147311,"osm_url":"https://www.openstreetmap.org/node/302147311"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.3136634,52.0755746]},"properties":{"name":"Chinatown","place":"locality","wikidata":"Q2619499","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":568113938,"osm_url":"https://www.openstreetmap.org/node/568113938"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-123.1010541,49.2803671]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q866741","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":704270672,"osm_url":"https://www.openstreetmap.org/node/704270672"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-157.8628003,21.3129031]},"properties":{"name":"Chinatown","place":"suburb","wikidata":"Q5100138","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":833661552,"osm_url":"https://www.openstreetmap.org/node/833661552"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-97.1382158,49.9017472]},"properties":{"is_in":"Winnipeg","name":"Chinatown","place":"neighbourhood","source":"Bing","wikidata":"Q5100157","wikipedia":"en:Chinatown, Winnipeg","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":1185532336,"osm_url":"https://www.openstreetmap.org/node/1185532336"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-71.0626228,42.3513291]},"properties":{"description":"The only surviving Chinatown in New England","name":"Chinatown","place":"suburb","wikidata":"Q1009855","wikipedia":"en:Chinatown, Boston","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":2074055756,"osm_url":"https://www.openstreetmap.org/node/2074055756"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[103.8436879,1.2799695]},"properties":{"admin_level":"7","alt_name":"Chinatown Singapore","name":"Chinatown","name:en":"Chinatown","name:ru":"\u0420\u0430\u0439\u043e\u043d \u0427\u0430\u0439\u043d\u0430-\u0442\u0430\u0443\u043d","name:zh":"\u725b\u8f66\u6c34","place":"neighbourhood","tourism":"attraction","type":"boundary","wheelchair":"no","wikidata":"Q1318670","wikipedia":"en:Chinatown, Singapore","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":2511049756,"osm_url":"https://www.openstreetmap.org/node/2511049756"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.4063757,37.7943011]},"properties":{"ele":"29","name":"Chinatown","name:ko":"\ucc28\uc774\ub098\ud0c0\uc6b4","name:zh":"\u4e2d\u56fd\u57ce","place":"quarter","population":"9648","population:date":"2013","wikidata":"Q1073644","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":3639535348,"osm_url":"https://www.openstreetmap.org/node/3639535348"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.7079871,45.4104819]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q4506841","wikipedia":"en:Chinatown, Ottawa","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":4064504922,"osm_url":"https://www.openstreetmap.org/node/4064504922"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-2.9797351,53.397964]},"properties":{"name":"Chinatown","place":"quarter","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":4494717302,"osm_url":"https://www.openstreetmap.org/node/4494717302"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[138.5959134,-34.9298802]},"properties":{"name":"Chinatown","name:en":"Chinatown","place":"locality","wikidata":"Q5100130","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":4540273989,"osm_url":"https://www.openstreetmap.org/node/4540273989"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[96.148843,16.7749834]},"properties":{"alt_name":"Tayoke Tan","alt_name:my":"\u101b\u1014\u103a\u1000\u102f\u1014\u103a \u1010\u101b\u102f\u1010\u103a\u1010\u1014\u103a\u1038","name":"Chinatown","name:en":"Chinatown","name:my":"\u1010\u101b\u102f\u1010\u103a\u1010\u1014\u103a\u1038","name:zh":"\u5510\u4eba\u8857","place":"neighbourhood","wikipedia":"en:Yangon Chinatown","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":4743058358,"osm_url":"https://www.openstreetmap.org/node/4743058358"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[151.204068,-33.8783674]},"properties":{"alt_name":"Chinatown, Sydney","alt_name:zh":"\u4e2d\u56fd\u57ce","alt_name:zh-Hans":"\u4e2d\u56fd\u57ce","alt_name:zh-Hant":"\u4e2d\u570b\u57ce","name":"Chinatown","name:en":"Chinatown","name:zh":"\u6089\u5c3c\u5510\u4eba\u8857","name:zh-Hans":"\u6089\u5c3c\u5510\u4eba\u8857","name:zh-Hant":"\u6089\u5c3c\u5510\u4eba\u8857","place":"neighbourhood","short_name":"\u5510\u4eba\u8857","short_name:zh":"\u5510\u4eba\u8857","short_name:zh-Hans":"\u5510\u4eba\u8857","short_name:zh-Hant":"\u5510\u4eba\u8857","wheelchair":"yes","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":4792788624,"osm_url":"https://www.openstreetmap.org/node/4792788624"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.6744481,45.5251092]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":5548850525,"osm_url":"https://www.openstreetmap.org/node/5548850525"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-2.2402549,53.4784498]},"properties":{"name":"Chinatown","name:ur":"\u0686\u0627\u0626\u0646\u06c1 \u0679\u0627\u0624\u0646","name:zh":"\u66fc\u5f7b\u65af\u7279\u4e2d\u56fd\u57ce","place":"neighbourhood","wikidata":"Q5100147","wikipedia":"en:Chinatown, Manchester","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":5720774612,"osm_url":"https://www.openstreetmap.org/node/5720774612"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-114.0626107,51.0506542]},"properties":{"name":"Chinatown","place":"suburb","wikidata":"Q5100137","wikipedia":"en:Chinatown, Calgary","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":6806582774,"osm_url":"https://www.openstreetmap.org/node/6806582774"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.2358676,34.0638402]},"properties":{"name":"Chinatown","place":"suburb","wikidata":"Q2555601","wikipedia":"en:Chinatown, Los Angeles","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":7310117324,"osm_url":"https://www.openstreetmap.org/node/7310117324"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[147.0139793,-6.7320864]},"properties":{"name":"Chinatown","place":"suburb","wikidata":"Q16890356","wikipedia":"en:Chinatown, Lae","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":7399117535,"osm_url":"https://www.openstreetmap.org/node/7399117535"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-131.5903652,55.2719404]},"properties":{"name":"China Town","place":"locality","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":7681583394,"osm_url":"https://www.openstreetmap.org/node/7681583394"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[104.9368682,11.5524525]},"properties":{"name":"Chinatown","place":"locality","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":7683098206,"osm_url":"https://www.openstreetmap.org/node/7683098206"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-123.367073,48.4293774]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q5100158","wikipedia":"en:Chinatown, Victoria","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9170045649,"osm_url":"https://www.openstreetmap.org/node/9170045649"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.8301514,40.7595978]},"properties":{"name":"Flushing Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9173379599,"osm_url":"https://www.openstreetmap.org/node/9173379599"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.4712392,51.9209738]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9201688361,"osm_url":"https://www.openstreetmap.org/node/9201688361"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[124.068644,7.5941029]},"properties":{"admin_level":"10","admin_type:PH":"barangay","alt_name":"Poblacion","is_in:municipality":"Malabang","name":"China Town","place":"quarter","postal_code":"9300","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9215139806,"osm_url":"https://www.openstreetmap.org/node/9215139806"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[57.5065145,-20.158718]},"properties":{"name":"Chinatown","name:en":"Chinatown","name:fr":"Quartier chinois","place":"quarter","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9271987047,"osm_url":"https://www.openstreetmap.org/node/9271987047"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[159.9677674,-9.4357556]},"properties":{"name":"Chinatown","place":"quarter","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9736589356,"osm_url":"https://www.openstreetmap.org/node/9736589356"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.9975395,40.4371089]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":9895567912,"osm_url":"https://www.openstreetmap.org/node/9895567912"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.618161,39.2935003]},"properties":{"name":"Chinatown","place":"neighbourhood","wikipedia":"en:Chinatown, Baltimore","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":10286775225,"osm_url":"https://www.openstreetmap.org/node/10286775225"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.3526248,43.6654806]},"properties":{"name":"East Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":10772419232,"osm_url":"https://www.openstreetmap.org/node/10772419232"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.6775178,41.5089129]},"properties":{"alt_name":"Historic Chinatown","alt_name_2":"Historic Asiatown","name":"Old Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":10776967417,"osm_url":"https://www.openstreetmap.org/node/10776967417"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-83.0599862,42.344326]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":10874902389,"osm_url":"https://www.openstreetmap.org/node/10874902389"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-113.4910065,53.5508467]},"properties":{"name":"Chinatown North","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":11747317038,"osm_url":"https://www.openstreetmap.org/node/11747317038"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.3250774,47.5975121]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":12095983570,"osm_url":"https://www.openstreetmap.org/node/12095983570"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[19.1225409,47.480674]},"properties":{"name":"Monori Center Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":12227876463,"osm_url":"https://www.openstreetmap.org/node/12227876463"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-4.2615192,55.8693158]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"node","osm_id":13336316058,"osm_url":"https://www.openstreetmap.org/node/13336316058"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-0.1305842,51.5116661]},"properties":{"is_in":"London, UK","name":"Chinatown","name:ar":"\u0627\u0644\u062d\u064a \u0627\u0644\u0635\u064a\u0646\u064a","name:en":"Chinatown","name:zh":"\u502b\u6566\u83ef\u57e0","note:name:zh":"This is the version on the gates, except that they have it right to left. In other contexts, zhong guo cheng and tang ren jie are also used.","place":"suburb","wikidata":"Q1988417","wikipedia":"en:Chinatown, London","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":189773715,"osm_url":"https://www.openstreetmap.org/way/189773715"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-2.2407917,53.4782692]},"properties":{"name":"Chinatown","name:ur":"\u0686\u0627\u0626\u0646\u06c1 \u0679\u0627\u0624\u0646","name:zh":"\u66fc\u5f7b\u65af\u7279\u4e2d\u56fd\u57ce","place":"neighbourhood","wikidata":"Q5100147","wikipedia":"en:Chinatown, Manchester","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":382551738,"osm_url":"https://www.openstreetmap.org/way/382551738"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[144.9676286,-37.8118113]},"properties":{"name":"Chinatown","name:zh":"\u5510\u4eba\u8857","note":"There is no agreed-upon boundary of Melbourne's Chinatown on Little Bourke Street. The extent from the West Gate to the East Gate and half way in to each block north and south is a sensible compromise in the absence of a formal definition.","place":"neighbourhood","website":"https://chinatownmelbourne.com.au/","wikidata":"Q2461579","wikipedia":"en:Chinatown, Melbourne","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":525738401,"osm_url":"https://www.openstreetmap.org/way/525738401"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.900603,52.3732755]},"properties":{"area":"yes","name":"Chinatown","name:ko":"\ucc28\uc774\ub098 \ud0c0\uc6b4","name:nl":"Chinatown","place":"neighbourhood","source":"local knowledge","tourism":"attraction","wikidata":"Q1073613","wikimedia_commons":"Category:Chinatown, Amsterdam","wikipedia":"nl:Chinatown (Amsterdam)","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":585781666,"osm_url":"https://www.openstreetmap.org/way/585781666"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-4.2614209,55.8692405]},"properties":{"landuse":"retail","name":"Chinatown","name:zh":"\u4e2d\u570b\u57ce","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":605058054,"osm_url":"https://www.openstreetmap.org/way/605058054"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.3481091,43.6666424]},"properties":{"name":"East Chinatown","place":"neighbourhood","wikidata":"Q65084136","wikipedia":"en:East Chinatown, Toronto","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":677481104,"osm_url":"https://www.openstreetmap.org/way/677481104"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[115.8572765,-31.9490251]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q24089730","wikipedia":"en:Chinatown, Perth","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":900293216,"osm_url":"https://www.openstreetmap.org/way/900293216"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.6498797,36.6810237]},"properties":{"name":"Chinatown","place":"neighbourhood","source:geometry":"https://www.cityofsalinas.org/map/chinatown","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":992917289,"osm_url":"https://www.openstreetmap.org/way/992917289"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.5474202,29.7122416]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q5100139","wikipedia":"en:Chinatown, Houston","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":993113069,"osm_url":"https://www.openstreetmap.org/way/993113069"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[153.4133322,-27.9686607]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q16258122","wikipedia":"en:Chinatown, Gold Coast","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":994043246,"osm_url":"https://www.openstreetmap.org/way/994043246"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[125.618676,7.0754561]},"properties":{"name":"Chinatown","place":"neighbourhood","wikidata":"Q20984122","wikipedia":"en:Davao Chinatown","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":995317470,"osm_url":"https://www.openstreetmap.org/way/995317470"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.8414282,45.7543782]},"properties":{"name":"Chinatown","place":"neighbourhood","heritage":"Chinese (Chinatown)","heritage_slug":"chinese","osm_type":"way","osm_id":996515596,"osm_url":"https://www.openstreetmap.org/way/996515596"}}]},"enclave_japanese":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.4298089,37.7855789]},"properties":{"alt_name":"Nihonmachi","ele":"46","gnis:feature_id":"1655436","name":"Japantown","name:zh":"\u65e5\u672c\u57ce","place":"neighbourhood","wikidata":"Q6159207","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":140983070,"osm_url":"https://www.openstreetmap.org/node/140983070"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.2398899,34.0485055]},"properties":{"alt_name":"Little Tokyo Historic District","ele":"82","gnis:feature_id":"1732700","historic":"district","name":"Little Tokyo","place":"quarter","wikidata":"Q1780798","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":150974026,"osm_url":"https://www.openstreetmap.org/node/150974026"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.8942303,37.3489602]},"properties":{"alt_name:en":"Nihonmachi","name":"Japantown","name:en":"Japantown","name:ja":"\u65e5\u672c\u753a","name:zh":"\u65e5\u672c\u753a","place":"suburb","wikidata":"Q6159203","wikipedia":"en:Japantown, San Jose","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":286903523,"osm_url":"https://www.openstreetmap.org/node/286903523"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.3837023,43.6557242]},"properties":{"name":"Little Tokyo","place":"neighbourhood","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":5430214594,"osm_url":"https://www.openstreetmap.org/node/5430214594"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-123.0952274,49.2831869]},"properties":{"name":"Japantown","place":"neighbourhood","wikidata":"Q3232057","wikipedia":"en:Japantown, Vancouver","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":6916621801,"osm_url":"https://www.openstreetmap.org/node/6916621801"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.4424952,34.0395703]},"properties":{"name":"Sawtelle Japantown","place":"neighbourhood","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":9904929305,"osm_url":"https://www.openstreetmap.org/node/9904929305"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.3263676,47.6000413]},"properties":{"name":"Japantown","place":"neighbourhood","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"node","osm_id":11349187102,"osm_url":"https://www.openstreetmap.org/node/11349187102"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-120.6713085,35.2682122]},"properties":{"name":"Japantown","place":"neighbourhood","heritage":"Japanese (Japantown / Little Tokyo)","heritage_slug":"japanese","osm_type":"way","osm_id":859386637,"osm_url":"https://www.openstreetmap.org/way/859386637"}}]},"enclave_korean":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.305447,34.0617936]},"properties":{"alt_name":"Ktown","ele":"61","gnis:feature_id":"1732794","name":"Koreatown","name:en":"Koreatown","name:ko":"\ucf54\ub9ac\uc544\ud0c0\uc6b4","place":"suburb","population":"124281","tourism":"attraction","wikidata":"Q872664","wikipedia":"en:Koreatown, Los Angeles","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":150968103,"osm_url":"https://www.openstreetmap.org/node/150968103"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.4184157,43.6635564]},"properties":{"name":"Koreatown","place":"neighbourhood","wikidata":"Q6432096","wikipedia":"en:Koreatown, Toronto","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":622108347,"osm_url":"https://www.openstreetmap.org/node/622108347"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.2679082,37.8163018]},"properties":{"name":"Koreatown Northgate","old_name":"Northgate","place":"neighbourhood","short_name":"KONO","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":1214036355,"osm_url":"https://www.openstreetmap.org/node/1214036355"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9865157,40.7476419]},"properties":{"name":"Koreatown","name:ko":"\ucf54\ub9ac\uc544\ud0c0\uc6b4","name:ru":"\u041a\u043e\u0440\u0438\u0430\u0442\u0430\u0443\u043d","name:sr":"\u041a\u043e\u0440\u0435\u0458\u0441\u043a\u0430 \u0447\u0435\u0442\u0432\u0440\u0442","name:sr-Latn":"Korejska \u010detvrt","place":"neighbourhood","tourism":"yes","wikidata":"Q1321501","wikipedia":"en:Koreatown, Manhattan","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":2511053877,"osm_url":"https://www.openstreetmap.org/node/2511053877"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.9775388,33.7739014]},"properties":{"name":"Koreatown","place":"suburb","population":"124281","source:population":"DBpedia","wikidata":"Q872664","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":2759477967,"osm_url":"https://www.openstreetmap.org/node/2759477967"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-90.5592756,14.6307001]},"properties":{"name":"Korea Town","place":"neighbourhood","source":"KG Ground Survey 2015","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":3885116191,"osm_url":"https://www.openstreetmap.org/node/3885116191"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9980528,40.8475364]},"properties":{"name":"Koreatown","name:ko":"\ud330\ub9ac\uc138\uc774\uc988 \ud30c\ud06c \ucf54\ub9ac\uc544\ud0c0\uc6b4","place":"neighbourhood","wikidata":"Q6432093","wikipedia":"en:Koreatown, Palisades Park","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":7443812016,"osm_url":"https://www.openstreetmap.org/node/7443812016"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.1345513,33.9588735]},"properties":{"name":"Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":9254342607,"osm_url":"https://www.openstreetmap.org/node/9254342607"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-96.9100366,32.9858019]},"properties":{"name":"New Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":9254545324,"osm_url":"https://www.openstreetmap.org/node/9254545324"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[151.2078492,-33.8766464]},"properties":{"name":"Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":9254756562,"osm_url":"https://www.openstreetmap.org/node/9254756562"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9701111,40.8511953]},"properties":{"name":"Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":9254759596,"osm_url":"https://www.openstreetmap.org/node/9254759596"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.8082364,40.763792]},"properties":{"alt_name":"Long Island Koreatown","name":"Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":9254774992,"osm_url":"https://www.openstreetmap.org/node/9254774992"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[144.9558321,-37.8135368]},"properties":{"name":"Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"node","osm_id":13700867711,"osm_url":"https://www.openstreetmap.org/node/13700867711"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.1981368,38.8306725]},"properties":{"name":"Koreatown","place":"neighbourhood","heritage":"Korean (Koreatown)","heritage_slug":"korean","osm_type":"way","osm_id":1002823809,"osm_url":"https://www.openstreetmap.org/way/1002823809"}}]},"enclave_vietnamese":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.856017,37.3311452]},"properties":{"is_in:city":"San Jos\u00e9","is_in:country":"United States of America","is_in:county":"Santa Clara","is_in:state":"California","name":"Little Saigon","name:en":"Little Saigon","name:etymology":"Little Saigon","name:etymology:wikidata":"Q17034333","name:vi":"Ti\u1ec3u S\u00e0i G\u00f2n","name:vi-Hani":"\u5c0f\u67f4\u68cd","place":"neighbourhood","wikidata":"Q106428010","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":312702099,"osm_url":"https://www.openstreetmap.org/node/312702099"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.968351,33.7448252]},"properties":{"alt_name:vi":"Ti\u1ec3u S\u00e0i G\u00f2n;Little Saigon;S\u00e0i G\u00f2n Nh\u1ecf","description":"Little Saigon (hay Ti\u1ec3u S\u00e0i G\u00f2n, S\u00e0i G\u00f2n nh\u1ecf) th\u01b0\u1eddng ch\u1ec9 nh\u1eefng khu v\u1ef1c c\u00f3 nhi\u1ec1u ng\u01b0\u1eddi Vi\u1ec7t sinh s\u1ed1ng b\u00ean ngo\u00e0i l\u00e3nh th\u1ed5 Vi\u1ec7t Nam.Nh\u1eefng khu Little Saigon \u0111\u01b0\u1ee3c h\u00ecnh th\u00e0nh t\u1eeb nh\u1eefng l\u00e0n s\u00f3ng t\u1ecb n\u1ea1n di\u1ec5n ra sau khi k\u1ebft th\u00fac Chi\u1ebfn tranh Vi\u1ec7t Nam 30/04/1975","is_in:city":"Westminster;Garden Grove","name":"Little Saigon","name:en":"Little Saigon","name:etymology":"Saigon","name:etymology:wikidata":"Q27950398","name:vi":"Khu S\u00e0i G\u00f2n","place":"quarter","wikidata":"Q17034333","wikipedia":"en:Little Saigon, Orange County","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":1035809039,"osm_url":"https://www.openstreetmap.org/node/1035809039"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.3172378,47.5992042]},"properties":{"name":"Little Saigon","name:vi":"Saigon Nh\u1ecf","name:zh":"\u5c0f\u897f\u8ca2","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":3501216936,"osm_url":"https://www.openstreetmap.org/node/3501216936"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.09582,32.7555961]},"properties":{"name":"Little Saigon","name:en":"Little Saigon","name:vi":"S\u00e0i G\u00f2n Nh\u1ecf","place":"quarter","wikidata":"Q104858451","wikipedia":"en:Little Saigon, San Diego","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":9219087388,"osm_url":"https://www.openstreetmap.org/node/9219087388"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.5753898,29.7038745]},"properties":{"alt_name":"Vietnamtown","name":"Little Saigon","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":9220005759,"osm_url":"https://www.openstreetmap.org/node/9220005759"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1568983,39.9359474]},"properties":{"name":"Little Saigon","place":"neighbourhood","wikidata":"Q15242508","wikipedia":"en:Little Saigon, Philadelphia","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":9225238777,"osm_url":"https://www.openstreetmap.org/node/9225238777"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.4175879,37.7837955]},"properties":{"name":"Little Saigon","name:ko":"\ub9ac\ud2c0 \uc0ac\uc774\uace4","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":11903199260,"osm_url":"https://www.openstreetmap.org/node/11903199260"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-123.0799012,49.2520618]},"properties":{"name":"Little Saigon","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"node","osm_id":12330262274,"osm_url":"https://www.openstreetmap.org/node/12330262274"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.4175877,37.7837764]},"properties":{"name":"Little Saigon","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"way","osm_id":998479624,"osm_url":"https://www.openstreetmap.org/way/998479624"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.247102,37.7905264]},"properties":{"name":"Little Saigon","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"way","osm_id":998484446,"osm_url":"https://www.openstreetmap.org/way/998484446"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-105.025372,39.7039285]},"properties":{"name":"Little Saigon","place":"neighbourhood","heritage":"Vietnamese (Little Saigon)","heritage_slug":"vietnamese","osm_type":"way","osm_id":998486197,"osm_url":"https://www.openstreetmap.org/way/998486197"}}]},"enclave_thai":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.3048616,34.1018533]},"properties":{"name":"Thai Town","place":"neighbourhood","wikidata":"Q3519423","heritage":"Thai (Thaitown)","heritage_slug":"thai","osm_type":"node","osm_id":6806550834,"osm_url":"https://www.openstreetmap.org/node/6806550834"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[151.2070452,-33.8793467]},"properties":{"name":"Thai Town","name:en":"Thai Town","name:th":"\u0e44\u0e17\u0e22\u0e17\u0e32\u0e27\u0e19\u0e4c\u0e0b\u0e34\u0e14\u0e19\u0e35\u0e22\u0e4c","place":"neighbourhood","wikidata":"Q7709164","wikipedia":"en:Thai Town, Sydney","heritage":"Thai (Thaitown)","heritage_slug":"thai","osm_type":"node","osm_id":12558606172,"osm_url":"https://www.openstreetmap.org/node/12558606172"}}]},"enclave_south_asian":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.1240571,32.8957992]},"properties":{"name":"Little India","name:gu":"\u0ab2\u0abf\u0a9f\u0ab2 \u0a88\u0aa8\u0acd\u0aa1\u0abf\u0aaf\u0abe","name:hi":"\u0932\u093f\u091f\u093f\u0932 \u0907\u0902\u0921\u093f\u092f\u093e","name:ta":"\u0bb2\u0bbf\u0b9f\u0bcd\u0b9f\u0bbf\u0bb2\u0bcd \u0b87\u0ba8\u0bcd\u0ba4\u0bbf\u0baf\u0bbe","name:te":"\u0c32\u0c3f\u0c1f\u0c3f\u0c32\u0c4d \u0c07\u0c02\u0c21\u0c3f\u0c2f\u0c3e","name:ur":"\u0644\u0679\u0644 \u0627\u0646\u0688\u06cc\u0627","place":"neighbourhood","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":1257266312,"osm_url":"https://www.openstreetmap.org/node/1257266312"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[103.8517708,1.3080457]},"properties":{"name":"Little India","name:en":"Little India","name:ms":"Little India","name:ta":"\u0bb2\u0bbf\u0b9f\u0bcd\u0b9f\u0bbf\u0bb2\u0bcd \u0b87\u0ba8\u0bcd\u0ba4\u0bbf\u0baf\u0bbe","name:th":"\u0e25\u0e34\u0e15\u0e40\u0e15\u0e34\u0e25\u0e2d\u0e34\u0e19\u0e40\u0e14\u0e35\u0e22","name:zh":"\u5c0f\u5370\u5ea6","place":"quarter","wikidata":"Q2392844","wikimedia_commons":"Category:Little India, Singapore","wikipedia":"en:Little India, Singapore","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":2511045451,"osm_url":"https://www.openstreetmap.org/node/2511045451"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[100.339338,5.4171825]},"properties":{"addr:city":"George Town","addr:postcode":"10200","name":"Little India","name:th":"\u0e25\u0e34\u0e15\u0e40\u0e15\u0e34\u0e25\u0e2d\u0e34\u0e19\u0e40\u0e14\u0e35\u0e22","name:zh":"\u5c0f\u5370\u5ea6","place":"neighbourhood","tourism":"attraction","wheelchair":"limited","wheelchair:description":"The shops are mostly inaccessible but can get to experience the Indian culture from the road sides. There are some Indian snacks stalls at the road sides too. Better to have assistant though.","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":4206410706,"osm_url":"https://www.openstreetmap.org/node/4206410706"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[151.008968,-33.8224213]},"properties":{"name":"Little India","note":"See discussion at https://community.openstreetmap.org/t/complaints-about-little-india-neighbourhood-in-parramatta-sydney-nsw/129846","place":"neighbourhood","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":11343222058,"osm_url":"https://www.openstreetmap.org/node/11343222058"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.2954277,34.0690466]},"properties":{"name":"Little Bangladesh","place":"neighbourhood","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":11773258550,"osm_url":"https://www.openstreetmap.org/node/11773258550"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.6996453,41.9975823]},"properties":{"name":"Little India","place":"neighbourhood","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":12107039332,"osm_url":"https://www.openstreetmap.org/node/12107039332"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[103.8540525,1.3067831]},"properties":{"admin_level":"7","name":"Little India","name:ta":"\u0bb2\u0bbf\u0b9f\u0bcd\u0b9f\u0bbf\u0bb2\u0bcd \u0b87\u0ba8\u0bcd\u0ba4\u0bbf\u0baf\u0bbe","name:th":"\u0e25\u0e34\u0e15\u0e40\u0e15\u0e34\u0e25\u0e2d\u0e34\u0e19\u0e40\u0e14\u0e35\u0e22","name:zh":"\u5c0f\u5370\u5ea6","place":"neighbourhood","type":"boundary","wikidata":"Q2392844","wikipedia":"en:Little India","heritage":"South Asian (Little India)","heritage_slug":"south-asian","osm_type":"node","osm_id":13348031107,"osm_url":"https://www.openstreetmap.org/node/13348031107"}}]},"enclave_italian":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.7313648,41.4863313]},"properties":{"name":"Westside Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":105544263,"osm_url":"https://www.openstreetmap.org/node/105544263"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.6014232,39.2867718]},"properties":{"ele":"4","gnis:feature_id":"1707714","name":"Little Italy","place":"neighbourhood","wikidata":"Q3256694","wikipedia":"en:Little Italy, Baltimore","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":158356109,"osm_url":"https://www.openstreetmap.org/node/158356109"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-68.7022668,45.6489104]},"properties":{"ele":"126","gnis:feature_id":"578991","import_uuid":"bb7269ee-502a-5391-8056-e3ce0e66489c","is_in":"Penobscot,Maine,Maine,ME,USA","name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":158807034,"osm_url":"https://www.openstreetmap.org/node/158807034"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9982152,40.7192728]},"properties":{"alt_name:ru":"\u041c\u0430\u043b\u0435\u043d\u044c\u043a\u0430\u044f \u0418\u0442\u0430\u043b\u0438\u044f","ele":"11","gnis:feature_id":"2062660","name":"Little Italy","name:ko":"\ub9ac\ud2c0 \uc774\ud0c8\ub9ac\uc544","name:ru":"\u041b\u0438\u0442\u043b-\u0418\u0442\u0430\u043b\u0438","name:sr":"\u041c\u0430\u043b\u0430 \u0418\u0442\u0430\u043b\u0438\u0458\u0430","name:sr-Latn":"Mala Italija","place":"neighbourhood","wikidata":"Q201462","wikipedia":"en:Little Italy, Manhattan","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":158910289,"osm_url":"https://www.openstreetmap.org/node/158910289"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.8986639,37.3359545]},"properties":{"name":"Little Italy","old_name":"River Street","place":"neighbourhood","website":"https://www.littleitalysj.com/","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":315215252,"osm_url":"https://www.openstreetmap.org/node/315215252"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.1682733,32.723274]},"properties":{"name":"Little Italy","place":"quarter","wikidata":"Q963087","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":352766880,"osm_url":"https://www.openstreetmap.org/node/352766880"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.4148769,43.6552079]},"properties":{"name":"Little Italy","place":"neighbourhood","wikidata":"Q3125013","wikipedia":"en:Little Italy, Toronto","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":402289671,"osm_url":"https://www.openstreetmap.org/node/402289671"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[119.1359199,-32.656799]},"properties":{"name":"Little Italy","place":"locality","source":"Bing","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":2301007734,"osm_url":"https://www.openstreetmap.org/node/2301007734"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.7095522,45.4008798]},"properties":{"name":"Little Italy","name:fr":"Petite Italie","place":"neighbourhood","wikidata":"Q6650472","wikipedia":"en:Little Italy, Ottawa","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":3594848245,"osm_url":"https://www.openstreetmap.org/node/3594848245"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-72.6762272,41.7420358]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":4006770502,"osm_url":"https://www.openstreetmap.org/node/4006770502"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.656756,41.8694309]},"properties":{"name":"Little Italy","place":"quarter","wikidata":"Q1865650","wikipedia":"en:Little Italy, Chicago","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":6061066261,"osm_url":"https://www.openstreetmap.org/node/6061066261"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.5693215,39.7524091]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":6564253972,"osm_url":"https://www.openstreetmap.org/node/6564253972"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-83.0205924,42.3136288]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":7384241433,"osm_url":"https://www.openstreetmap.org/node/7384241433"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.0339708,43.0956558]},"properties":{"name":"Little Italy","place":"neighbourhood","wikipedia":"en:Little Italy, Niagara Falls, New York","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":7515865918,"osm_url":"https://www.openstreetmap.org/node/7515865918"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.0905294,42.1120067]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":7917535671,"osm_url":"https://www.openstreetmap.org/node/7917535671"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9386338,42.8167324]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":11159729177,"osm_url":"https://www.openstreetmap.org/node/11159729177"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.690222,42.7246953]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":11592929946,"osm_url":"https://www.openstreetmap.org/node/11592929946"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.5979282,41.5093189]},"properties":{"name":"Little Italy","place":"quarter","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":11702231214,"osm_url":"https://www.openstreetmap.org/node/11702231214"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-123.0696346,49.2696099]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":12530202085,"osm_url":"https://www.openstreetmap.org/node/12530202085"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.4484301,41.437697]},"properties":{"name":"Little Italy","place":"locality","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"node","osm_id":13904511706,"osm_url":"https://www.openstreetmap.org/node/13904511706"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[144.9668215,-37.8013887]},"properties":{"name":"Little Italy","name:it":"Little Italy","name:zh":"\u5c0f\u7fa9\u5927\u5229","note":"There is no agreed-upon boundary of Melbourne's Little Italy on Lygon Street. This simple rectangle along the Italian part of the street should be considered preliminary.","place":"neighbourhood","wikidata":"Q6650468","wikipedia":"en:Little Italy, Melbourne","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":549086140,"osm_url":"https://www.openstreetmap.org/way/549086140"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.1716313,32.7252169]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":693148404,"osm_url":"https://www.openstreetmap.org/way/693148404"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-120.6521236,35.266367]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":859384055,"osm_url":"https://www.openstreetmap.org/way/859384055"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.0903859,42.1117762]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":1074842502,"osm_url":"https://www.openstreetmap.org/way/1074842502"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-0.1097926,51.5234195]},"properties":{"name":"Little Italy","place":"neighbourhood","wikidata":"Q113168779","wikipedia":"en:Little Italy, London","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":1101298108,"osm_url":"https://www.openstreetmap.org/way/1101298108"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.5983062,41.5086888]},"properties":{"name":"Little Italy","place":"neighbourhood","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":1159061704,"osm_url":"https://www.openstreetmap.org/way/1159061704"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.2861329,33.733809]},"properties":{"name":"Little Italy","note":"The western part is the official area, designated by LA City Council File 18-0426. The eastern extension from Mesa Street to Harbor Boulevard is marked with blue \"Historic Little Italy\" street signs.","official_name":"Historic Little Italy","place":"neighbourhood","start_date":"2018-06-27","wikidata":"Q134506448","heritage":"Italian (Little Italy)","heritage_slug":"italian","osm_type":"way","osm_id":1385657050,"osm_url":"https://www.openstreetmap.org/way/1385657050"}}]},"enclave_greek":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.5543148,39.2856128]},"properties":{"name":"Greektown","place":"neighbourhood","wikidata":"Q5602122","wikipedia":"en:Greektown, Baltimore","heritage":"Greek (Greektown)","heritage_slug":"greek","osm_type":"node","osm_id":1285001470,"osm_url":"https://www.openstreetmap.org/node/1285001470"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.647605,41.8783768]},"properties":{"check_date":"2024-12-15","name":"Greektown","place":"neighbourhood","source":"http://en.wikipedia.org/wiki/Greektown,_Chicago","wikidata":"Q3116067","wikipedia":"en:Greektown, Chicago","heritage":"Greek (Greektown)","heritage_slug":"greek","osm_type":"node","osm_id":3238941161,"osm_url":"https://www.openstreetmap.org/node/3238941161"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.3489337,43.6779017]},"properties":{"name":"Greektown","note":"Added a marker for Greektown as the toponym was not to be found anywhere on the map.","place":"neighbourhood","wikidata":"Q9357917","wikipedia":"en:Greektown, Toronto","heritage":"Greek (Greektown)","heritage_slug":"greek","osm_type":"node","osm_id":6743958322,"osm_url":"https://www.openstreetmap.org/node/6743958322"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-83.0410476,42.3355269]},"properties":{"name":"Greektown","place":"neighbourhood","heritage":"Greek (Greektown)","heritage_slug":"greek","osm_type":"node","osm_id":7903531256,"osm_url":"https://www.openstreetmap.org/node/7903531256"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-123.1730476,49.2641834]},"properties":{"name":"Greektown","place":"neighbourhood","wikidata":"Q4179975","wikipedia":"en:Greektown, Vancouver","heritage":"Greek (Greektown)","heritage_slug":"greek","osm_type":"way","osm_id":969278023,"osm_url":"https://www.openstreetmap.org/way/969278023"}}]},"enclave_portuguese":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.8598424,37.3509298]},"properties":{"name":"Little Portugal","name:zh":"\u5c0f\u8461\u8404\u7259","note":"This is where the Little Portugal sign is sitting, forelorn, against a building\u2019s side wall","place":"suburb","wikidata":"Q1865753","wikipedia":"en:Little Portugal, San Jose","heritage":"Portuguese (Little Portugal)","heritage_slug":"portuguese","osm_type":"node","osm_id":3700417490,"osm_url":"https://www.openstreetmap.org/node/3700417490"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.4336204,43.6500829]},"properties":{"name":"Little Portugal","place":"neighbourhood","heritage":"Portuguese (Little Portugal)","heritage_slug":"portuguese","osm_type":"node","osm_id":12525079055,"osm_url":"https://www.openstreetmap.org/node/12525079055"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.2301771,32.7212205]},"properties":{"name":"Little Portugal","place":"neighbourhood","heritage":"Portuguese (Little Portugal)","heritage_slug":"portuguese","osm_type":"node","osm_id":13067855358,"osm_url":"https://www.openstreetmap.org/node/13067855358"}}]},"enclave_german":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1746799,40.0358445]},"properties":{"ele":"89","name":"Germantown","place":"neighbourhood","wikidata":"Q279890","wikipedia":"en:Germantown, Philadelphia","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":157589804,"osm_url":"https://www.openstreetmap.org/node/157589804"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.5455441,39.9206472]},"properties":{"ele":"253","gnis:feature_id":"1175561","name":"Germantown","place":"neighbourhood","wikidata":"Q30682736","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158253250,"osm_url":"https://www.openstreetmap.org/node/158253250"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.2910951,39.1709397]},"properties":{"ele":"127","gnis:feature_id":"1712614","name":"Germantown Estates","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158263526,"osm_url":"https://www.openstreetmap.org/node/158263526"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.2813726,39.1620511]},"properties":{"ele":"136","gnis:feature_id":"588705","name":"Old Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158325062,"osm_url":"https://www.openstreetmap.org/node/158325062"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.2733169,39.1764954]},"properties":{"ele":"146","gnis:feature_id":"1713199","name":"North Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158433275,"osm_url":"https://www.openstreetmap.org/node/158433275"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.7416588,38.6137328]},"properties":{"ele":"116","gnis:feature_id":"1495585","name":"Germantown","place":"locality","wikidata":"Q3476817","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158571569,"osm_url":"https://www.openstreetmap.org/node/158571569"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.2702613,39.1673289]},"properties":{"ele":"134","gnis:feature_id":"1712618","name":"Germantown View","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158576395,"osm_url":"https://www.openstreetmap.org/node/158576395"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.5230149,38.892614]},"properties":{"ele":"11","gnis:feature_id":"590295","name":"Germantown","place":"neighbourhood","wikidata":"Q5552002","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158583633,"osm_url":"https://www.openstreetmap.org/node/158583633"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.4585739,39.416774]},"properties":{"ele":"81","gnis:feature_id":"590296","name":"Germantown","place":"neighbourhood","wikidata":"Q14691929","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158587217,"osm_url":"https://www.openstreetmap.org/node/158587217"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.2649833,39.1617735]},"properties":{"ele":"118","gnis:feature_id":"1712616","name":"Germantown Park","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158619357,"osm_url":"https://www.openstreetmap.org/node/158619357"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-71.1542194,42.2625984]},"properties":{"ele":"45","gnis:feature_id":"612315","name":"Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":158843642,"osm_url":"https://www.openstreetmap.org/node/158843642"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-1.7462607,53.7941953]},"properties":{"name":"Little Germany","place":"quarter","wikidata":"Q6650151","wikipedia":"en:Little Germany, Bradford","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":5526269790,"osm_url":"https://www.openstreetmap.org/node/5526269790"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[145.9640795,-17.6367626]},"properties":{"gaz2012:ref":"QLD45700","name":"Germantown","place":"suburb","population":"52","population:date":"2021","source":"Gazetteer of Australia 2012","source:population":"wikipedia","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":6036337014,"osm_url":"https://www.openstreetmap.org/node/6036337014"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1829644,40.0363395]},"properties":{"name":"West Central Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":11297723905,"osm_url":"https://www.openstreetmap.org/node/11297723905"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1678604,40.024203]},"properties":{"name":"Southwest Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":11297904772,"osm_url":"https://www.openstreetmap.org/node/11297904772"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1724465,40.0314608]},"properties":{"name":"Germantown - Penn Knox","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":11297904774,"osm_url":"https://www.openstreetmap.org/node/11297904774"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1772845,40.026648]},"properties":{"name":"Germantown - Westside","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":11297904775,"osm_url":"https://www.openstreetmap.org/node/11297904775"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1644861,40.0478003]},"properties":{"name":"East Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":11297907531,"osm_url":"https://www.openstreetmap.org/node/11297907531"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.1751486,40.0437574]},"properties":{"ele":"86","name":"Germantown - Morton","place":"neighbourhood","wikidata":"Q15256384","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":11297907534,"osm_url":"https://www.openstreetmap.org/node/11297907534"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-83.7463416,42.2755856]},"properties":{"name":"Germantown","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":13769230333,"osm_url":"https://www.openstreetmap.org/node/13769230333"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[138.7716299,-35.0128834]},"properties":{"name":"Germantown Hill","place":"suburb","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"node","osm_id":13882261439,"osm_url":"https://www.openstreetmap.org/node/13882261439"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-86.7893707,36.1776313]},"properties":{"name":"Germantown Nashville, TN","place":"neighbourhood","heritage":"German (Germantown / Little Germany)","heritage_slug":"german","osm_type":"way","osm_id":684389959,"osm_url":"https://www.openstreetmap.org/way/684389959"}}]},"enclave_latino":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-67.503499,-29.1571508]},"properties":{"name":"Barrio Latino Americano","place":"neighbourhood","heritage":"Mexican / Latino","heritage_slug":"latino","osm_type":"node","osm_id":796677135,"osm_url":"https://www.openstreetmap.org/node/796677135"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-72.5005675,7.8890752]},"properties":{"name":"Barrio Latino","place":"neighbourhood","heritage":"Mexican / Latino","heritage_slug":"latino","osm_type":"node","osm_id":3158574838,"osm_url":"https://www.openstreetmap.org/node/3158574838"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.509226,27.5970144]},"properties":{"name":"Little Mexico","place":"neighbourhood","heritage":"Mexican / Latino","heritage_slug":"latino","osm_type":"node","osm_id":11021270648,"osm_url":"https://www.openstreetmap.org/node/11021270648"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-72.7832294,41.6601232]},"properties":{"name":"Barrio Latino","place":"suburb","source":"https://visitnbct.com/explore_new_britain/barrio-latino","heritage":"Mexican / Latino","heritage_slug":"latino","osm_type":"node","osm_id":11270612986,"osm_url":"https://www.openstreetmap.org/node/11270612986"}}]},"enclave_cuban":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.2334686,25.7681503]},"properties":{"ele":"3","gnis:feature_id":"2077915","name":"Little Havana","name:es":"Peque\u00f1a Habana","place":"neighbourhood","wikidata":"Q665413","wikipedia":"en:Little Havana","heritage":"Cuban (Little Havana)","heritage_slug":"cuban","osm_type":"node","osm_id":154125642,"osm_url":"https://www.openstreetmap.org/node/154125642"}}]},"enclave_ethiopian":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.3644199,34.0568295]},"properties":{"name":"Little Ethiopia","place":"neighbourhood","wikidata":"Q634624","heritage":"Ethiopian / East African","heritage_slug":"ethiopian","osm_type":"node","osm_id":9982480959,"osm_url":"https://www.openstreetmap.org/node/9982480959"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.0869869,32.749378]},"properties":{"alt_name":"Muqdisho Yar","name":"Little Mogadishu","name:so":"Muqdisho Yar (Little Mogadishu)","place":"neighbourhood","heritage":"Ethiopian / East African","heritage_slug":"ethiopian","osm_type":"node","osm_id":13067855359,"osm_url":"https://www.openstreetmap.org/node/13067855359"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.3643655,34.0569436]},"properties":{"name":"Little Ethiopia","place":"neighbourhood","heritage":"Ethiopian / East African","heritage_slug":"ethiopian","osm_type":"way","osm_id":1434528821,"osm_url":"https://www.openstreetmap.org/way/1434528821"}}]},"enclave_armenian":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.3044966,34.0981716]},"properties":{"name":"Little Armenia","place":"neighbourhood","wikidata":"Q1795364","heritage":"Armenian (Little Armenia)","heritage_slug":"armenian","osm_type":"node","osm_id":1830231457,"osm_url":"https://www.openstreetmap.org/node/1830231457"}}]},"enclave_arab":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.7687449,41.4619947]},"properties":{"ele":"234","gnis:feature_id":"1966430","name":"Little Arabia","place":"neighbourhood","heritage":"Arab / Maghrebi","heritage_slug":"arab","osm_type":"node","osm_id":154400128,"osm_url":"https://www.openstreetmap.org/node/154400128"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.9588615,33.8231043]},"properties":{"description":"Along Brookhurst Street between Broadway and Ball Road","name":"Little Arabia","note":"Officially designated by Anaheim City Council 2022-08-23","place":"neighbourhood","heritage":"Arab / Maghrebi","heritage_slug":"arab","osm_type":"node","osm_id":9989386233,"osm_url":"https://www.openstreetmap.org/node/9989386233"}}]},"enclave_persian":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.4417931,34.055292]},"properties":{"alt_name":"Little Persia","name":"Tehrangeles","place":"neighbourhood","wikidata":"Q1482230","wikipedia":"en:Tehrangeles","heritage":"Persian (Tehrangeles)","heritage_slug":"persian","osm_type":"node","osm_id":9980659421,"osm_url":"https://www.openstreetmap.org/node/9980659421"}}]},"enclave_polish":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-72.7884194,41.6731725]},"properties":{"name":"Little Poland","place":"suburb","source":"https://visitnbct.com/explore_new_britain/little_poland_new","heritage":"Polish (Little Poland)","heritage_slug":"polish","osm_type":"node","osm_id":11270612987,"osm_url":"https://www.openstreetmap.org/node/11270612987"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.7173329,41.9349606]},"properties":{"name":"Jackowo","name:pl":"Jackowo","place":"neighbourhood","heritage":"Polish (Little Poland)","heritage_slug":"polish","osm_type":"node","osm_id":12377305622,"osm_url":"https://www.openstreetmap.org/node/12377305622"}}]},"enclave_caribbean":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.1928254,25.8303748]},"properties":{"ele":"4","gnis:feature_id":"285455","name":"Little Haiti","place":"neighbourhood","population":"31822","wikidata":"Q2745589","wikipedia":"en:Little Haiti","heritage":"Caribbean","heritage_slug":"caribbean","osm_type":"node","osm_id":153890694,"osm_url":"https://www.openstreetmap.org/node/153890694"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.4427602,43.6972812]},"properties":{"is_in:city":"Toronto","name":"Little Jamaica","place":"neighbourhood","wikidata":"Q5348082","wikipedia":"en:Eglinton West","heritage":"Caribbean","heritage_slug":"caribbean","osm_type":"node","osm_id":5355329143,"osm_url":"https://www.openstreetmap.org/node/5355329143"}}]},"enclave_scandinavian":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.915923,40.8000082]},"properties":{"ele":"1287","name":"Swedetown","place":"locality","heritage":"Scandinavian / Nordic","heritage_slug":"scandinavian","osm_type":"node","osm_id":150947569,"osm_url":"https://www.openstreetmap.org/node/150947569"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.219353,48.4844171]},"properties":{"fixme":"Place type may not be valid","name":"Finntown","place":"locality","source":"NRCan-CanVec-10.0","heritage":"Scandinavian / Nordic","heritage_slug":"scandinavian","osm_type":"node","osm_id":3018517182,"osm_url":"https://www.openstreetmap.org/node/3018517182"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-2.6561594,56.6092251]},"properties":{"name":"Little Denmark","place":"locality","heritage":"Scandinavian / Nordic","heritage_slug":"scandinavian","osm_type":"node","osm_id":6329666313,"osm_url":"https://www.openstreetmap.org/node/6329666313"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.5487902,48.0843684]},"properties":{"name":"Finntown","note":"References come from newspapers, postcards, and other local mentions on Facebook.","place":"locality","heritage":"Scandinavian / Nordic","heritage_slug":"scandinavian","osm_type":"node","osm_id":9283894619,"osm_url":"https://www.openstreetmap.org/node/9283894619"}}]}};
+        </script>
+        <script>
+                const LAYER_SPECS = [
+  {
+    "id": "enclave_chinese",
+    "name": "enclave-chinese",
+    "title": "Chinese (Chinatown)",
+    "color": "#d32f2f",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 58,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_japanese",
+    "name": "enclave-japanese",
+    "title": "Japanese (Japantown / Little Tokyo)",
+    "color": "#ec407a",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 8,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_korean",
+    "name": "enclave-korean",
+    "title": "Korean (Koreatown)",
+    "color": "#5c6bc0",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 14,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_vietnamese",
+    "name": "enclave-vietnamese",
+    "title": "Vietnamese (Little Saigon)",
+    "color": "#00897b",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 11,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_thai",
+    "name": "enclave-thai",
+    "title": "Thai (Thaitown)",
+    "color": "#f9a825",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 2,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_south_asian",
+    "name": "enclave-south-asian",
+    "title": "South Asian (Little India)",
+    "color": "#f57c00",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 7,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_italian",
+    "name": "enclave-italian",
+    "title": "Italian (Little Italy)",
+    "color": "#2e7d32",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 27,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_greek",
+    "name": "enclave-greek",
+    "title": "Greek (Greektown)",
+    "color": "#0277bd",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 5,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_portuguese",
+    "name": "enclave-portuguese",
+    "title": "Portuguese (Little Portugal)",
+    "color": "#6a1b9a",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 3,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_german",
+    "name": "enclave-german",
+    "title": "German (Germantown / Little Germany)",
+    "color": "#455a64",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 22,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_latino",
+    "name": "enclave-latino",
+    "title": "Mexican / Latino",
+    "color": "#c2185b",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 4,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_cuban",
+    "name": "enclave-cuban",
+    "title": "Cuban (Little Havana)",
+    "color": "#00acc1",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 1,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_ethiopian",
+    "name": "enclave-ethiopian",
+    "title": "Ethiopian / East African",
+    "color": "#795548",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 3,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_armenian",
+    "name": "enclave-armenian",
+    "title": "Armenian (Little Armenia)",
+    "color": "#d84315",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 1,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_arab",
+    "name": "enclave-arab",
+    "title": "Arab / Maghrebi",
+    "color": "#558b2f",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 2,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_persian",
+    "name": "enclave-persian",
+    "title": "Persian (Tehrangeles)",
+    "color": "#8e24aa",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 1,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_polish",
+    "name": "enclave-polish",
+    "title": "Polish (Little Poland)",
+    "color": "#c62828",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 2,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_caribbean",
+    "name": "enclave-caribbean",
+    "title": "Caribbean",
+    "color": "#43a047",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 2,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  },
+  {
+    "id": "enclave_scandinavian",
+    "name": "enclave-scandinavian",
+    "title": "Scandinavian / Nordic",
+    "color": "#1e88e5",
+    "radius": 6,
+    "description_fields": [],
+    "feature_count": 4,
+    "geometry": "circle",
+    "weight": 1.5,
+    "magnitude_field": ""
+  }
+];
+
+        const BASEMAP_TILES = ["https://cartodb-basemaps-a.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png", "https://cartodb-basemaps-b.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png", "https://cartodb-basemaps-c.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png", "https://cartodb-basemaps-d.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png"];
+        const BASEMAP_ATTRIBUTION = "\u00a9 <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors \u00a9 <a href=\"https://carto.com/attributions\">CARTO</a>";
+
+        const map = new maplibregl.Map({
+          container: 'map',
+          style: {
+            version: 8,
+            sources: {
+              basemap: {
+                type: 'raster',
+                tiles: BASEMAP_TILES,
+                tileSize: 256,
+                attribution: BASEMAP_ATTRIBUTION
+              }
+            },
+            layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
+          },
+          center: [0.0, 25.0],
+          zoom: 1.6,
+          hash: true
+        });
+
+        // Normal paint: radius stays at spec.radius; clusters with
+        // point_count auto-scale a little so dense areas read bigger.
+        // Order property keys so a name-like field is listed first in popups.
+        function nameFirst(fields) {
+          const NK = ['name','primary_name','official_name','NAME','SITE_NAME',
+                      'FACILITY_NAME','title'];
+          const lead = NK.filter(k => fields.includes(k));
+          return [...lead, ...fields.filter(k => !lead.includes(k))];
+        }
+
+        // Earthquake styling: scale circle radius + colour by magnitude when a
+        // layer declares a magnitude_field; otherwise a flat dot.
+        function magExpr(spec, lo, mid, hi) {
+          const m = ['coalesce', ['to-number', ['get', spec.magnitude_field]], 0];
+          return ['interpolate', ['linear'], m, 4, lo, 6, mid, 8, hi];
+        }
+        function radiusExpr(spec) {
+          return spec.magnitude_field ? magExpr(spec, 3, 9, 22) : normalRadius(spec);
+        }
+        function colorExpr(spec) {
+          if (!spec.magnitude_field) return spec.color;
+          const m = ['coalesce', ['to-number', ['get', spec.magnitude_field]], 0];
+          return ['interpolate', ['linear'], m,
+            4, '#fee08b', 5, '#fdae61', 6, '#f46d43', 7, '#d73027', 8, '#a50026'];
+        }
+
+        function normalRadius(spec) {
+          return [
+            'case',
+            ['has', 'point_count'],
+            [
+              'interpolate', ['linear'], ['get', 'point_count'],
+              1, spec.radius,
+              10, spec.radius + 3,
+              100, spec.radius + 7,
+              1000, spec.radius + 12
+            ],
+            spec.radius
+          ];
+        }
+        // "Big dots" paint: inflate everything so it's obvious on a world map.
+        function bigRadius(spec) {
+          const r = Math.max(spec.radius * 2.5, 14);
+          return [
+            'case',
+            ['has', 'point_count'],
+            [
+              'interpolate', ['linear'], ['get', 'point_count'],
+              1, r,
+              10, r + 4,
+              100, r + 10,
+              1000, r + 16
+            ],
+            r
+          ];
+        }
+
+        let bigDotsOn = false;
+
+        map.on('load', () => {
+          for (const spec of LAYER_SPECS) {
+            const data = LAYER_DATA[spec.id];
+            if (!data) {
+              console.warn('save-earth: missing inlined data for', spec.id);
+              continue;
+            }
+            map.addSource(spec.id, { type: 'geojson', data });
+            if (spec.geometry === 'line') {
+              map.addLayer({
+                id: spec.id,
+                type: 'line',
+                source: spec.id,
+                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                paint: {
+                  'line-color': spec.color,
+                  'line-width': spec.weight || 1.5,
+                  'line-opacity': 0.85
+                }
+              });
+            } else {
+              map.addLayer({
+                id: spec.id,
+                type: 'circle',
+                source: spec.id,
+                paint: {
+                  'circle-radius': radiusExpr(spec),
+                  'circle-color': colorExpr(spec),
+                  'circle-stroke-width': 1,
+                  'circle-stroke-color': '#fff',
+                  'circle-opacity': 0.85
+                }
+              });
+            }
+            map.on('click', spec.id, (e) => {
+              const props = e.features[0].properties || {};
+              const fields = nameFirst(spec.description_fields.length
+                ? spec.description_fields
+                : Object.keys(props));
+              const rows = fields
+                .filter(k => props[k] !== undefined && props[k] !== null && props[k] !== '')
+                .map(k => `<tr><td class="k">${k}</td><td>${String(props[k])
+                    .replace(/&/g,'&amp;').replace(/</g,'&lt;')}</td></tr>`)
+                .join('');
+              const title = props.name || props.primary_name || props.SITE_NAME
+                || props.NAME || props.Name || props.FACILITY_NAME
+                || props.title || props.place || props.description || spec.title;
+              new maplibregl.Popup({ closeButton: true })
+                .setLngLat(e.lngLat)
+                .setHTML(`<h4>${title}</h4><table class="attrs">${rows}</table>`)
+                .addTo(map);
+            });
+            map.on('mouseenter', spec.id, () => map.getCanvas().style.cursor = 'pointer');
+            map.on('mouseleave', spec.id, () => map.getCanvas().style.cursor = '');
+          }
+
+          function applyRadius() {
+            for (const spec of LAYER_SPECS) {
+              if (spec.geometry === 'line') continue;  // no circle-radius on a line layer
+              map.setPaintProperty(
+                spec.id,
+                'circle-radius',
+                bigDotsOn ? bigRadius(spec) : radiusExpr(spec)
+              );
+            }
+          }
+
+          const panel = document.getElementById('panel');
+
+          // "Big dots" global toggle — applies to every layer, overrides radius.
+          const bigLabel = document.createElement('label');
+          bigLabel.style.borderBottom = '1px solid #ddd';
+          bigLabel.style.paddingBottom = '6px';
+          bigLabel.style.marginBottom = '4px';
+          bigLabel.style.fontWeight = '600';
+          const bigCb = document.createElement('input');
+          bigCb.type = 'checkbox';
+          bigCb.id = 'big-dots';
+          bigCb.addEventListener('change', () => {
+            bigDotsOn = bigCb.checked;
+            applyRadius();
+          });
+          bigLabel.appendChild(bigCb);
+          bigLabel.appendChild(document.createTextNode(' Big dots (any zoom)'));
+          panel.appendChild(bigLabel);
+
+          // Per-layer visibility toggles.
+          for (const spec of LAYER_SPECS) {
+            const label = document.createElement('label');
+            const cb = document.createElement('input');
+            cb.type = 'checkbox'; cb.checked = true;
+            cb.addEventListener('change', () => {
+              map.setLayoutProperty(
+                spec.id, 'visibility', cb.checked ? 'visible' : 'none'
+              );
+            });
+            const swatch = document.createElement('span');
+            swatch.className = 'swatch';
+            swatch.style.background = spec.color;
+            label.appendChild(cb);
+            label.appendChild(swatch);
+            label.appendChild(document.createTextNode(
+              `${spec.title} (${spec.feature_count.toLocaleString()})`
+            ));
+            panel.appendChild(label);
+          }
+
+          // --- Name search: type to fly to a matching feature + open its popup.
+          const sidx = [];
+          for (const spec of LAYER_SPECS) {
+            const data = LAYER_DATA[spec.id]; if (!data) continue;
+            for (const f of data.features) {
+              const p = f.properties || {};
+              const nm = p.name || p.primary_name || p.NAME || p.Name
+                || p.FACILITY_NAME || p.title || p.place || '';
+              // Lines (faults) have no single coordinate — anchor the popup at the
+              // geometry's first vertex so search still flies to it.
+              const g = f.geometry || {};
+              const c = g.type === 'Point' ? g.coordinates
+                : (g.type === 'LineString' ? g.coordinates[0]
+                : (g.type === 'MultiLineString' ? g.coordinates[0][0] : null));
+              if (nm && c) sidx.push({ name: nm,
+                sub: p.amenity || p['addr:city'] || p.operator || p.mag || '',
+                coords: c, props: p, spec });
+            }
+          }
+          function popupFor(o) {
+            const fields = nameFirst(o.spec.description_fields.length ? o.spec.description_fields : Object.keys(o.props));
+            const rows = fields
+              .filter(k => o.props[k] !== undefined && o.props[k] !== null && o.props[k] !== '')
+              .map(k => `<tr><td class="k">${k}</td><td>${String(o.props[k])
+                  .replace(/&/g,'&amp;').replace(/</g,'&lt;')}</td></tr>`).join('');
+            new maplibregl.Popup({ closeButton: true }).setLngLat(o.coords)
+              .setHTML(`<h4>${o.name}</h4><table class="attrs">${rows}</table>`).addTo(map);
+          }
+          const sbox = document.getElementById('vsearch'), sres = document.getElementById('vresults');
+          sbox.addEventListener('input', () => {
+            const q = sbox.value.trim().toLowerCase(); sres.innerHTML = '';
+            if (q.length < 2) return;
+            const hits = sidx.filter(x => x.name.toLowerCase().includes(q)).slice(0, 12);
+            for (const h of hits) {
+              const d = document.createElement('div');
+              d.innerHTML = `${h.name}` + (h.sub ? ` <span class="sub">${h.sub}</span>` : '');
+              d.addEventListener('click', () => {
+                map.flyTo({ center: h.coords, zoom: 13 });
+                sres.innerHTML = ''; sbox.value = h.name; popupFor(h);
+              });
+              sres.appendChild(d);
+            }
+          });
+          document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search')) sres.innerHTML = '';
+          });
+        });
+
+        </script>
+        </body>
+        </html>
