@@ -7,6 +7,8 @@
  .panel{position:absolute;top:10px;left:10px;z-index:2;background:#fff;padding:12px 14px;border-radius:8px;
   box-shadow:0 1px 6px rgba(0,0,0,.3);font:14px/1.4 system-ui,sans-serif;max-width:340px}
  .panel h1{font-size:15px;margin:0 0 6px} .panel p{margin:0 0 8px;color:#555;font-size:12px}
+ .panel .note{margin:8px 0 0;padding:6px 8px;background:#fff8e1;border-left:3px solid #f6c343;
+  color:#5d4b00;font-size:11px;line-height:1.35;border-radius:3px}
  select{width:100%;padding:6px;font-size:14px}
  .legend{position:absolute;bottom:24px;left:10px;z-index:2;background:#fff;padding:8px 10px;border-radius:8px;
   box-shadow:0 1px 6px rgba(0,0,0,.3);font:12px system-ui,sans-serif}
@@ -17,7 +19,7 @@
  .attribution a{color:#1565c0;text-decoration:none}
 </style></head><body>
 <div id="map"></div>
-<div class="panel"><h1>World disease burden by country</h1><p>Chronic (diabetes / NCD mortality) + infectious (COVID-19 / HIV / measles). Pick a metric:</p><select id="metric"></select></div>
+<div class="panel"><h1>World disease burden by country</h1><p>Chronic (diabetes / NCD mortality) + infectious (COVID-19 / HIV / measles). Pick a metric:</p><select id="metric"></select><div class="note"><b>Where data is missing (grey):</b> Per-cause cancer / stroke / Alzheimer's case &amp; death data isn't openly available worldwide, so this shows the non-communicable-disease burden (which spans those) plus COVID/HIV/measles where countries report to WHO. Grey countries have no estimate for the selected metric (HIV and measles are missing for the ~40–90 countries that don't report).</div></div>
 <div class="legend" id="legend"></div>
 <div class="attribution">Data: <a href="https://ourworldindata.org/grapher/diabetes-prevalence">OWID / World Bank</a> (diabetes, 2024) &amp; <a href="https://www.who.int/data/gho">WHO GHO</a> (NCD 2021, HIV 2024, measles 2024) &amp; <a href="https://data.who.int/dashboards/covid19">WHO COVID-19</a> (cumulative deaths). Premature NCD = cancer + cardiovascular + diabetes + chronic respiratory. Geometry: Natural Earth. Built by an FFL workflow on <a href="https://github.com/rlemke/facetwork">Facetwork</a> (<a href="https://github.com/rlemke/fwh_health">fwh_health</a>).</div>
 <script>

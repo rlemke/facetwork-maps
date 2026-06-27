@@ -7,6 +7,8 @@
  .panel{position:absolute;top:10px;left:10px;z-index:2;background:#fff;padding:12px 14px;border-radius:8px;
   box-shadow:0 1px 6px rgba(0,0,0,.3);font:14px/1.4 system-ui,sans-serif;max-width:340px}
  .panel h1{font-size:15px;margin:0 0 6px} .panel p{margin:0 0 8px;color:#555;font-size:12px}
+ .panel .note{margin:8px 0 0;padding:6px 8px;background:#fff8e1;border-left:3px solid #f6c343;
+  color:#5d4b00;font-size:11px;line-height:1.35;border-radius:3px}
  select{width:100%;padding:6px;font-size:14px}
  .legend{position:absolute;bottom:24px;left:10px;z-index:2;background:#fff;padding:8px 10px;border-radius:8px;
   box-shadow:0 1px 6px rgba(0,0,0,.3);font:12px system-ui,sans-serif}
@@ -17,7 +19,7 @@
  .attribution a{color:#1565c0;text-decoration:none}
 </style></head><body>
 <div id="map"></div>
-<div class="panel"><h1>US disease burden by state</h1><p>Death rates (NCHS 2017 + COVID) + flu activity (FluView). Each metric has its own scale — pick one:</p><select id="metric"></select></div>
+<div class="panel"><h1>US disease burden by state</h1><p>Death rates (NCHS 2017 + COVID) + flu activity (FluView). Each metric has its own scale — pick one:</p><select id="metric"></select><div class="note"><b>Where data is missing (grey):</b> Chronic death rates are 2017 (NCHS's latest Leading-Causes release); COVID is cumulative 2020–23; flu is the 2023–24 season activity index (a surveillance intensity, not deaths). Alzheimer's has no prevalence estimate anywhere, so it appears only here, on the deaths side.</div></div>
 <div class="legend" id="legend"></div>
 <div class="attribution">Data: <a href="https://data.cdc.gov/resource/bi63-dtpu">CDC NCHS</a> (chronic, 2017) + <a href="https://data.cdc.gov/resource/kn79-hsxy">CDC COVID-19 deaths</a> (cumulative 2020–23) + <a href="https://data.cdc.gov/resource/6svj-q4zv">CDC FluView ILINet</a> (peak activity, 2023-2024). Geometry: US Census TIGER. Built by an FFL workflow on <a href="https://github.com/rlemke/facetwork">Facetwork</a> (<a href="https://github.com/rlemke/fwh_health">fwh_health</a>).</div>
 <script>
