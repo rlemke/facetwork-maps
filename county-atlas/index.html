@@ -1,23 +1,12 @@
-<div class="app"><style>
-:root{--g:#eef1ec;--p:#f7f9f6;--i:#18211c;--i2:#4a5a51;--l:#d3dbd4;--a:#0f6b5c;--c:#fff}
-@media(prefers-color-scheme:dark){:root{--g:#0d1411;--p:#131b17;--i:#e4ebe5;--i2:#8ea298;--l:#25322b;--a:#3fb39c;--c:#17211c}}
-:root[data-theme=dark]{--g:#0d1411;--p:#131b17;--i:#e4ebe5;--i2:#8ea298;--l:#25322b;--a:#3fb39c;--c:#17211c}
-:root[data-theme=light]{--g:#eef1ec;--p:#f7f9f6;--i:#18211c;--i2:#4a5a51;--l:#d3dbd4;--a:#0f6b5c;--c:#fff}
-*{box-sizing:border-box}.app{background:var(--g);color:var(--i);min-height:100vh;font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:44px}
-.h{padding:24px 28px;border-bottom:1px solid var(--l);background:var(--p)}.k{font:600 11px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--i2)}
-.t{font-size:28px;font-weight:680;letter-spacing:-.02em;margin-top:6px}.t span{color:var(--a)}
-.w{max-width:920px;margin:0 auto;padding:24px 28px}
-.full{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--c);border:1px solid var(--l);border-left:3px solid var(--a);border-radius:9px;padding:14px 16px;margin-bottom:22px}
-.full b{font-size:15px}.full .u{font:600 12px/1.4 ui-monospace,monospace;color:var(--a);word-break:break-all}.full .d{color:var(--i2);font-size:13px;width:100%}
-.lbl{font:600 10px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--i2);margin:0 0 12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-a{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:var(--i);background:var(--c);border:1px solid var(--l);border-radius:10px;padding:14px 15px}
-a:hover{border-color:var(--a)}.tg{font:600 10px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--a)}
-.nm{font-weight:640;font-size:15px}.sz{font:500 11px/1 ui-monospace,monospace;color:var(--i2)}
-</style><div class="h"><div class="k">County Atlas</div><div class="t">US County Atlas <span>&mdash; examples</span></div></div>
-<div class="w">
-<div class="full"><b>Full archive:</b> all <b>3,167</b> US counties &mdash;
-<span class="u">http://server3.local:9000/osm-extracts/county-atlas/index.html</span>
-<span class="d">The complete set (7&nbsp;GB) &mdash; including the large urban counties (Santa Clara, Harris, Los Angeles&hellip;) that are too big to host here &mdash; is served from the object store on the local network. The four below are compact rural examples. Each is an 83-layer interactive atlas (OSM + Census / CDC / FEMA / EPA / USGS / NOAA / HUD + calculated indicators) with zoom, layer toggles, and clickable points.</span></div>
-<div class="lbl">Example counties</div>
-<div class="grid"><a href="oregon/coos/index.html"><span class="tg">Medium &middot; coastal rural</span><span class="nm">Coos County, OR</span><span class="sz">1 MB</span></a><a href="colorado/san-juan/index.html"><span class="tg">Small &middot; mountain</span><span class="nm">San Juan County, CO</span><span class="sz">1 MB</span></a><a href="texas/loving/index.html"><span class="tg">Small &middot; least-populous US county</span><span class="nm">Loving County, TX</span><span class="sz">1 MB</span></a><a href="montana/petroleum/index.html"><span class="tg">Tiny &middot; rural</span><span class="nm">Petroleum County, MT</span><span class="sz">1 MB</span></a></div></div></div>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>County Atlas maps</title>
+<style>body{font-family:system-ui,sans-serif;max-width:42rem;margin:3rem auto;padding:0 1rem;line-height:1.6}h1{font-size:1.5rem}h2{font-size:1.1rem;margin:1.4rem 0 .3rem}h2 a{color:#222;text-decoration:none}h2 a:hover{text-decoration:underline}a{color:#0645ad;text-decoration:none}a:hover{text-decoration:underline}li{margin:.35rem 0}p.desc{color:#444;margin:.2rem 0 1.1rem;font-size:.97rem}</style>
+</head><body>
+<h1>County Atlas maps</h1>
+<ul>
+  <li><a href="oregon/coos/index.html">Coos County, Oregon — county atlas</a></li>
+</ul>
+<p style="color:#888;font-size:.85rem;margin-top:1.5rem">Published from Facetwork.</p>
+</body></html>
