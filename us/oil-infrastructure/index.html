@@ -67,11 +67,13 @@ const ngLayer = L.geoJSON(B.ng_pipes,{
   style:{color:'#4fc3f7',weight:0.6,opacity:0.5}, interactive:false
 });
 
-// refineries (circles sized by atmospheric-distillation capacity, Mbpd)
+// refineries — circle AREA proportional to crude-distillation capacity
+// (radius = k·√capacity, the cartographically correct proportional symbol).
+const CAP_K = 0.9;  // px per √Mbbl/day; max 639.7 → ~22.7px, median 110 → ~9.4px
 const refLayer = L.geoJSON(B.refineries,{
   pointToLayer:(f,ll)=>{const cap=+f.properties.AD_Mbpd||0;
-    return L.circleMarker(ll,{radius:Math.max(3,Math.sqrt(cap)/2.2),
-      fillColor:'#ff5252',color:'#fff',weight:0.7,fillOpacity:0.85});},
+    return L.circleMarker(ll,{radius:Math.max(2.5,CAP_K*Math.sqrt(cap)),
+      fillColor:'#ff5252',color:'#fff',weight:0.7,fillOpacity:0.8});},
   onEachFeature:(f,l)=>{const p=f.properties;
     l.bindTooltip(`<b>${p.Company||'Refinery'}</b><br>${p.Site||''}, ${p.State||''}`
       +`<br><span style="color:#8a93a6">${p.AD_Mbpd? p.AD_Mbpd.toLocaleString()+' Mbbl/day crude capacity':''}</span>`,{sticky:true});}
@@ -98,4 +100,20 @@ lg.onAdd=function(){const d=L.DomUtil.create('div','legend');
     +`<span class="sw" style="border-top-color:#4fc3f7"></span>natural-gas pipeline (toggle)`;
   return d;};
 lg.addTo(map);
+
+// graduated-circle legend for refinery capacity (area-proportional, same k)
+const cap=L.control({position:'bottomleft'});
+cap.onAdd=function(){const d=L.DomUtil.create('div','legend');
+  const vals=[600,300,100];
+  const R=v=>CAP_K*Math.sqrt(v);
+  const maxR=R(vals[0]), W=maxR*2+12, H=maxR*2+22;
+  let circ='', lab='';
+  vals.forEach(v=>{const r=R(v), cx=W/2, cy=H-6-r;
+    circ+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ff8a8a" stroke-width="1"/>`;
+    lab+=`<line x1="${cx}" y1="${cy-r}" x2="${W-2}" y2="${cy-r}" stroke="#4a5164" stroke-width="0.5"/>`
+        +`<text x="${W}" y="${cy-r+3}" font-size="10" fill="#c9d2e3">${v}</text>`;});
+  d.innerHTML=`<b>Refinery capacity</b><br><span style="color:#8a93a6;font-size:10px">Mbbl/day crude · circle area ∝ capacity</span>`
+    +`<svg width="${W+34}" height="${H}" style="display:block;margin-top:4px;overflow:visible">${circ}${lab}</svg>`;
+  return d;};
+cap.addTo(map);
 </script></body></html>
