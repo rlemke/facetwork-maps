@@ -48,18 +48,23 @@ const priceLayer = L.geoJSON(B.states,{
       +`<span style="color:#8a93a6">${p.psrc||''}</span>`,{sticky:true});}
 }).addTo(map);
 
-// oil / gas producing areas (polygons), colored by predominant product
+// producing areas (EIA tight-oil / shale-gas plays), split into separate
+// toggleable layers by predominant product so natural-gas areas stand alone.
 const PTC={oil:'#3a9e5c', gas:'#e04b3a', mixed:'#9b6dd0'};
-const PTL={oil:'oil (tight oil)', gas:'gas (shale gas)', mixed:'mixed / undesignated'};
-const fieldLayer = L.geoJSON(B.fields,{
-  style:f=>{const c=PTC[f.properties.ptype]||PTC.mixed;
-    return {color:c,weight:0.8,fillColor:c,fillOpacity:0.32};},
-  onEachFeature:(f,l)=>{const t=f.properties.ptype||'mixed', mn=f.properties.mnote;
-    l.bindTooltip(`<b>${f.properties.Shale_play||'play'}</b><br>`
-    +`<span style="color:${PTC[t]}">${PTL[t]}</span>`
-    +(t==='mixed'&&mn?`<br><span style="color:#8a93a6;font-size:11px">${mn}</span>`:'')
-    +`<br><span style="color:#8a93a6">${f.properties.Basin||''} basin</span>`,{sticky:true});}
-});
+const PTL={oil:'oil (tight oil)', gas:'natural gas (shale gas)', mixed:'mixed / undesignated'};
+function areaLayer(kind){
+  const fc={type:'FeatureCollection',
+    features:B.fields.features.filter(f=>(f.properties.ptype||'mixed')===kind)};
+  return L.geoJSON(fc,{
+    style:{color:PTC[kind],weight:0.8,fillColor:PTC[kind],fillOpacity:0.32},
+    onEachFeature:(f,l)=>{const mn=f.properties.mnote;
+      l.bindTooltip(`<b>${f.properties.Shale_play||'play'}</b><br>`
+      +`<span style="color:${PTC[kind]}">${PTL[kind]}</span>`
+      +(kind==='mixed'&&mn?`<br><span style="color:#8a93a6;font-size:11px">${mn}</span>`:'')
+      +`<br><span style="color:#8a93a6">${f.properties.Basin||''} basin</span>`,{sticky:true});}
+  });
+}
+const oilAreas=areaLayer('oil').addTo(map), gasAreas=areaLayer('gas').addTo(map), mixedAreas=areaLayer('mixed').addTo(map);
 
 // crude-oil pipelines (lines)
 const pipeLayer = L.geoJSON(B.pipes,{
@@ -88,7 +93,9 @@ const refLayer = L.geoJSON(B.refineries,{
 L.control.layers(null,{
   '⛽ Gas price by state':priceLayer,
   '🛢️ Refineries (sized by capacity)':refLayer,
-  '🟢🔴 Oil vs gas producing areas':fieldLayer,
+  '🟢 Oil producing areas':oilAreas,
+  '🔴 Natural-gas producing areas':gasAreas,
+  '🟣 Mixed / undesignated areas':mixedAreas,
   '➖ Crude-oil pipelines':pipeLayer,
   '🔵 Natural-gas pipelines (heavy)':ngLayer
 },{collapsed:false}).addTo(map);
