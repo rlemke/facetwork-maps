@@ -1,0 +1,554 @@
+        <!doctype html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <title>save-earth map — scenic-historic-roads-africa</title>
+          <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+          <style>html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system,
+  BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+#map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
+.panel {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  background: rgba(255,255,255,0.95); border-radius: 6px;
+  padding: 10px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  max-width: 260px; font-size: 13px;
+}
+.panel h3 { margin: 0 0 6px; font-size: 14px; }
+.info {
+  position: absolute; top: 10px; left: 10px; z-index: 5;
+  background: rgba(255,255,255,0.95); border-radius: 6px;
+  padding: 10px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  max-width: 300px; font-size: 12px; line-height: 1.4;
+}
+.info h3 { margin: 0 0 5px; font-size: 14px; }
+.info p { margin: 0; color: #444; }
+.panel label { display: block; margin: 4px 0; cursor: pointer; }
+.panel .swatch {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  vertical-align: middle; margin-right: 6px;
+}
+.ptlegend {
+  position: absolute; bottom: 10px; right: 10px; z-index: 5;
+  background: rgba(255,255,255,0.95); border-radius: 6px;
+  padding: 8px 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 12px;
+}
+.ptlegend b { display: block; margin-bottom: 4px; font-size: 13px; }
+.ptlegend .row { display: flex; align-items: center; margin: 2px 0; }
+.ptlegend .dot {
+  display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  margin-right: 7px; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+}
+.search { position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 6; width: 290px; max-width: 70%; }
+.search input { width: 100%; box-sizing: border-box; padding: 7px 11px;
+  border: 1px solid #aaa; border-radius: 6px; font-size: 13px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.search .results { background: #fff; border-radius: 0 0 6px 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2); max-height: 240px; overflow: auto; }
+.search .results div { padding: 6px 11px; cursor: pointer; font-size: 12px;
+  border-top: 1px solid #f0f0f0; }
+.search .results div:hover { background: #f3f3f3; }
+.search .results .sub { color: #888; }
+.maplibregl-popup-content { max-width: 340px; font-size: 12px; }
+.maplibregl-popup-content h4 { margin: 0 0 4px; font-size: 13px; }
+table.attrs { border-collapse: collapse; margin-top: 4px; }
+table.attrs td { padding: 1px 8px 1px 0; vertical-align: top; }
+table.attrs td.k { font-weight: 600; color: #555; white-space: nowrap; }
+.attribution {
+  position: absolute; bottom: 10px; left: 10px; z-index: 5;
+  background: rgba(255,255,255,0.92); border-radius: 6px;
+  padding: 6px 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  font-size: 11px; color: #444; max-width: 360px;
+}
+.attribution a { color: #1565c0; text-decoration: none; }
+.attribution a:hover { text-decoration: underline; }
+.attribution code { background: #f0f0f0; padding: 0 3px; border-radius: 3px; }
+.infobtn { margin-top: 8px; width: 100%; padding: 7px; font-size: 13px;
+  cursor: pointer; background: #fff8e1; border: 1px solid #f6c343;
+  border-radius: 4px; color: #5d4b00; }
+.infobtn:hover { background: #fff2c4; }
+.modal { position: absolute; inset: 0; z-index: 10;
+  background: rgba(0,0,0,.45); display: flex; align-items: center;
+  justify-content: center; }
+.modalcard { background: #fff; max-width: 460px; margin: 16px;
+  padding: 18px 20px 20px; border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.4); position: relative;
+  font: 13px/1.5 system-ui, sans-serif; max-height: 80vh; overflow: auto; }
+.modalcard h2 { margin: 0 0 8px; font-size: 16px; }
+.modalbody { color: #333; }
+.modalbody b { color: #111; }
+.modalbody p { margin: 0 0 10px; }
+.modalbody a { color: #1565c0; text-decoration: none; }
+.modalbody a:hover { text-decoration: underline; }
+.modalbody code { background: #f0f0f0; padding: 0 3px; border-radius: 3px; }
+.modalclose { position: absolute; top: 6px; right: 10px; border: none;
+  background: none; font-size: 24px; line-height: 1; cursor: pointer;
+  color: #999; }
+.modalclose:hover { color: #444; }
+</style>
+        </head>
+        <body>
+        <div id="map"></div>
+        <div class="search"><input id="vsearch" placeholder="Find by name…" autocomplete="off">
+          <div class="results" id="vresults"></div></div>
+        <div class="info"><p>Scenic and historic roads from OpenStreetMap. Toggle each layer with the checkboxes; click a dot, or anywhere along a route, for its details. Each layer unions the DESIGNATED routes (route relations carrying a network tag - US state scenic-byway networks, US:NHT National Historic Trail auto-tour routes, US:auto_trail) with the per-way tags scenic=yes and historic=*. Coverage is crowd-sourced and very uneven BETWEEN CONTINENTS: the scenic-byway network convention is essentially North American (OSM has no scenic-road route type at scale - route=scenic_route is 3 relations worldwide), while roman_road and hollow_way are essentially European. A road absent from a layer is untagged, not un-scenic and not un-historic. Geometry is simplified by about 33 m, under one pixel at these zooms.</p></div>
+        <div class="panel" id="panel">
+          <h3>Layers</h3>
+        </div>
+        <div class="ptlegend"><b>Legend</b><div class="row"><span class="dot" style="background:#1b9e77"></span>Scenic roads (5)</div><div class="row"><span class="dot" style="background:#b2182b"></span>Historic roads &amp; routes (53)</div></div>
+        <div class="attribution">Generated by Facetwork workflow <code>save_earth.workflows.BuildScenicHistoricRoadsMap</code> &middot; <a href="https://github.com/rlemke/fwh_save_earth/blob/main/src/save_earth/ffl/save_earth.ffl" target="_blank" rel="noopener">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_save_earth" target="_blank" rel="noopener">source repo</a> &middot; generated 2026-08-28 14:07 UTC</div>
+        <div id="infomodal" class="modal"><div class="modalcard">
+          <button id="infoclose" class="modalclose">&times;</button>
+          <h2>About this data</h2>
+          <div class="modalbody"><p>Scenic and historic roads from OpenStreetMap. Toggle each layer with the checkboxes; click a dot, or anywhere along a route, for its details. Each layer unions the DESIGNATED routes (route relations carrying a network tag - US state scenic-byway networks, US:NHT National Historic Trail auto-tour routes, US:auto_trail) with the per-way tags scenic=yes and historic=*. Coverage is crowd-sourced and very uneven BETWEEN CONTINENTS: the scenic-byway network convention is essentially North American (OSM has no scenic-road route type at scale - route=scenic_route is 3 relations worldwide), while roman_road and hollow_way are essentially European. A road absent from a layer is untagged, not un-scenic and not un-historic. Geometry is simplified by about 33 m, under one pixel at these zooms.</p><p><b>Source &amp; provenance:</b><br>Generated by Facetwork workflow <code>save_earth.workflows.BuildScenicHistoricRoadsMap</code> &middot; <a href="https://github.com/rlemke/fwh_save_earth/blob/main/src/save_earth/ffl/save_earth.ffl" target="_blank" rel="noopener">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_save_earth" target="_blank" rel="noopener">source repo</a> &middot; generated 2026-08-28 14:07 UTC</p><p style="font-size:11px;color:#777">Basemap: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors</p></div>
+        </div></div>
+        <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+        <script>
+        const LAYER_DATA = {"scenic_historic_roads__scenic_historic_roads_africa_geojson":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.67856,28.2141],[-16.67253,28.21479],[-16.66989,28.21599],[-16.66087,28.21288],[-16.65698,28.2108],[-16.65357,28.21096],[-16.64326,28.20997],[-16.63338,28.21146],[-16.63166,28.21215],[-16.62984,28.21209],[-16.62833,28.21313],[-16.62599,28.21698],[-16.6277,28.21832],[-16.62858,28.22319]]},"properties":{"osm_id":"way/25709644","road_kind":"scenic","name":"TF-21","segments":1,"highway":"primary","scenic":"yes","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.50353,16.02588],[-16.49874,16.02567]]},"properties":{"osm_id":"way/25779032","road_kind":"historic","name":"Pont Faidherbe","segments":1,"highway":"tertiary","historic":"yes","surface":"concrete","wikipedia":"fr:Pont Faidherbe"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.63338,16.14426],[38.64036,16.15181]]},"properties":{"osm_id":"way/29178211","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.1393,12.88969],[23.13834,12.89087],[23.13688,12.8948],[23.13521,12.89637]]},"properties":{"osm_id":"way/29228069","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0629 - \u0646\u064a\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.52587,28.1435],[-16.52578,28.14357]]},"properties":{"osm_id":"way/50402920","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[30.14188,-27.34533],[30.1418,-27.34513]]},"properties":{"osm_id":"way/53260032","road_kind":"historic","segments":1,"highway":"track","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.75939,28.1765],[-16.76057,28.17782],[-16.76003,28.17905]]},"properties":{"osm_id":"way/80932280","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.62228,28.25457],[-16.61985,28.25536],[-16.6184,28.25636],[-16.61789,28.2582],[-16.61569,28.25889],[-16.61517,28.2597],[-16.61409,28.25947],[-16.61216,28.25762],[-16.60823,28.25941],[-16.60647,28.25951],[-16.60522,28.25884],[-16.60103,28.25978],[-16.59942,28.25904],[-16.59814,28.25925],[-16.59709,28.26014],[-16.59649,28.26159],[-16.59462,28.26031],[-16.59337,28.26032],[-16.59213,28.26272],[-16.58576,28.26816],[-16.58205,28.26915],[-16.57993,28.27126],[-16.57949,28.27388],[-16.5805,28.27469],[-16.5805,28.27524],[-16.57704,28.27626],[-16.57622,28.27739],[-16.57707,28.2795],[-16.57291,28.28191],[-16.57131,28.28359],[-16.56971,28.28361],[-16.56826,28.28428],[-16.56537,28.28643],[-16.56472,28.28754],[-16.56517,28.28891],[-16.56469,28.29181],[-16.56571,28.29639],[-16.56534,28.29763],[-16.56594,28.29858],[-16.56519,28.29998],[-16.56681,28.30034],[-16.56721,28.30105],[-16.56857,28.30156],[-16.56769,28.30324],[-16.56637,28.30388]]},"properties":{"osm_id":"way/104155670","road_kind":"scenic","name":"Carretera del Teide","segments":1,"highway":"primary","scenic":"yes","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.56462,28.30516],[-16.56458,28.30552]]},"properties":{"osm_id":"way/104156821","road_kind":"scenic","name":"Carretera del Teide","segments":1,"highway":"primary","scenic":"yes","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.74737,28.14488],[-16.74327,28.14787],[-16.7346,28.15124]]},"properties":{"osm_id":"way/110607202","road_kind":"historic","name":"Camino Viejo de Taucho","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.74923,28.14312],[-16.74818,28.14408]]},"properties":{"osm_id":"way/110607207","road_kind":"historic","name":"Camino Viejo de Taucho","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.76249,28.14912],[-16.76136,28.14796],[-16.76053,28.14612]]},"properties":{"osm_id":"way/118386850","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes","surface":"cobblestone"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.76601,28.18999],[-16.76748,28.19235],[-16.76663,28.19213],[-16.76605,28.19271],[-16.76715,28.19373]]},"properties":{"osm_id":"way/120247149","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes","surface":"cobblestone"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.76747,28.19391],[-16.7677,28.19414]]},"properties":{"osm_id":"way/120247150","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes","surface":"cobblestone"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[32.92811,24.45203],[32.92826,24.45168],[32.92811,24.45203]]},"properties":{"osm_id":"way/121287539","road_kind":"historic","segments":1,"highway":"pedestrian","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.75782,28.1429],[-16.75758,28.14317]]},"properties":{"osm_id":"way/124950908","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.34955,28.40272],[-16.34995,28.40282],[-16.34995,28.4024]]},"properties":{"osm_id":"way/155162438","road_kind":"historic","segments":1,"highway":"service","historic":"yes","surface":"compacted"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.71608,28.35805],[-16.71704,28.35752],[-16.71909,28.35818],[-16.71911,28.3589],[-16.72078,28.36009]]},"properties":{"osm_id":"way/159892473","road_kind":"historic","name":"Canal La Guancha-Icod","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.56637,28.30388],[-16.56462,28.30516]]},"properties":{"osm_id":"way/166437389","road_kind":"scenic","name":"Carretera del Teide","segments":1,"highway":"primary","scenic":"yes","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.87193,12.97202],[22.86971,12.97733],[22.86313,12.98311],[22.86151,12.98575],[22.86111,12.98924],[22.86313,12.99646],[22.86257,12.99952],[22.84942,13.02451],[22.84781,13.02647],[22.84482,13.02847],[22.84342,13.03081],[22.8432,13.03767],[22.84523,13.04628],[22.8447,13.04802],[22.8426,13.05125],[22.84212,13.05385],[22.84467,13.06425],[22.84506,13.06955],[22.84434,13.07418],[22.84212,13.08088],[22.83885,13.08406],[22.81718,13.0968],[22.81344,13.09838],[22.79753,13.10246],[22.79426,13.10408],[22.78988,13.1073],[22.7881,13.11043],[22.7883,13.1161],[22.78774,13.11895],[22.78685,13.12075],[22.78205,13.12675],[22.78116,13.12883],[22.78096,13.13125],[22.78192,13.13669],[22.78125,13.14033],[22.77023,13.15664],[22.76725,13.15939],[22.76418,13.161],[22.74098,13.16732],[22.73837,13.16916],[22.73695,13.17108],[22.73384,13.18017],[22.73357,13.18231],[22.7344,13.18443],[22.73914,13.18987],[22.73939,13.19121]]},"properties":{"osm_id":"way/178815136","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.89198,12.96608],[22.8904,12.96608]]},"properties":{"osm_id":"way/178815146","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-9.22438,29.36974],[-9.22694,29.3714],[-9.22813,29.37293]]},"properties":{"osm_id":"way/216583302","road_kind":"historic","segments":1,"highway":"path","historic":"yes","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.1344,12.89685],[23.13148,12.89851],[23.12897,12.89921],[23.12592,12.89911],[23.1212,12.89795],[23.11497,12.89881],[23.11089,12.89678],[23.10536,12.89603],[23.09367,12.89008],[23.09156,12.88967],[23.08955,12.88989]]},"properties":{"osm_id":"way/262604021","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0629 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.13521,12.89637],[23.1344,12.89685]]},"properties":{"osm_id":"way/262604040","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.01728,12.97018],[23.00669,12.9743],[23.00065,12.97557],[22.94455,12.97775],[22.93727,12.97634],[22.92061,12.9682],[22.91595,12.96664],[22.91203,12.96611],[22.89198,12.96608]]},"properties":{"osm_id":"way/289101227","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"paved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.01803,12.96988],[23.01728,12.97018]]},"properties":{"osm_id":"way/289101230","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0646\u064a\u0627\u0644\u0627 - \u0627\u0644\u062c\u0646\u064a\u0646\u0629","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.99437,12.97586],[22.99201,12.97491],[22.98587,12.97366],[22.97608,12.97645],[22.96989,12.9749],[22.96407,12.97639],[22.96111,12.97815],[22.95895,12.98101],[22.95293,12.98278],[22.94439,12.9816],[22.94158,12.9804]]},"properties":{"osm_id":"way/289101233","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0629 -\u0646\u064a\u0644\u0627","segments":1,"highway":"unclassified","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.72737,13.21247],[22.72501,13.21261],[22.72397,13.21324],[22.72004,13.21985]]},"properties":{"osm_id":"way/342604698","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"unclassified","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.76248,13.1615],[22.75467,13.16112],[22.75129,13.16226],[22.74526,13.16603]]},"properties":{"osm_id":"way/342605762","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"unclassified","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.83885,13.08406],[22.8305,13.08985],[22.82533,13.09011],[22.82256,13.09102],[22.81681,13.0965],[22.81434,13.09807]]},"properties":{"osm_id":"way/342606534","road_kind":"historic","segments":1,"highway":"unclassified","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.06738,12.90278],[23.06669,12.90349]]},"properties":{"osm_id":"way/342607881","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.04113,12.94248],[23.03866,12.94643],[23.03594,12.95601],[23.03226,12.96164]]},"properties":{"osm_id":"way/342607883","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.7593,28.17063],[-16.76026,28.16991],[-16.76112,28.16806],[-16.7627,28.16692],[-16.76261,28.16658],[-16.76164,28.16672],[-16.76224,28.1654],[-16.76311,28.1649]]},"properties":{"osm_id":"way/351500267","road_kind":"historic","name":"Camino Real","segments":1,"highway":"path","historic":"yes","surface":"cobblestone"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.65452,16.16855],[38.65527,16.16843]]},"properties":{"osm_id":"way/382085611","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.64848,16.16589],[38.64854,16.16597]]},"properties":{"osm_id":"way/382085613","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.68724,16.18338],[38.69108,16.19387]]},"properties":{"osm_id":"way/382096569","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.68715,16.1831],[38.68724,16.18338]]},"properties":{"osm_id":"way/384078778","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[30.66867,29.53517],[30.66918,29.53161]]},"properties":{"osm_id":"way/465500024","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0631\u0648\u0645\u0627\u0646\u0649 Roman Road","segments":1,"highway":"path","historic":"roman_road","surface":"stone"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.08955,12.88989],[23.08945,12.88992]]},"properties":{"osm_id":"way/543687956","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.08945,12.88992],[23.07231,12.89905],[23.06738,12.90278]]},"properties":{"osm_id":"way/543687957","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-16.62858,28.22319],[-16.63041,28.24389],[-16.62793,28.24714],[-16.62726,28.25043],[-16.62516,28.25356],[-16.62228,28.25457]]},"properties":{"osm_id":"way/549239959","road_kind":"scenic","name":"TF-21","segments":1,"highway":"primary","scenic":"yes","surface":"paving_stones"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.73852,13.19407],[22.73848,13.19417]]},"properties":{"osm_id":"way/573120300","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.73916,13.19201],[22.73852,13.19407]]},"properties":{"osm_id":"way/573120305","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.64036,16.15181],[38.64041,16.15187]]},"properties":{"osm_id":"way/626251547","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.64041,16.15187],[38.64848,16.16589]]},"properties":{"osm_id":"way/626251548","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.04135,12.94217],[23.04113,12.94248]]},"properties":{"osm_id":"way/645249285","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.06669,12.90349],[23.06415,12.90684],[23.05486,12.9226],[23.04135,12.94217]]},"properties":{"osm_id":"way/645249286","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.03226,12.96164],[23.03205,12.96186]]},"properties":{"osm_id":"way/645249287","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0646\u064a\u0627\u0644\u0627- \u0627\u0644\u062c\u0646\u064a\u0646\u0629","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[23.03205,12.96186],[23.0265,12.96629],[23.01803,12.96988]]},"properties":{"osm_id":"way/645249288","road_kind":"historic","name":"\u0634\u0627\u0631\u0639 \u0627\u0644\u062c\u0646\u064a\u0646\u0629 \u0646\u0628\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.73939,13.19121],[22.73916,13.19201]]},"properties":{"osm_id":"way/646367825","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-14.25202,28.17616],[-14.25249,28.17585]]},"properties":{"osm_id":"way/688553457","road_kind":"historic","name":"Camino de los Agraviados","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-5.49819,33.89952],[-5.49847,33.89935]]},"properties":{"osm_id":"way/777918150","road_kind":"historic","segments":1,"highway":"path","historic":"yes"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.65527,16.16843],[38.65993,16.17118],[38.66179,16.17166],[38.66243,16.17263],[38.66592,16.17387],[38.67831,16.17591],[38.68603,16.18126],[38.68715,16.1831]]},"properties":{"osm_id":"way/885083299","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[38.64854,16.16597],[38.65152,16.16821],[38.65452,16.16855]]},"properties":{"osm_id":"way/885083300","road_kind":"historic","name":"S-1","segments":1,"highway":"primary","historic":"road"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.8904,12.96608],[22.88025,12.96608],[22.87776,12.9665],[22.87394,12.96886],[22.87196,12.97194]]},"properties":{"osm_id":"way/1228388597","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.87196,12.97194],[22.87193,12.97202]]},"properties":{"osm_id":"way/1228388598","road_kind":"historic","name":"\u0637\u0631\u064a\u0642 \u0627\u0644\u062c\u0646\u064a\u0646\u0647 - \u0646\u064a\u0627\u0644\u0627","segments":1,"highway":"trunk","historic":"road","surface":"asphalt"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.93993,12.97806],[22.94017,12.97762],[22.94139,12.97743]]},"properties":{"osm_id":"way/1234908341","road_kind":"historic","segments":1,"highway":"service","historic":"road","surface":"unpaved"}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[22.9401,12.97992],[22.93993,12.97806]]},"properties":{"osm_id":"way/1331123576","road_kind":"historic","segments":1,"highway":"service","historic":"road","surface":"unpaved"}}]}};
+        </script>
+        <script>
+                const LAYER_SPECS = [
+  {
+    "id": "roads_africa_scenic",
+    "source_id": "scenic_historic_roads__scenic_historic_roads_africa_geojson",
+    "name": "roads-africa-scenic",
+    "title": "Scenic roads",
+    "color": "#1b9e77",
+    "radius": 5,
+    "description_fields": [
+      "name",
+      "route_name",
+      "highway",
+      "historic",
+      "scenic",
+      "surface",
+      "operator",
+      "wikipedia",
+      "osm_id"
+    ],
+    "feature_count": 5,
+    "geometry": "line",
+    "weight": 1.8,
+    "magnitude_field": "",
+    "magnitude_stops": [
+      4.0,
+      6.0,
+      8.0
+    ],
+    "magnitude_radii": [
+      3.0,
+      9.0,
+      22.0
+    ],
+    "magnitude_color": true,
+    "route_markers": true,
+    "filter_field": "road_kind",
+    "filter_value": "scenic"
+  },
+  {
+    "id": "roads_africa_historic",
+    "source_id": "scenic_historic_roads__scenic_historic_roads_africa_geojson",
+    "name": "roads-africa-historic",
+    "title": "Historic roads & routes",
+    "color": "#b2182b",
+    "radius": 5,
+    "description_fields": [
+      "name",
+      "route_name",
+      "highway",
+      "historic",
+      "scenic",
+      "surface",
+      "operator",
+      "wikipedia",
+      "osm_id"
+    ],
+    "feature_count": 53,
+    "geometry": "line",
+    "weight": 2.2,
+    "magnitude_field": "",
+    "magnitude_stops": [
+      4.0,
+      6.0,
+      8.0
+    ],
+    "magnitude_radii": [
+      3.0,
+      9.0,
+      22.0
+    ],
+    "magnitude_color": true,
+    "route_markers": true,
+    "filter_field": "road_kind",
+    "filter_value": "historic"
+  }
+];
+
+        const BASEMAP_TILES = ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"];
+        const BASEMAP_ATTRIBUTION = "\u00a9 <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors";
+
+        // Either a MapLibre style URL (string) or an inline raster style
+        // (object) - see is_raster_basemap(). Data layers are added in
+        // map.on('load'), which fires after EITHER kind finishes loading.
+        const BASEMAP_STYLE = {"version": 8, "sources": {"basemap": {"type": "raster", "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], "tileSize": 256, "attribution": "\u00a9 <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"}}, "layers": [{"id": "basemap", "type": "raster", "source": "basemap"}]};
+
+        const map = new maplibregl.Map({
+          container: 'map',
+          style: BASEMAP_STYLE,
+          center: [20.0, 2.0],
+          zoom: 3.0,
+          hash: true
+        });
+
+        // Normal paint: radius stays at spec.radius; clusters with
+        // point_count auto-scale a little so dense areas read bigger.
+        // Order property keys so a name-like field is listed first in popups.
+        // A representative point for each NAMED route, derived from the data
+        // already inlined for the line layer - so the dots cost no extra bytes.
+        // Midpoint of the LONGEST part: for a multi-part route that is the
+        // piece a reader is most likely looking at, whereas the naive "first
+        // coordinate" drops the dot at an arbitrary county line.
+        function routeMarkers(spec, flt) {
+          const fc = LAYER_DATA[spec.source_id] || { features: [] };
+          const out = [];
+          for (const f of fc.features || []) {
+            const p = f.properties || {};
+            if (spec.filter_field && p[spec.filter_field] !== spec.filter_value) continue;
+            // Only NAMED routes get a dot. Marking all ~9,000 individually
+            // tagged ways would bury the map and defeat the purpose.
+            const g = f.geometry || {};
+            if (g.type !== 'MultiLineString' && !p.route_name) continue;
+            const parts = g.type === 'MultiLineString' ? g.coordinates
+                        : (g.type === 'LineString' ? [g.coordinates] : []);
+            let best = null, bestLen = -1;
+            for (const part of parts) {
+              if (!part || part.length < 2) continue;
+              let len = 0;
+              for (let i = 1; i < part.length; i++) {
+                len += Math.hypot(part[i][0] - part[i-1][0], part[i][1] - part[i-1][1]);
+              }
+              if (len > bestLen) { bestLen = len; best = part; }
+            }
+            if (!best) continue;
+            out.push({ type: 'Feature',
+                        geometry: { type: 'Point',
+                                    coordinates: best[Math.floor(best.length / 2)] },
+                        properties: p });
+          }
+          return { type: 'FeatureCollection', features: out };
+        }
+
+        function nameFirst(fields) {
+          const NK = ['name','primary_name','official_name','NAME','SITE_NAME',
+                      'FACILITY_NAME','title'];
+          const lead = NK.filter(k => fields.includes(k));
+          return [...lead, ...fields.filter(k => !lead.includes(k))];
+        }
+
+        // Earthquake styling: scale circle radius + colour by magnitude when a
+        // layer declares a magnitude_field; otherwise a flat dot.
+        function magExpr(spec) {
+          const m = ['coalesce', ['to-number', ['get', spec.magnitude_field]], 0];
+          const s = spec.magnitude_stops, r = spec.magnitude_radii;
+          return ['interpolate', ['linear'], m, s[0], r[0], s[1], r[1], s[2], r[2]];
+        }
+        function radiusExpr(spec) {
+          return spec.magnitude_field ? magExpr(spec) : normalRadius(spec);
+        }
+        function colorExpr(spec) {
+          if (!spec.magnitude_field || !spec.magnitude_color) return spec.color;
+          const m = ['coalesce', ['to-number', ['get', spec.magnitude_field]], 0];
+          return ['interpolate', ['linear'], m,
+            4, '#fee08b', 5, '#fdae61', 6, '#f46d43', 7, '#d73027', 8, '#a50026'];
+        }
+
+        function normalRadius(spec) {
+          return [
+            'case',
+            ['has', 'point_count'],
+            [
+              'interpolate', ['linear'], ['get', 'point_count'],
+              1, spec.radius,
+              10, spec.radius + 3,
+              100, spec.radius + 7,
+              1000, spec.radius + 12
+            ],
+            spec.radius
+          ];
+        }
+        // "Big dots" paint: inflate everything so it's obvious on a world map.
+        function bigRadius(spec) {
+          const r = Math.max(spec.radius * 2.5, 14);
+          return [
+            'case',
+            ['has', 'point_count'],
+            [
+              'interpolate', ['linear'], ['get', 'point_count'],
+              1, r,
+              10, r + 4,
+              100, r + 10,
+              1000, r + 16
+            ],
+            r
+          ];
+        }
+
+        let bigDotsOn = false;
+
+        // MapLibre '==' filter for a spec that renders only part of a shared source.
+        function filterOf(spec) {
+          return spec.filter_field
+            ? ['==', ['to-string', ['get', spec.filter_field]], spec.filter_value]
+            : null;
+        }
+
+        map.on('load', () => {
+          // Each unique inlined source is added ONCE; several layers (a vendor
+          // split + a heatmap over the same points) then reference it.
+          for (const sid of Object.keys(LAYER_DATA)) {
+            if (!map.getSource(sid)) map.addSource(sid, { type: 'geojson', data: LAYER_DATA[sid] });
+          }
+          for (const spec of LAYER_SPECS) {
+            if (!LAYER_DATA[spec.source_id]) {
+              console.warn('save-earth: missing inlined data for', spec.source_id);
+              continue;
+            }
+            const flt = filterOf(spec);
+            // Every id a click should open this layer's popup on: the drawn
+            // layer, plus the invisible wide hit line and the route dots.
+            const targets = [spec.id];
+            if (spec.geometry === 'heatmap') {
+              const lyr = {
+                id: spec.id, type: 'heatmap', source: spec.source_id,
+                paint: {
+                  'heatmap-weight': 1,
+                  'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
+                  'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 6, 12, 12, 30],
+                  'heatmap-opacity': 0.85,
+                  'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'],
+                    0, 'rgba(0,0,255,0)', 0.2, '#4dabf7', 0.4, '#69db7c',
+                    0.6, '#ffd43b', 0.8, '#ff922b', 1, '#f03e3e']
+                }
+              };
+              if (flt) lyr.filter = flt;
+              map.addLayer(lyr);
+              continue;  // a density heatmap has no per-feature popup
+            } else if (spec.geometry === 'fill') {
+              const lyr = {
+                id: spec.id, type: 'fill', source: spec.source_id,
+                paint: {
+                  'fill-color': spec.color,
+                  'fill-opacity': 0.35,
+                  'fill-outline-color': spec.color
+                }
+              };
+              if (flt) lyr.filter = flt;
+              map.addLayer(lyr);
+            } else if (spec.geometry === 'line') {
+              const lyr = {
+                id: spec.id, type: 'line', source: spec.source_id,
+                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                paint: {
+                  'line-color': spec.color,
+                  'line-width': spec.weight || 1.5,
+                  'line-opacity': 0.85
+                }
+              };
+              if (flt) lyr.filter = flt;
+              map.addLayer(lyr);
+              // INVISIBLE hit target. A 2 px line is roughly a 2 px click
+              // target, so most clicks land on the basemap and nothing opens.
+              // This draws nothing (opacity 0) but widens what the click test
+              // sees, so the popup opens anywhere along a route.
+              const hit = {
+                id: spec.id + '__hit', type: 'line', source: spec.source_id,
+                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                paint: { 'line-color': spec.color, 'line-width': 14, 'line-opacity': 0 }
+              };
+              if (flt) hit.filter = flt;
+              map.addLayer(hit);
+              targets.push(hit.id);
+
+              // Visible affordance: a dot per NAMED route, so a reader can see
+              // where to click instead of hunting along the line.
+              if (spec.route_markers) {
+                const pts = routeMarkers(spec, flt);
+                if (pts.features.length) {
+                  const msrc = spec.id + '__dots';
+                  if (!map.getSource(msrc)) map.addSource(msrc, { type: 'geojson', data: pts });
+                  map.addLayer({
+                    id: msrc, type: 'circle', source: msrc,
+                    paint: {
+                      'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 3.2, 10, 6],
+                      'circle-color': spec.color,
+                      'circle-stroke-width': 1.5,
+                      'circle-stroke-color': '#fff',
+                      'circle-opacity': 0.95
+                    }
+                  });
+                  targets.push(msrc);
+                }
+              }
+            } else {
+              const lyr = {
+                id: spec.id, type: 'circle', source: spec.source_id,
+                paint: {
+                  'circle-radius': radiusExpr(spec),
+                  'circle-color': colorExpr(spec),
+                  'circle-stroke-width': 1,
+                  'circle-stroke-color': '#fff',
+                  'circle-opacity': 0.85
+                }
+              };
+              if (flt) lyr.filter = flt;
+              map.addLayer(lyr);
+            }
+            map.on('click', spec.id, (e) => {
+              const props = e.features[0].properties || {};
+              const fields = nameFirst(spec.description_fields.length
+                ? spec.description_fields
+                : Object.keys(props));
+              const rows = fields
+                .filter(k => props[k] !== undefined && props[k] !== null && props[k] !== '')
+                .map(k => `<tr><td class="k">${k}</td><td>${String(props[k])
+                    .replace(/&/g,'&amp;').replace(/</g,'&lt;')}</td></tr>`)
+                .join('');
+              const title = props.name || props.primary_name || props.SITE_NAME
+                || props.NAME || props.Name || props.FACILITY_NAME
+                || props.title || props.place || props.description || spec.title;
+              new maplibregl.Popup({ closeButton: true })
+                .setLngLat(e.lngLat)
+                .setHTML(`<h4>${title}</h4><table class="attrs">${rows}</table>`)
+                .addTo(map);
+            });
+            map.on('mouseenter', spec.id, () => map.getCanvas().style.cursor = 'pointer');
+            map.on('mouseleave', spec.id, () => map.getCanvas().style.cursor = '');
+          }
+
+          function applyRadius() {
+            for (const spec of LAYER_SPECS) {
+              if (spec.geometry !== 'circle') continue;  // radius only applies to circle layers
+              map.setPaintProperty(
+                spec.id,
+                'circle-radius',
+                bigDotsOn ? bigRadius(spec) : radiusExpr(spec)
+              );
+            }
+          }
+
+          const panel = document.getElementById('panel');
+
+          // "Big dots" global toggle — applies to every layer, overrides radius.
+          const bigLabel = document.createElement('label');
+          bigLabel.style.borderBottom = '1px solid #ddd';
+          bigLabel.style.paddingBottom = '6px';
+          bigLabel.style.marginBottom = '4px';
+          bigLabel.style.fontWeight = '600';
+          const bigCb = document.createElement('input');
+          bigCb.type = 'checkbox';
+          bigCb.id = 'big-dots';
+          bigCb.addEventListener('change', () => {
+            bigDotsOn = bigCb.checked;
+            applyRadius();
+          });
+          bigLabel.appendChild(bigCb);
+          bigLabel.appendChild(document.createTextNode(' Big dots (any zoom)'));
+          panel.appendChild(bigLabel);
+
+          // Per-layer visibility toggles.
+          for (const spec of LAYER_SPECS) {
+            const label = document.createElement('label');
+            const cb = document.createElement('input');
+            cb.type = 'checkbox'; cb.checked = true;
+            cb.addEventListener('change', () => {
+              // A line layer now owns up to three map layers: the drawn line,
+              // the invisible hit target and the route dots. Toggling only the
+              // drawn one would leave a hidden layer still answering clicks and
+              // its dots still on screen - the checkbox would look broken.
+              const vis = cb.checked ? 'visible' : 'none';
+              for (const id of [spec.id, spec.id + '__hit', spec.id + '__dots']) {
+                if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis);
+              }
+            });
+            const swatch = document.createElement('span');
+            swatch.className = 'swatch';
+            swatch.style.background = spec.color;
+            label.appendChild(cb);
+            label.appendChild(swatch);
+            label.appendChild(document.createTextNode(
+              `${spec.title} (${spec.feature_count.toLocaleString()})`
+            ));
+            panel.appendChild(label);
+          }
+
+          // "About this data" button — appended under the toggles so it reads
+          // as the panel footer; opens the on-load modal (matches the gallery).
+          const _ib = document.createElement('button');
+          _ib.id = 'infobtn';
+          _ib.className = 'infobtn';
+          _ib.innerHTML = '&#8505;&#65039; About this data';
+          panel.appendChild(_ib);
+          const _im = document.getElementById('infomodal');
+          if (_im) {
+            const _ic = document.getElementById('infoclose');
+            _ib.onclick = () => { _im.style.display = 'flex'; };
+            if (_ic) _ic.onclick = () => { _im.style.display = 'none'; };
+            _im.onclick = (e) => { if (e.target === _im) _im.style.display = 'none'; };
+          }
+
+          // --- Name search: type to fly to a matching feature + open its popup.
+          // Index each unique source once (layers sharing a source would
+          // otherwise index the same features several times).
+          const sidx = [];
+          const _searchedSrc = new Set();
+          for (const spec of LAYER_SPECS) {
+            if (_searchedSrc.has(spec.source_id)) continue;
+            _searchedSrc.add(spec.source_id);
+            const data = LAYER_DATA[spec.source_id]; if (!data) continue;
+            for (const f of data.features) {
+              const p = f.properties || {};
+              const nm = p.name || p.primary_name || p.NAME || p.Name
+                || p.FACILITY_NAME || p.title || p.place || '';
+              // Lines (faults) have no single coordinate — anchor the popup at the
+              // geometry's first vertex so search still flies to it.
+              const g = f.geometry || {};
+              const c = g.type === 'Point' ? g.coordinates
+                : (g.type === 'LineString' ? g.coordinates[0]
+                : (g.type === 'MultiLineString' ? g.coordinates[0][0] : null));
+              if (nm && c) sidx.push({ name: nm,
+                sub: p.amenity || p['addr:city'] || p.operator || p.mag || '',
+                coords: c, props: p, spec });
+            }
+          }
+          function popupFor(o) {
+            const fields = nameFirst(o.spec.description_fields.length ? o.spec.description_fields : Object.keys(o.props));
+            const rows = fields
+              .filter(k => o.props[k] !== undefined && o.props[k] !== null && o.props[k] !== '')
+              .map(k => `<tr><td class="k">${k}</td><td>${String(o.props[k])
+                  .replace(/&/g,'&amp;').replace(/</g,'&lt;')}</td></tr>`).join('');
+            new maplibregl.Popup({ closeButton: true }).setLngLat(o.coords)
+              .setHTML(`<h4>${o.name}</h4><table class="attrs">${rows}</table>`).addTo(map);
+          }
+          const sbox = document.getElementById('vsearch'), sres = document.getElementById('vresults');
+          sbox.addEventListener('input', () => {
+            const q = sbox.value.trim().toLowerCase(); sres.innerHTML = '';
+            if (q.length < 2) return;
+            const hits = sidx.filter(x => x.name.toLowerCase().includes(q)).slice(0, 12);
+            for (const h of hits) {
+              const d = document.createElement('div');
+              d.innerHTML = `${h.name}` + (h.sub ? ` <span class="sub">${h.sub}</span>` : '');
+              d.addEventListener('click', () => {
+                map.flyTo({ center: h.coords, zoom: 13 });
+                sres.innerHTML = ''; sbox.value = h.name; popupFor(h);
+              });
+              sres.appendChild(d);
+            }
+          });
+          document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search')) sres.innerHTML = '';
+          });
+        });
+
+        </script>
+        </body>
+        </html>
