@@ -80,23 +80,25 @@ per-variant consequence.</p>
 
 <p>The workflow fetches both published releases, compares them keyed on variant
 identity <code>(CHROM, POS, REF, ALT)</code>, and reports the highest level at
-which they agree. Results below are over the compared slice
-(~1.08&nbsp;M shared variants).</p>
+which they agree. Results below are over the <strong>complete GRCh38
+benchmarks</strong> — 3.6&nbsp;M and 3.9&nbsp;M variants — compared in
+53&nbsp;seconds on a single commodity node.</p>
 
 <table>
 <tr><th>Fields compared</th><th>Shared variants</th><th>Verdict</th></tr>
-<tr><td>sites only — CHROM/POS/REF/ALT</td><td>1,077,215</td><td class="ok">all match</td></tr>
-<tr><td>sites + FILTER status</td><td>1,077,215</td><td class="ok">all match</td></tr>
-<tr><td>sites + genotype (<code>HG001</code> column)</td><td>1,077,215</td><td class="warn">all differ</td></tr>
+<tr><td>sites only — CHROM/POS/REF/ALT</td><td>3,376,513</td><td class="ok">all match</td></tr>
+<tr><td>sites + FILTER status</td><td>3,376,513</td><td class="ok">all match</td></tr>
+<tr><td>sites + genotype (<code>HG001</code> column)</td><td>3,376,513</td><td class="warn">all differ</td></tr>
 </table>
 
-<p>Set membership over the same slice:</p>
+<p>Set membership over the complete benchmarks:</p>
 
 <table>
 <tr><th>Category</th><th>Count</th><th>Meaning for a prior validation</th></tr>
-<tr><td>shared, site-identical</td><td>1,077,215</td><td>carries over unchanged</td></tr>
-<tr><td>only in v3.3.2 (retired)</td><td>274,925</td><td>no longer benchmarked — prior TP/FN claims void</td></tr>
-<tr><td>only in v4.2.1 (added)</td><td>154,863</td><td>newly benchmarked — never evaluated</td></tr>
+<tr><td>v3.3.2 total / v4.2.1 total</td><td>3,619,471 / 3,893,341</td><td>the benchmark grew 7.6%</td></tr>
+<tr><td>shared, site-identical</td><td>3,376,513</td><td>carries over unchanged</td></tr>
+<tr><td>only in v3.3.2 (retired)</td><td>242,958</td><td>no longer benchmarked — prior TP/FN claims void</td></tr>
+<tr><td>only in v4.2.1 (added)</td><td>516,828</td><td>newly benchmarked — never evaluated</td></tr>
 </table>
 
 <h3>Why every genotype differs</h3>
@@ -121,7 +123,7 @@ more data.</li>
 
 <p><strong>Site-level validation carries over. Genotype-level validation does
 not.</strong> A lab measuring sensitivity/precision on variant sites can rely on
-its v3.3.2 work for the shared set and needs only to evaluate the 154,863 added
+its v3.3.2 work for the shared set and needs only to evaluate the 516,828 added
 sites. A lab whose acceptance criteria touch genotype quality, depth, or phasing
 must re-run in full: every one of those records changed.</p>
 
@@ -187,9 +189,11 @@ compares; <code>fw.compare.Summarise</code> documents.</p>
 <h2>6. Limitations</h2>
 
 <ul>
-<li>Counts are over the compared slice, not the whole genome; the full-genome
-run scales the same comparison and is expected to preserve the pattern, not the
-absolute numbers.</li>
+<li>Counts are over the complete GRCh38 benchmarks. An earlier draft of this
+page reported figures from a partial slice; the pattern held but the absolute
+numbers did not — the slice was chromosome-1 heavy, which under-counted added
+sites by more than threefold (154,863 vs 516,828). The slice figures have been
+replaced.</li>
 <li>GIAB's methodology is not re-executed, so this cannot detect an error in the
 benchmark construction itself — only differences between two published outputs.</li>
 <li>Comparison is by exact variant identity. Two releases representing the same
