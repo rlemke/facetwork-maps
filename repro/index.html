@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reproduction study — GIAB HG001 benchmark releases</title>
+<style>
+ :root{--fg:#1a1a1a;--bg:#fff;--mut:#666;--line:#e2e2e2;--ok:#0a6b3d;--warn:#8a5a00;--acc:#1a4f8a}
+ @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e8e8e8;--bg:#141414;--mut:#9a9a9a;--line:#333;--ok:#5fbf8f;--warn:#d0a24a;--acc:#7fb0e8}}
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:52rem;margin:2.5rem auto;padding:0 1.1rem;
+      line-height:1.6;color:var(--fg);background:var(--bg)}
+ h1{font-size:1.7rem;line-height:1.25;margin-bottom:.2rem}
+ h2{font-size:1.15rem;margin-top:2.2rem;border-bottom:1px solid var(--line);padding-bottom:.3rem}
+ h3{font-size:1rem;margin-top:1.5rem;color:var(--acc)}
+ .sub{color:var(--mut);margin-top:0}
+ table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+ th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+ th{font-weight:600;color:var(--mut);font-size:.82rem;text-transform:uppercase;letter-spacing:.03em}
+ code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}
+ pre{background:color-mix(in srgb,var(--fg) 5%,var(--bg));padding:.8rem 1rem;border-radius:6px;
+     overflow-x:auto;border:1px solid var(--line)}
+ .ok{color:var(--ok);font-weight:600}
+ .warn{color:var(--warn);font-weight:600}
+ .note{border-left:3px solid var(--warn);padding:.5rem 0 .5rem .9rem;margin:1.1rem 0;color:var(--mut)}
+ .scope{border:1px solid var(--warn);border-radius:6px;padding:.9rem 1.1rem;margin:1.4rem 0;
+        background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
+ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.85rem}
+</style>
+</head><body>
+
+<h1>Do variant-caller validations survive a benchmark update?</h1>
+<p class="sub">A reproduction study of NIST Genome in a Bottle HG001 releases
+v3.3.2 and v4.2.1, run as a Facetwork FFL workflow. September 2026.</p>
+
+<h2>1. Purpose of the analysis</h2>
+
+<p><a href="https://www.nist.gov/programs-projects/genome-bottle">Genome in a Bottle</a>
+(GIAB) is the reference truth set used worldwide to validate germline variant
+callers. A laboratory measures its caller's sensitivity and precision by
+comparing calls against a GIAB benchmark VCF restricted to GIAB's
+high-confidence regions.</p>
+
+<p>NIST periodically publishes new benchmark releases. That creates a practical
+question with real consequences for any lab that has already validated:</p>
+
+<p><strong>If a caller was validated against HG001 v3.3.2, does that validation
+still hold on v4.2.1 — and if not, exactly where does it stop holding?</strong></p>
+
+<p>Answering it requires knowing not just <em>how many</em> variants changed, but
+<em>which kind</em> of claim changed: whether the sites themselves moved, or only
+the genotype evidence attached to them. Those imply different remediation.</p>
+
+<div class="scope">
+<strong>Scope, stated plainly.</strong> This study compares two <em>published</em>
+NIST releases against each other. It does <strong>not</strong> re-execute GIAB's
+benchmark-construction pipeline, which integrates multiple sequencing platforms
+and callers over ~100&nbsp;GB of reads. No claim is made here about reproducing
+NIST's methodology. What is reproduced is the <em>comparison</em>, and what is
+new is its characterisation.
+</div>
+
+<h2>2. What the published work reports</h2>
+
+<p>NIST's own description of the v4 series is that it substantially
+<em>expanded</em> the high-confidence regions over v3, by incorporating additional
+sequencing technologies and improved integration methods, and that genotype
+representation was revised. The published artifacts corroborate the expansion
+directly:</p>
+
+<table>
+<tr><th>Published artifact</th><th>v3.3.2</th><th>v4.2.1</th><th>change</th></tr>
+<tr><td>benchmark VCF (GRCh38, gzipped)</td><td>107.1 MB</td><td>125.9 MB</td><td>+17.6%</td></tr>
+<tr><td>high-confidence region BED</td><td>10.5 MB</td><td>15.5 MB</td><td class="ok">+47.6%</td></tr>
+</table>
+
+<p>The BED file defines <em>where</em> the benchmark makes a claim at all. A ~48%
+larger region file is the published evidence for the stated expansion. What the
+release artifacts do not state, and what a validating lab actually needs, is the
+per-variant consequence.</p>
+
+<h2>3. What our FFL workflow found</h2>
+
+<p>The workflow fetches both published releases, compares them keyed on variant
+identity <code>(CHROM, POS, REF, ALT)</code>, and reports the highest level at
+which they agree. Results below are over the compared slice
+(~1.08&nbsp;M shared variants).</p>
+
+<table>
+<tr><th>Fields compared</th><th>Shared variants</th><th>Verdict</th></tr>
+<tr><td>sites only — CHROM/POS/REF/ALT</td><td>1,077,215</td><td class="ok">all match</td></tr>
+<tr><td>sites + FILTER status</td><td>1,077,215</td><td class="ok">all match</td></tr>
+<tr><td>sites + genotype (<code>HG001</code> column)</td><td>1,077,215</td><td class="warn">all differ</td></tr>
+</table>
+
+<p>Set membership over the same slice:</p>
+
+<table>
+<tr><th>Category</th><th>Count</th><th>Meaning for a prior validation</th></tr>
+<tr><td>shared, site-identical</td><td>1,077,215</td><td>carries over unchanged</td></tr>
+<tr><td>only in v3.3.2 (retired)</td><td>274,925</td><td>no longer benchmarked — prior TP/FN claims void</td></tr>
+<tr><td>only in v4.2.1 (added)</td><td>154,863</td><td>newly benchmarked — never evaluated</td></tr>
+</table>
+
+<h3>Why every genotype differs</h3>
+
+<p>The genotype column differs for <em>every</em> shared variant, in three
+distinct ways at once. A representative record:</p>
+
+<pre>chr1:817186 G&gt;A
+  v3.3.2  FORMAT=GT:DP:ADALL:AD:GQ:IGT:IPS:PS   1|1:823:0,381:78,454:283:1/1:.:PATMAT
+  v4.2.1  FORMAT=GT:PS:DP:ADALL:AD:GQ           1/1:.:1041:78,459:0,88:348</pre>
+
+<ol>
+<li><strong>FORMAT restructured</strong> — <code>IGT</code> and <code>IPS</code>
+dropped, <code>PS</code> moved forward.</li>
+<li><strong>Phasing dropped</strong> — <code>1|1</code> became <code>1/1</code>.</li>
+<li><strong>Evidence values genuinely increased</strong> — depth 823&nbsp;→&nbsp;1041,
+genotype quality 283&nbsp;→&nbsp;348. This is not reformatting; v4.2.1 rests on
+more data.</li>
+</ol>
+
+<h3>The operational answer</h3>
+
+<p><strong>Site-level validation carries over. Genotype-level validation does
+not.</strong> A lab measuring sensitivity/precision on variant sites can rely on
+its v3.3.2 work for the shared set and needs only to evaluate the 154,863 added
+sites. A lab whose acceptance criteria touch genotype quality, depth, or phasing
+must re-run in full: every one of those records changed.</p>
+
+<h2>4. How our workflow compares to the published work</h2>
+
+<p>These are complementary rather than competing artifacts, and the distinction
+matters:</p>
+
+<table>
+<tr><th></th><th>NIST GIAB</th><th>This workflow</th></tr>
+<tr><td>Question</td><td>What is the truth for this genome?</td><td>What changed between two truths?</td></tr>
+<tr><td>Input</td><td>~100 GB reads, multiple platforms</td><td>Two published VCFs</td></tr>
+<tr><td>Method</td><td>Multi-caller integration, arbitration, region construction</td><td>Keyed set comparison over a strictness ladder</td></tr>
+<tr><td>Output</td><td>A benchmark</td><td>A characterised discrepancy</td></tr>
+<tr><td>Cost</td><td>Substantial compute + expert curation</td><td>Minutes on commodity hardware</td></tr>
+</table>
+
+<h3>The algorithmic difference that matters</h3>
+
+<p>The conventional comparison for this task is a checksum or a diff, and both
+give the wrong answer here. A checksum reports <em>failed</em>; a naive diff
+reports every record as changed. Neither distinguishes "the sites are identical
+and only the genotype encoding moved" from "the calls disagree" — yet those
+demand opposite responses.</p>
+
+<p>Our comparison instead reports the <strong>highest level at which two outputs
+agree</strong>:</p>
+
+<pre>exists → schema → cardinality → keys → values → bytes</pre>
+
+<p>and, critically, <strong>reports every normalisation required to reach that
+level</strong>. Sorting keys or applying a tolerance until two files match does not
+demonstrate a reproduction — it manufactures one — so each is declared in the
+result rather than hidden inside it.</p>
+
+<div class="note">
+This design came from an earlier measurement, not from theory. Reproducing
+PyPSA grid-builder's output, two orchestrators produced byte-different files
+containing identical data, because the upstream tool serialises a nested
+dictionary in unstable key order. <em>Bytes differ; the data does not.</em> Any
+comparison that cannot express that distinction will misreport a correct
+reproduction as a failure.
+</div>
+
+<h3>Scale</h3>
+
+<p>The comparison indexes one file at a time into a compact digest map rather
+than materialising records, so peak memory tracks the key count rather than the
+file size — 1.0&nbsp;GB where the naive implementation required 5.4&nbsp;GB for
+the same inputs. That is what allows a whole-genome benchmark comparison to run
+on an ordinary fleet node.</p>
+
+<h2>5. Reproducing this</h2>
+
+<p>The workflow is 60 lines of FFL composed entirely from built-in facets — no
+domain-specific handlers. <code>fw.http.Fetch</code> acquires each published
+release and records its digest and provenance; <code>fw.compare.Tabular</code>
+compares; <code>fw.compare.Summarise</code> documents.</p>
+
+<pre>fw ffl run --primary examples/repro-giab/giab_benchmark_diff.ffl \
+           --workflow repro.giab.CompareBenchmarkReleases</pre>
+
+<h2>6. Limitations</h2>
+
+<ul>
+<li>Counts are over the compared slice, not the whole genome; the full-genome
+run scales the same comparison and is expected to preserve the pattern, not the
+absolute numbers.</li>
+<li>GIAB's methodology is not re-executed, so this cannot detect an error in the
+benchmark construction itself — only differences between two published outputs.</li>
+<li>Comparison is by exact variant identity. Two releases representing the same
+biological variant differently (left-alignment, MNP decomposition) would appear
+as one retired and one added record. Normalisation of representation is a known
+extension and is not applied here.</li>
+</ul>
+
+<footer>
+Produced with <a href="https://github.com/rlemke/facetwork">Facetwork</a> —
+workflows in FFL, executed on a distributed runner fleet.
+Source data © NIST Genome in a Bottle Consortium.
+</footer>
+</body></html>
