@@ -246,6 +246,23 @@ to look thorough.</p>
 <pre>fw ffl run --primary examples/repro-giab/giab_benchmark_diff.ffl \
            --workflow repro.giab.CompareBenchmarkReleases</pre>
 
+<p>A page about reproducibility should say whether it reproduces. It was run
+twice, an hour apart, on different runner containers of a distributed fleet:</p>
+
+<table>
+<tr><th>Run</th><th>Finished</th><th>Report MD5</th></tr>
+<tr><td>1</td><td>21:36:12 UTC</td><td style="font-family:monospace;font-size:0.82em">5f155ec921e5fd5e7e804670971608b1</td></tr>
+<tr><td>2</td><td>22:34:30 UTC</td><td style="font-family:monospace;font-size:0.82em">5f155ec921e5fd5e7e804670971608b1</td></tr>
+</table>
+
+<p>Byte-identical. That is a weaker claim than it sounds — the inputs are fixed
+artifacts and the comparison is deterministic, so anything else would have been
+a bug. It is worth stating precisely because the interesting failures in this
+project have been the ones that <em>looked</em> fine: an orchestrator that
+retries a task can leave a duplicate output record and make a perfectly
+reproducible pipeline read as irreproducible, which is why the comparison keys
+on record identity rather than file position.</p>
+
 <h2>6. Exactly what was compared</h2>
 
 <p>A reproduction study that cannot be checked is an assertion. <code>fw.http.Fetch</code>
