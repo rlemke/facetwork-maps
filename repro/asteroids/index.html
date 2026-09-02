@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reproduction study &mdash; Hubble Asteroid Hunter recall</title>
+<style>
+ :root{--fg:#1a1a1a;--bg:#fff;--mut:#666;--line:#e2e2e2;--ok:#0a6b3d;--warn:#8a5a00;--acc:#1a4f8a}
+ @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e8e8e8;--bg:#141414;--mut:#9a9a9a;--line:#333;--ok:#5fbf8f;--warn:#d0a24a;--acc:#7fb0e8}}
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:52rem;margin:2.5rem auto;padding:0 1.1rem;
+      line-height:1.6;color:var(--fg);background:var(--bg)}
+ h1{font-size:1.7rem;line-height:1.25;margin-bottom:.2rem}
+ h2{font-size:1.15rem;margin-top:2.2rem;border-bottom:1px solid var(--line);padding-bottom:.3rem}
+ h3{font-size:1rem;margin-top:1.5rem;color:var(--acc)}
+ .sub{color:var(--mut);margin-top:0}
+ table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+ th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+ th{font-weight:600;color:var(--mut);font-size:.82rem;text-transform:uppercase;letter-spacing:.03em}
+ code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}
+ pre{background:color-mix(in srgb,var(--fg) 5%,var(--bg));padding:.8rem 1rem;border-radius:6px;
+     overflow-x:auto;border:1px solid var(--line)}
+ .ok{color:var(--ok);font-weight:600}
+ .warn{color:var(--warn);font-weight:600}
+ .note{border-left:3px solid var(--warn);padding:.5rem 0 .5rem .9rem;margin:1.1rem 0;color:var(--mut)}
+ .scope{border:1px solid var(--warn);border-radius:6px;padding:.9rem 1.1rem;margin:1.4rem 0;
+        background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
+ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.85rem}
+</style>
+
+</head><body>
+
+<p style="margin-bottom:1.6rem"><a href="../">&larr; Reproduction studies</a></p>
+
+<h1>Where does automated detection stop and human effort begin?</h1>
+<p class="sub">Measuring what a matched filter recovers from the Hubble archive
+images behind the Hubble Asteroid Hunter catalogue, as a function of trail
+brightness. A Facetwork FFL fan-out, 168 tasks. September 2026.</p>
+
+<h2>1. Purpose of the analysis</h2>
+
+<p>Citizen science projects are often justified on the grounds that the task is
+too hard to automate. That is usually asserted rather than measured. This study
+measures it for one project: <strong>at what brightness does a straightforward
+automated detector stop finding what the volunteers found?</strong></p>
+
+<p>The answer is not a verdict on the project. It is the quantity that decides
+whether the human effort was necessary, and it can be computed because both the
+catalogue and the underlying images are public.</p>
+
+<h2>2. What the original work does</h2>
+
+<p><a href="https://www.zooniverse.org/projects/sandorkruk/hubble-asteroid-hunter">Hubble
+Asteroid Hunter</a> showed archival HST images to volunteers, who marked
+asteroid trails; a convolutional network assisted, and the identifications were
+checked against known orbits. The published catalogue
+(<a href="https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A%2BA/661/A85">Kruk
+et al. 2022, VizieR J/A+A/661/A85</a>) contains <strong>1,701 trails</strong>
+across 1,318 observations, each with sky endpoints, trail length, exposure
+timing and an observed magnitude.</p>
+
+<table>
+<tr><th></th><th>Hubble Asteroid Hunter</th><th>This workflow</th></tr>
+<tr><td>Detection</td><td>human inspection + CNN + orbit matching</td><td>matched filter along the catalogue path</td></tr>
+<tr><td>Input</td><td>composites shown to volunteers</td><td>individual FLT exposures</td></tr>
+<tr><td>Output</td><td>a catalogue of trails</td><td>recall of that catalogue, per magnitude</td></tr>
+<tr><td>Detects new objects</td><td class="ok">yes</td><td class="warn">no &mdash; only re-measures known positions</td></tr>
+</table>
+
+<p><strong>This is not a competing detector.</strong> It is given the answer &mdash;
+the published position &mdash; and asked only whether the signal is present and
+strong enough that an automated method could plausibly have found it. That makes
+the result an <em>upper bound</em> on what blind automation would achieve, which
+is the conservative direction for the question being asked.</p>
+
+<h2>3. What our FFL workflow found</h2>
+
+<table>
+<tr><th>Magnitude</th><th>Recovered</th><th>Recall</th><th></th></tr>
+<tr><td>15&ndash;16</td><td>1/1</td><td class="ok">100%</td><td><span style="letter-spacing:-1px">██████████████████</span></td></tr>
+<tr><td>18&ndash;19</td><td>1/1</td><td class="ok">100%</td><td><span style="letter-spacing:-1px">██████████████████</span></td></tr>
+<tr><td>19&ndash;20</td><td>2/4</td><td class="">50%</td><td><span style="letter-spacing:-1px">█████████</span></td></tr>
+<tr><td>20&ndash;21</td><td>3/4</td><td class="">75%</td><td><span style="letter-spacing:-1px">██████████████</span></td></tr>
+<tr><td>21&ndash;22</td><td>3/7</td><td class="">43%</td><td><span style="letter-spacing:-1px">████████</span></td></tr>
+<tr><td>22&ndash;23</td><td>1/11</td><td class="">9%</td><td><span style="letter-spacing:-1px">██</span></td></tr>
+<tr><td>23&ndash;24</td><td>0/9</td><td class="warn">0%</td><td><span style="letter-spacing:-1px"></span></td></tr>
+<tr><td>24&ndash;25</td><td>0/2</td><td class="warn">0%</td><td><span style="letter-spacing:-1px"></span></td></tr>
+</table>
+
+<p><strong>11 of 39 measurable trails recovered
+(28%).</strong> Faintest recovered: mag
+22.5. Brightest missed: mag 19.3.</p>
+
+<div class="scope">
+<strong>There is a detection cliff between magnitude 21 and 23</strong> &mdash;
+recall collapses across roughly two magnitudes and does not recover. The
+published catalogue's <strong>median trail is magnitude 22.6</strong>, which sits
+below the cliff.<br><br>
+So the volunteers were not duplicating work a machine could have done cheaply.
+More than half the catalogue lies in the regime where this detector returns
+nothing, <em>even when handed the exact position to look at</em>. That is a
+quantitative answer to "why did this need people", and it is the result the
+study exists for.
+</div>
+
+<h3>Brightness alone does not predict recoverability</h3>
+
+<p>Recall is not monotonic. A magnitude 19.3 trail is missed while a 22.5 one is
+recovered. Detection depends on what the trail crosses: a faint trail on empty
+sky integrates cleanly, a brighter one over a galaxy does not. Any estimate of
+"how faint can we go" that quotes a single limiting magnitude is hiding this.</p>
+
+<table>
+<tr><th>mag</th><th>sigma</th><th>offset px</th><th>outcome</th><th>observation</th></tr>
+<tr><td>15.0</td><td>199.5</td><td>(+0,+30)</td><td class="ok">recovered</td><td><code>j9eps2010</code></td></tr>
+<tr><td>18.9</td><td>65.5</td><td>(-40,+40)</td><td class="ok">recovered</td><td><code>jdxr56010</code></td></tr>
+<tr><td>19.3</td><td>2.6</td><td>(-20,+0)</td><td class="">not found</td><td><code>j9eb03010</code></td></tr>
+<tr><td>19.6</td><td>8.7</td><td>(-30,-20)</td><td class="ok">recovered</td><td><code>idl902010</code></td></tr>
+<tr><td>19.8</td><td>0.6</td><td>(+140,-130)</td><td class="">not found</td><td><code>jbyq02010</code></td></tr>
+<tr><td>19.8</td><td>19.5</td><td>(-40,-30)</td><td class="ok">recovered</td><td><code>ibt013010</code></td></tr>
+<tr><td>20.3</td><td>103.4</td><td>(+10,-10)</td><td class="ok">recovered</td><td><code>j95y11030</code></td></tr>
+<tr><td>20.5</td><td>10.3</td><td>(+40,+10)</td><td class="ok">recovered</td><td><code>jbit31010</code></td></tr>
+<tr><td>20.6</td><td>12.3</td><td>(-10,+10)</td><td class="ok">recovered</td><td><code>jc9z03010</code></td></tr>
+<tr><td>20.9</td><td>3.7</td><td>(-20,+40)</td><td class="">not found</td><td><code>jbyq01010</code></td></tr>
+<tr><td>21.0</td><td>29.1</td><td>(-10,+30)</td><td class="ok">recovered</td><td><code>jd8905010</code></td></tr>
+<tr><td>21.2</td><td>-0.1</td><td>(-100,-50)</td><td class="">not found</td><td><code>ic8503010</code></td></tr>
+<tr><td>21.4</td><td>-0.1</td><td>(-120,+30)</td><td class="">not found</td><td><code>icnk07020</code></td></tr>
+<tr><td>21.4</td><td>11.8</td><td>(+0,+10)</td><td class="ok">recovered</td><td><code>jdm96d010</code></td></tr>
+<tr><td>21.6</td><td>8.5</td><td>(+0,+30)</td><td class="ok">recovered</td><td><code>j9e730010</code></td></tr>
+<tr><td>21.8</td><td>3.7</td><td>(+70,+80)</td><td class="">not found</td><td><code>j8oi14040</code></td></tr>
+<tr><td>21.9</td><td>3.5</td><td>(-10,-10)</td><td class="">not found</td><td><code>icdx9i010</code></td></tr>
+<tr><td>22.0</td><td>2.0</td><td>(+40,-10)</td><td class="">not found</td><td><code>j90za9020</code></td></tr>
+<tr><td>22.1</td><td>0.5</td><td>(-70,+20)</td><td class="">not found</td><td><code>j9db0e010</code></td></tr>
+<tr><td>22.2</td><td>2.9</td><td>(+0,+40)</td><td class="">not found</td><td><code>ibyn04050</code></td></tr>
+<tr><td>22.3</td><td>3.4</td><td>(+0,+10)</td><td class="">not found</td><td><code>idgg99020</code></td></tr>
+<tr><td>22.4</td><td>0.3</td><td>(-150,+0)</td><td class="">not found</td><td><code>ibsr05030</code></td></tr>
+<tr><td>22.4</td><td>1.0</td><td>(+10,+20)</td><td class="">not found</td><td><code>jdlp01010</code></td></tr>
+<tr><td>22.5</td><td>6.0</td><td>(-10,+0)</td><td class="ok">recovered</td><td><code>jbyn08020</code></td></tr>
+<tr><td>22.6</td><td>3.7</td><td>(-20,+10)</td><td class="">not found</td><td><code>jbl7ac010</code></td></tr>
+<tr><td>22.7</td><td>&mdash;</td><td>(+0,+0)</td><td class="">not measurable</td><td><code>ie4n0t030</code></td></tr>
+<tr><td>22.8</td><td>0.5</td><td>(-60,-20)</td><td class="">not found</td><td><code>jdh905010</code></td></tr>
+<tr><td>22.8</td><td>1.5</td><td>(+10,+20)</td><td class="">not found</td><td><code>j9fz29020</code></td></tr>
+<tr><td>22.9</td><td>0.9</td><td>(-10,+10)</td><td class="">not found</td><td><code>jbew1c020</code></td></tr>
+<tr><td>23.0</td><td>0.7</td><td>(+10,+10)</td><td class="">not found</td><td><code>jcdub5020</code></td></tr>
+<tr><td>23.1</td><td>1.1</td><td>(+150,-70)</td><td class="">not found</td><td><code>j8pu0z010</code></td></tr>
+<tr><td>23.2</td><td>1.2</td><td>(-20,+0)</td><td class="">not found</td><td><code>ibsr05020</code></td></tr>
+<tr><td>23.3</td><td>1.4</td><td>(-60,+50)</td><td class="">not found</td><td><code>jcnw24010</code></td></tr>
+<tr><td>23.4</td><td>1.3</td><td>(-100,+90)</td><td class="">not found</td><td><code>j8xi18010</code></td></tr>
+<tr><td>23.5</td><td>0.8</td><td>(-70,-30)</td><td class="">not found</td><td><code>j9cq01010</code></td></tr>
+<tr><td>23.6</td><td>0.5</td><td>(+20,-80)</td><td class="">not found</td><td><code>j9fz06010</code></td></tr>
+<tr><td>23.7</td><td>1.7</td><td>(-20,+0)</td><td class="">not found</td><td><code>jcda08020</code></td></tr>
+<tr><td>23.9</td><td>1.0</td><td>(-30,-40)</td><td class="">not found</td><td><code>jbt199010</code></td></tr>
+<tr><td>24.1</td><td>4.3</td><td>(+150,+10)</td><td class="">not found</td><td><code>jdhk08010</code></td></tr>
+<tr><td>24.4</td><td>0.6</td><td>(-20,+0)</td><td class="">not found</td><td><code>j91jc8010</code></td></tr>
+</table>
+
+<h2>4. Three things that had to be right first</h2>
+
+<p>Each of these would have produced a confident, wrong answer, and each was
+found by measurement rather than by the run failing.</p>
+
+<h3>The trails are not in the drizzled products</h3>
+<p>At the published position of the first trail tested, the standard drizzled
+image reads <strong>&minus;0.09&nbsp;sigma</strong> &mdash; nothing. Drizzling
+rejects cosmic rays, and a moving object sits at different pixels in every
+exposure, so the rejection deletes it. A study built on the obvious data product
+would have found no trails anywhere and concluded the catalogue was wrong. The
+workflow fetches individual FLT exposures instead: four times the data, and the
+only thing that works.</p>
+
+<h3>The astrometry is off by tens of pixels</h3>
+<p>A magnitude 15 trail sat <strong>59 px</strong> from where its published sky
+coordinates predicted &mdash; an 8,000-sigma feature, unmissable by eye, invisible
+to a detector that trusts the WCS. ACS/WFC exposures carry SIP distortion but
+need the additional lookup corrections. The detector therefore scans a window of
+offsets and <em>reports the offset it required</em>: "found at the predicted
+pixels" and "found 60 px away" are different claims.</p>
+
+<h3>Thresholding before integrating destroys the signal</h3>
+<p>A faint trail sits at roughly 0.4 sigma per pixel. Thresholding at 3 sigma and
+then looking for lines finds nothing. Integrated along its length the same trail
+is about 5 sigma. The detector must integrate first; the obvious order is
+backwards.</p>
+
+<h2>5. Reproducing this</h2>
+
+<pre>fw ffl run --primary examples/repro-asteroids/hah_trail_recovery.ffl \
+           --library facetwork/ffl/file.ffl \
+           --workflow repro.asteroids.RecoverPublishedTrails</pre>
+
+<p>Selection filters to trails with <code>Nex=1</code> whose
+<code>MJDsTrail</code> equals <code>MJDsExp</code>, pinning each to the first
+exposure of its association &mdash; the one fetched. Without that the detector
+searches an exposure the asteroid was never in and reports a false
+non-detection. The sample is spread <em>evenly across magnitude</em>: taking the
+brightest 40 would return a flat 100% that answers nothing.
+<code>foreach &hellip; limit 4</code> bounds how many ~170&nbsp;MB exposures are
+in flight.</p>
+
+<h3>It reproduces itself</h3>
+<p>An accidental duplicate launch ran the same 40 trails a second time on the
+same fleet. The two runs agreed on <strong>40 of 40</strong> recovered/not
+verdicts. They disagreed on one sigma value, which is how a defect in this study
+was found: a non-measurement had been encoded as
+<code>sigma&nbsp;=&nbsp;&minus;99.0</code>, sitting in a measurement column beside
+real values. <code>measured</code> is now a separate field &mdash; a measurement
+that did not happen is not a number, it is a different fact.</p>
+
+<h2>6. Limitations</h2>
+
+<ul>
+<li><strong>Recall here is an upper bound.</strong> The detector is given the
+published position. A blind search over the full frame would do worse, so the
+cliff is if anything at a brighter magnitude than measured.</li>
+<li>40 trails, so individual bins hold as few as one object. The cliff spans
+several bins and is robust; the exact percentages are not.</li>
+<li>Only the first exposure of each association is searched. Trails appearing in
+later exposures are excluded by the selection rather than counted as misses.</li>
+<li>A trail whose predicted position falls outside every science extension is
+reported as <em>not measurable</em> and excluded from recall, not counted as a
+non-detection.</li>
+<li>This measures whether the signal is recoverable, not whether the published
+identification is correct. Orbit matching, which is how the catalogue attributes
+trails to known objects, is not reproduced.</li>
+</ul>
+
+<footer>
+Produced with <a href="https://github.com/rlemke/facetwork">Facetwork</a> &mdash;
+workflows in FFL, executed on a distributed runner fleet.
+Catalogue: Kruk et al. 2022 via
+<a href="https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A%2BA/661/A85">CDS VizieR</a>.
+Images: <a href="https://mast.stsci.edu/">MAST</a>, NASA/ESA Hubble Space Telescope.
+Found via <a href="https://science.nasa.gov/mission/hubble/science/citizen-science/">NASA Hubble citizen science</a>.
+</footer>
+</body></html>

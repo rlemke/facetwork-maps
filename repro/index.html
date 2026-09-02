@@ -37,7 +37,7 @@
 produce, compare the outputs, and document the discrepancies &mdash; each one run
 as a Facetwork FFL workflow on a distributed fleet.</p>
 
-<p>The three studies below reach the same uncomfortable place by different routes: a
+<p>The first three studies below reach the same uncomfortable place by different routes: a
 comparison that is <em>arithmetically correct and answers the wrong question</em>.
 Neither failure announces itself. Both runs are green.</p>
 
@@ -46,7 +46,9 @@ does</strong>, with links to its primary sources, before describing ours &mdash;
 because "we got a different number" means nothing until you can see which step
 differs. In one case we compare two published outputs without re-deriving either;
 in the other we deliberately omit corrections the publisher applies, and the gap
-we measure <em>is</em> those corrections.</p>
+we measure <em>is</em> those corrections. The fourth asks a different question
+entirely: not whether a published result is right, but whether the effort that
+produced it was needed.</p>
 
 <div class="card">
 <h3><a href="giab/">Do variant-caller validations survive a benchmark update?</a></h3>
@@ -93,6 +95,23 @@ documented 0.8 disagrees for <strong>89,332 galaxies (13.4%)</strong>, dropping
 <p class="mut">Lesson: adjacent columns are not necessarily commensurable, and
 nothing in a file format can say so. This one needed no tolerance at all &mdash;
 flags are categorical, so the verdict cannot be an artifact of a threshold.</p>
+</div>
+
+<div class="card">
+<h3><a href="asteroids/">Where does automated detection stop and human effort begin?</a></h3>
+<p>Hubble Asteroid Hunter &mdash; what a matched filter recovers from the same
+archive images the volunteers looked at. 40 trails, 168 tasks, ~7&nbsp;GB of HST
+exposures fanned out across a four-host fleet.</p>
+<p><strong>The trap here is different: nothing is wrong.</strong> The catalogue
+is right, the method is sound. The question is whether the human effort was
+necessary &mdash; usually asserted, rarely measured. Recall collapses between
+magnitude 21 and 23 and never recovers, and the catalogue's median trail is
+<strong>22.6</strong>: more than half of it lies where this detector returns
+nothing <em>even when handed the exact position</em>.</p>
+<p class="mut">Lesson: "too hard to automate" is a measurable claim. Also the
+only study here that reproduces itself &mdash; an accidental duplicate run agreed
+on 40 of 40 verdicts, and the one value it disagreed on exposed a defect in our
+own code.</p>
 </div>
 
 <h2>Why publish the mistakes</h2>
