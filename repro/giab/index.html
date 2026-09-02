@@ -59,24 +59,61 @@ NIST's methodology. What is reproduced is the <em>comparison</em>, and what is
 new is its characterisation.
 </div>
 
-<h2>2. What the published work reports</h2>
+<h2>2. What the original work does</h2>
 
-<p>NIST's own description of the v4 series is that it substantially
-<em>expanded</em> the high-confidence regions over v3, by incorporating additional
-sequencing technologies and improved integration methods, and that genotype
-representation was revised. The published artifacts corroborate the expansion
-directly:</p>
+<p><a href="https://www.nist.gov/programs-projects/genome-bottle">NIST's Genome in a Bottle</a> consortium does not sequence a
+genome and publish the calls. It <strong>integrates many independent
+callsets</strong> &mdash; multiple sequencing technologies, multiple variant
+callers &mdash; and arbitrates between them to produce a benchmark that is
+trustworthy enough to grade other people's callers against.</p>
+
+<p>That integration is visible in the released VCF's own annotations, which is
+how a consumer can tell how much evidence stands behind any single call:</p>
 
 <table>
-<tr><th>Published artifact</th><th>v3.3.2</th><th>v4.2.1</th><th>change</th></tr>
-<tr><td>benchmark VCF (GRCh38, gzipped)</td><td>107.1 MB</td><td>125.9 MB</td><td>+17.6%</td></tr>
-<tr><td>high-confidence region BED</td><td>10.5 MB</td><td>15.5 MB</td><td class="ok">+47.6%</td></tr>
+<tr><th>VCF field</th><th>What it records</th></tr>
+<tr><td><code>platforms</code></td><td>how many distinct sequencing platforms called this genotype</td></tr>
+<tr><td><code>callsets</code></td><td>how many distinct callsets called it</td></tr>
+<tr><td><code>datasetsmissingcall</code></td><td>which datasets missed it or disagreed</td></tr>
+<tr><td><code>callable</code></td><td>which callsets had low high-MQ coverage here</td></tr>
+<tr><td><code>difficultregion</code></td><td>which difficult-region annotations overlap it</td></tr>
 </table>
 
-<p>The BED file defines <em>where</em> the benchmark makes a claim at all. A ~48%
-larger region file is the published evidence for the stated expansion. What the
-release artifacts do not state, and what a validating lab actually needs, is the
-per-variant consequence.</p>
+<p>The benchmark ships as two artifacts that must be used together: the
+<strong>VCF</strong> of high-confidence calls, and a <strong>BED</strong> of the
+regions in which the benchmark makes any claim at all. A caller is graded only
+inside that BED &mdash; outside it, the benchmark is silent rather than negative.
+Method background: Zook&nbsp;et&nbsp;al.,
+<a href="https://doi.org/10.1038/s41587-019-0074-6">Nature Biotechnology 2019</a>.</p>
+
+<table>
+<tr><th>Published artifact</th><th><a href="https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv3.3.2/GRCh38/">v3.3.2</a></th><th><a href="https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh38/">v4.2.1</a></th><th>change</th></tr>
+<tr><td>benchmark VCF (GRCh38, gzipped)</td><td>107.1 MB</td><td>125.9 MB</td><td>+17.6%</td></tr>
+<tr><td>high-confidence region BED</td><td>10.5 MB</td><td>15.5 MB</td><td class="ok">+47.6%</td></tr>
+<tr><td>chromosomes covered</td><td>1&ndash;X</td><td class="warn">1&ndash;22</td><td>chrX dropped</td></tr>
+</table>
+
+<p>NIST describe the v4 series as substantially <em>expanding</em> the
+high-confidence regions over v3 by incorporating additional sequencing
+technologies and improved integration, and as revising genotype representation. A
+~48% larger BED is the published evidence for that expansion.</p>
+
+<h3>What we do differently</h3>
+
+<table>
+<tr><th></th><th>NIST GIAB</th><th>This workflow</th></tr>
+<tr><td>Input</td><td>~100 GB of reads, many platforms</td><td>two published VCFs</td></tr>
+<tr><td>Method</td><td>multi-callset integration, arbitration, region construction</td><td>keyed set comparison over a strictness ladder</td></tr>
+<tr><td>Output</td><td>a benchmark</td><td>a characterised discrepancy between two benchmarks</td></tr>
+<tr><td>Can it detect</td><td>&mdash;</td><td>differences between releases, <em>not</em> errors inside either</td></tr>
+</table>
+
+<p><strong>These are complementary, not competing.</strong> We do not re-derive
+the benchmark and could not: the reads, the callers and the curation are not
+reproduced here. What this workflow answers is the question a lab actually faces
+when a new release lands &mdash; <em>does my previous validation still hold?</em>
+&mdash; which the release artifacts do not state and which requires comparing
+them.</p>
 
 <h2>3. What our FFL workflow found</h2>
 

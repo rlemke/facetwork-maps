@@ -48,20 +48,77 @@ observations, arrive at the same numbers?</strong> Where the answer is no, the
 gap measures how much of the published product depends on decisions that are
 documented in prose but not reproducible from the archive.</p>
 
-<h2>2. What the published work provides</h2>
+<h2>2. What the original work does</h2>
+
+<p>NOAA NCEI's <a href="https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals">U.S. Climate Normals</a> are not an average of the
+daily archive. Their published
+<a href="https://www.ncei.noaa.gov/data/normals-monthly/1991-2020/doc/Normals_Calculation_Methodology_2020.pdf">Normals Calculation Methodology (2020)</a> describes a
+substantially longer pipeline, and the two steps that matter here are both
+<em>corrections</em> applied before any averaging:</p>
 
 <table>
-<tr><th>Artifact</th><th>Content</th><th>Role here</th></tr>
-<tr><td>GHCN-Daily, per station</td><td>daily TMAX/TMIN/PRCP with QC flags</td><td>the input</td></tr>
-<tr><td>Monthly Normals 1991&ndash;2020</td><td>12 rows &times; 413 columns per station</td><td>the published result</td></tr>
+<tr><th>Step</th><th>What it does</th><th>NCEI's own words</th></tr>
+<tr><td><strong>Time-of-observation adjustment</strong></td>
+    <td>Corrects for <em>when</em> the observer read the thermometer. A station
+        read at 5&nbsp;pm double-counts hot afternoons in TMAX; one read at
+        7&nbsp;am double-counts cold mornings in TMIN.</td>
+    <td>"a time of observation (TOB) adjustment that strives to make it as if the
+        observations at a particular station had been taken at local
+        midnight"</td></tr>
+<tr><td><strong>Homogenisation</strong></td>
+    <td>Detects and corrects breaks from station moves, instrument changes and
+        other shifts in practice, by pairwise comparison with neighbours
+        (Menne&nbsp;&amp;&nbsp;Williams&nbsp;2009).</td>
+    <td>"GHCN-Daily &hellip; is not homogenized like the monthly temperature
+        dataset &hellip; The standardization procedures account for both
+        documented and undocumented station moves and other changes in observing
+        practices."</td></tr>
+<tr><td>Gap filling</td>
+    <td>Regression against nearby stations, for monthly temperature and
+        precipitation, where suitable neighbours exist.</td>
+    <td>flagged <code>R</code> in the output</td></tr>
+<tr><td>Rounding</td>
+    <td>Banker's rounding, computed in metric units at machine precision and
+        rounded only at output.</td>
+    <td>one decimal place in &deg;F</td></tr>
 </table>
 
-<p>The normals carry their own provenance: <code>comp_flag</code> records how each
-value was derived and <code>years_*</code> how many years contributed. For the
-stations here that field reads 30 &mdash; the full period.</p>
+<p>NCEI even give a worked example of the homogenisation adjustment, at exactly
+the magnitude this study measures:</p>
 
-<p>New York's input is a clean control: <strong>10,958 days, 100% complete, zero
-QC flags</strong>. Any difference there is methodological, not missing data.</p>
+<div class="note">
+"if the 31 daily minimum temperature values from January 2000 average to
+45.5&nbsp;F, but the monthly homogenized mean minimum temperature value for
+January 2000 is 44.5&nbsp;F, the 31 daily minimum temperature values are each
+reduced by 1.0&nbsp;&deg;F"
+</div>
+
+<h3>What we do differently &mdash; deliberately</h3>
+
+<table>
+<tr><th></th><th>NOAA NCEI</th><th>This workflow</th></tr>
+<tr><td>Input</td><td>GHCN-Daily <em>plus</em> the homogenised monthly series</td><td>GHCN-Daily alone</td></tr>
+<tr><td>TOB adjustment</td><td class="ok">applied, per station</td><td class="warn">none</td></tr>
+<tr><td>Homogenisation</td><td class="ok">applied, per station</td><td class="warn">none</td></tr>
+<tr><td>Gap filling</td><td class="ok">where neighbours allow</td><td class="warn">none</td></tr>
+<tr><td>Averaging</td><td>over the corrected series</td><td>arithmetic mean of raw dailies</td></tr>
+</table>
+
+<p><strong>So the difference we measure is not an error on either side &mdash; it
+is the size of NOAA's corrections.</strong> That reframes the whole study: it is
+not "can the normals be reproduced?" but "how much of the published normal comes
+from the raw record, and how much from the adjustments applied to it?" Those
+adjustments are station-specific by construction, which is precisely what the
+twelve-station spread shows.</p>
+
+<p class="sub">Two things we assumed and the documentation corrects. The
+<code>comp_flag</code> value <code>S</code> does <em>not</em> mean 30 complete
+years &mdash; under the 2020 WMO guidelines it means <strong>at least 24 years
+(80%)</strong>. And TAVG is not defined as (TMAX+TMIN)/2: NCEI note the average
+temperature normal "may not be identical, but within rounding error, of the sum
+of the corresponding maximum and minimum temperature normals". Our TAVG column
+uses the conventional midpoint, so a small part of its residual is definitional.
+Full field layout: <a href="https://www.ncei.noaa.gov/data/normals-monthly/1991-2020/doc/Readme_By-Variable_By-Station_Normals_Files.txt">the by-station readme</a>.</p>
 
 <h2>3. What our FFL workflow found</h2>
 
@@ -117,17 +174,24 @@ same archive by the same code. Overall:</p>
 <div class="scope">
 <strong>The single-station result was misleading, and the fan-out is what showed
 it.</strong> New York alone gives TMAX high in all 12 months (+0.242) and TMIN low
-in all 12 (&minus;0.511) &mdash; a clean, consistent offset. The obvious
-explanation is a unit round-trip: US first-order stations record whole
+in all 12 (&minus;0.511) &mdash; a clean, consistent offset. The explanation that
+suggests itself is a unit round-trip: US first-order stations record whole
 degrees&nbsp;F, GHCN-Daily archives tenths of a degree&nbsp;C, and the conversion
 does not commute.<br><br>
-Twelve stations refute it. <strong>TMAX bias runs &minus;0.899 (Seattle) to
-+0.242 (New York) &mdash; it flips sign.</strong> An archive-wide rounding
-artifact would be uniform in both magnitude and direction. Los Angeles shows no
-systematic bias in either column, and reproduces to 0.04&nbsp;&deg;F. The
-difference is <em>station-specific</em> &mdash; consistent with per-station
-handling of missing days, station moves and instrument changes &mdash; not an
-artifact of the archive.<br><br>
+<strong>Twelve stations refute that, and NOAA's own documentation supplies the
+right answer.</strong> TMAX bias runs &minus;0.899 (Seattle) to +0.242 (New York)
+&mdash; it flips sign, which an archive-wide rounding artifact cannot do. What
+does vary by station, by construction, is the <em>time-of-observation adjustment
+and the homogenisation correction</em> described in &sect;2: TOB depends on the
+hour each station's observer reads the thermometer, and homogenisation depends on
+that station's particular history of moves and instrument changes. A station
+whose observer read in the afternoon needs a different correction, in a different
+direction, from one who read at dawn.<br><br>
+So the residuals are not noise and not an artifact &mdash; <strong>they are a
+measurement of NOAA's per-station corrections</strong>, recovered by subtracting
+the raw archive from the published product. Los Angeles reproduces to
+0.04&nbsp;&deg;F because its corrections are near zero; Chicago is off by 0.875
+because its are not.<br><br>
 With n&nbsp;=&nbsp;1 the wrong explanation was not merely possible, it was
 compelling.
 </div>
@@ -231,11 +295,12 @@ error distribution above, which was always the more honest presentation.
 </div>
 
 <ul>
-<li><strong>Our method is deliberately naive.</strong> A plain monthly mean is not
-NOAA's documented procedure, which includes estimation and homogenisation. This
-measures the gap between the archive and the product; it does not claim the
-published normals are wrong. Where they differ, the published value is the more
-considered one.</li>
+<li><strong>Our method is deliberately naive, and the published value is the
+better one.</strong> A plain monthly mean omits the TOB adjustment and the
+homogenisation described in &sect;2. Where the two differ, NOAA's figure is the
+more considered: it corrects for observation time, station moves and instrument
+changes that the raw archive still contains. This study measures the size of
+those corrections; it does not evaluate their correctness.</li>
 <li>Twelve stations, all US first-order airport/city sites. The pattern may not
 extend to cooperative-observer stations, which have different reporting practices
 and more missing data.</li>
