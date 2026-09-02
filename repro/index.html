@@ -108,11 +108,17 @@ necessary &mdash; usually asserted, rarely measured. Signal recoverability
 collapses between magnitude 21 and 23 and does not return, and the catalogue's
 median trail is <strong>22.6</strong>: more than half of it lies where the signal
 cannot be recovered <em>even when handed the exact position</em>.</p>
-<p class="mut">⚠️ This detects nothing &mdash; it is given each published position
-and asked only whether the signal is there, so the figures upper-bound what any
-detector could do rather than measuring one. Lesson: "too hard to automate" is a
-measurable claim, and the cheap half of it is measurable without building a
-detector at all. Also the only study here that reproduces itself &mdash; an
+<p>A second workflow then searches the same frames <strong>blind</strong>, with
+no knowledge of where any trail is. Told where to look, 11 of 39 trails are
+recoverable; searching blind, 3 land in the top 10 of ~900 candidates per frame.
+The brightest asteroid in the whole catalogue ranks <strong>65th</strong> among
+the line-like features in its own image.</p>
+<p class="mut">Lesson: finding lines is trivial and fast; deciding which lines
+are asteroids is the entire problem, and that is what the CNN and the volunteers
+supplied. Running both also disproved a claim this page had already published
+&mdash; that the targeted measurement upper-bounds blind detection &mdash; because
+being told where to look also locks you to the catalogue's angle and length.
+Neither method dominates. Also the only study here that reproduces itself: an
 accidental duplicate agreed on 40 of 40 verdicts, and the one value it disagreed
 on exposed a defect in our own code.</p>
 </div>
