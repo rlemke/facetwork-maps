@@ -104,14 +104,17 @@ archive images the volunteers looked at. 40 trails, 168 tasks, ~7&nbsp;GB of HST
 exposures fanned out across a four-host fleet.</p>
 <p><strong>The trap here is different: nothing is wrong.</strong> The catalogue
 is right, the method is sound. The question is whether the human effort was
-necessary &mdash; usually asserted, rarely measured. Recall collapses between
-magnitude 21 and 23 and never recovers, and the catalogue's median trail is
-<strong>22.6</strong>: more than half of it lies where this detector returns
-nothing <em>even when handed the exact position</em>.</p>
-<p class="mut">Lesson: "too hard to automate" is a measurable claim. Also the
-only study here that reproduces itself &mdash; an accidental duplicate run agreed
-on 40 of 40 verdicts, and the one value it disagreed on exposed a defect in our
-own code.</p>
+necessary &mdash; usually asserted, rarely measured. Signal recoverability
+collapses between magnitude 21 and 23 and does not return, and the catalogue's
+median trail is <strong>22.6</strong>: more than half of it lies where the signal
+cannot be recovered <em>even when handed the exact position</em>.</p>
+<p class="mut">⚠️ This detects nothing &mdash; it is given each published position
+and asked only whether the signal is there, so the figures upper-bound what any
+detector could do rather than measuring one. Lesson: "too hard to automate" is a
+measurable claim, and the cheap half of it is measurable without building a
+detector at all. Also the only study here that reproduces itself &mdash; an
+accidental duplicate agreed on 40 of 40 verdicts, and the one value it disagreed
+on exposed a defect in our own code.</p>
 </div>
 
 <h2>Why publish the mistakes</h2>

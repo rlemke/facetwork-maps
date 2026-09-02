@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reproduction study &mdash; Hubble Asteroid Hunter recall</title>
+<title>Reproduction study &mdash; Hubble Asteroid Hunter signal recoverability</title>
 <style>
  :root{--fg:#1a1a1a;--bg:#fff;--mut:#666;--line:#e2e2e2;--ok:#0a6b3d;--warn:#8a5a00;--acc:#1a4f8a}
  @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e8e8e8;--bg:#141414;--mut:#9a9a9a;--line:#333;--ok:#5fbf8f;--warn:#d0a24a;--acc:#7fb0e8}}
@@ -29,17 +29,37 @@
 
 <p style="margin-bottom:1.6rem"><a href="../">&larr; Reproduction studies</a></p>
 
-<h1>Where does automated detection stop and human effort begin?</h1>
-<p class="sub">Measuring what a matched filter recovers from the Hubble archive
-images behind the Hubble Asteroid Hunter catalogue, as a function of trail
-brightness. A Facetwork FFL fan-out, 168 tasks. September 2026.</p>
+<h1>Is the signal even there, when you are told exactly where to look?</h1>
+<p class="sub">Measuring whether the signal behind each published Hubble Asteroid
+Hunter trail is recoverable from the archive images <em>at its known position</em>,
+as a function of trail brightness. A Facetwork FFL fan-out, 168 tasks.
+September 2026.</p>
+
+<div class="scope">
+<strong>This is not a detector and it detects nothing.</strong> It is handed the
+published sky endpoints of a known trail and integrates flux along that one line.
+It never searches a frame, never generates candidate orientations or lengths, and
+cannot find an asteroid the catalogue did not already list. Generating candidates
+is the actual hard problem &mdash; the one the CNN and the volunteers were solving
+&mdash; and it is not attempted here.<br><br>
+So the numbers below are <strong>not recall</strong>. Recall is a property of a
+detector run over data it has not been given the answer to. These are
+<strong>signal-recoverability at a known position</strong>, which
+<em>upper-bounds</em> what any detector could achieve: a blind search must do at
+least as badly as one that already knows where to look.
+</div>
 
 <h2>1. Purpose of the analysis</h2>
 
 <p>Citizen science projects are often justified on the grounds that the task is
 too hard to automate. That is usually asserted rather than measured. This study
-measures it for one project: <strong>at what brightness does a straightforward
-automated detector stop finding what the volunteers found?</strong></p>
+measures a necessary condition for automation: <strong>at what brightness does
+the signal stop being recoverable at all, even when its exact position is
+known?</strong></p>
+
+<p>Below that point automation is not merely difficult, it is impossible by this
+route &mdash; there is nothing for a detector to find. Above it, automation might
+work or might not; this study does not say.</p>
 
 <p>The answer is not a verdict on the project. It is the quantity that decides
 whether the human effort was necessary, and it can be computed because both the
@@ -58,22 +78,24 @@ timing and an observed magnitude.</p>
 
 <table>
 <tr><th></th><th>Hubble Asteroid Hunter</th><th>This workflow</th></tr>
-<tr><td>Detection</td><td>human inspection + CNN + orbit matching</td><td>matched filter along the catalogue path</td></tr>
+<tr><td>Finds trails</td><td>human inspection + CNN + orbit matching</td><td class="warn">no &mdash; integrates along a path it is given</td></tr>
 <tr><td>Input</td><td>composites shown to volunteers</td><td>individual FLT exposures</td></tr>
-<tr><td>Output</td><td>a catalogue of trails</td><td>recall of that catalogue, per magnitude</td></tr>
+<tr><td>Output</td><td>a catalogue of trails</td><td>signal recoverability per magnitude</td></tr>
 <tr><td>Detects new objects</td><td class="ok">yes</td><td class="warn">no &mdash; only re-measures known positions</td></tr>
 </table>
 
-<p><strong>This is not a competing detector.</strong> It is given the answer &mdash;
-the published position &mdash; and asked only whether the signal is present and
-strong enough that an automated method could plausibly have found it. That makes
-the result an <em>upper bound</em> on what blind automation would achieve, which
-is the conservative direction for the question being asked.</p>
+<p><strong>It is given the answer</strong> &mdash; position, orientation and
+length &mdash; and asked only whether the signal is present and strong enough
+that an automated method could plausibly have found it. That makes the result an
+<em>upper bound</em> on what blind automation would achieve, which is the
+conservative direction for the question being asked.</p>
 
 <h2>3. What our FFL workflow found</h2>
 
+<p>Fraction of published trails whose signal reaches 5&nbsp;sigma when integrated along the catalogue path:</p>
+
 <table>
-<tr><th>Magnitude</th><th>Recovered</th><th>Recall</th><th></th></tr>
+<tr><th>Magnitude</th><th>Signal recovered</th><th>Fraction</th><th></th></tr>
 <tr><td>15&ndash;16</td><td>1/1</td><td class="ok">100%</td><td><span style="letter-spacing:-1px">██████████████████</span></td></tr>
 <tr><td>18&ndash;19</td><td>1/1</td><td class="ok">100%</td><td><span style="letter-spacing:-1px">██████████████████</span></td></tr>
 <tr><td>19&ndash;20</td><td>2/4</td><td class="">50%</td><td><span style="letter-spacing:-1px">█████████</span></td></tr>
@@ -89,20 +111,21 @@ is the conservative direction for the question being asked.</p>
 22.5. Brightest missed: mag 19.3.</p>
 
 <div class="scope">
-<strong>There is a detection cliff between magnitude 21 and 23</strong> &mdash;
-recall collapses across roughly two magnitudes and does not recover. The
+<strong>There is a recoverability cliff between magnitude 21 and 23</strong> &mdash;
+recoverability collapses across roughly two magnitudes and does not return. The
 published catalogue's <strong>median trail is magnitude 22.6</strong>, which sits
 below the cliff.<br><br>
 So the volunteers were not duplicating work a machine could have done cheaply.
-More than half the catalogue lies in the regime where this detector returns
-nothing, <em>even when handed the exact position to look at</em>. That is a
+More than half the catalogue lies in the regime where the signal cannot be
+recovered <em>even when handed the exact position to look at</em> &mdash; so no
+detector, however good, finds it by integrating pixels along a line. That is a
 quantitative answer to "why did this need people", and it is the result the
 study exists for.
 </div>
 
 <h3>Brightness alone does not predict recoverability</h3>
 
-<p>Recall is not monotonic. A magnitude 19.3 trail is missed while a 22.5 one is
+<p>Recoverability is not monotonic in magnitude. A magnitude 19.3 trail is missed while a 22.5 one is
 recovered. Detection depends on what the trail crosses: a faint trail on empty
 sky integrates cleanly, a brighter one over a galaxy does not. Any estimate of
 "how faint can we go" that quotes a single limiting magnitude is hiding this.</p>
@@ -206,15 +229,21 @@ that did not happen is not a number, it is a different fact.</p>
 <h2>6. Limitations</h2>
 
 <ul>
-<li><strong>Recall here is an upper bound.</strong> The detector is given the
-published position. A blind search over the full frame would do worse, so the
-cliff is if anything at a brighter magnitude than measured.</li>
+<li><strong>These are upper bounds, not recall.</strong> The measurement is given
+the published position, orientation and length. A blind search over the full
+frame, generating its own candidates, must do worse &mdash; so the true cliff for
+any real detector is at a brighter magnitude than measured here.</li>
+<li><strong>No detection was attempted.</strong> Building a blind detector &mdash;
+candidate generation across orientations and lengths, then rejection of stars,
+cosmic rays and diffraction spikes &mdash; is the hard part and is not done here.
+This study establishes only that below the cliff there would be nothing for such
+a detector to find.</li>
 <li>40 trails, so individual bins hold as few as one object. The cliff spans
 several bins and is robust; the exact percentages are not.</li>
 <li>Only the first exposure of each association is searched. Trails appearing in
 later exposures are excluded by the selection rather than counted as misses.</li>
 <li>A trail whose predicted position falls outside every science extension is
-reported as <em>not measurable</em> and excluded from recall, not counted as a
+reported as <em>not measurable</em> and excluded from the fractions, not counted as a
 non-detection.</li>
 <li>This measures whether the signal is recoverable, not whether the published
 identification is correct. Orbit matching, which is how the catalogue attributes
