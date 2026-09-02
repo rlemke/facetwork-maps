@@ -59,14 +59,18 @@ between things that were never comparable.</p>
 <h3><a href="normals/">Can a published climate normal be recomputed from the data it derives from?</a></h3>
 <p>NOAA 1991&ndash;2020 U.S. Climate Normals recomputed from GHCN-Daily
 observations, across 12 stations &mdash; 65 tasks.</p>
-<p><strong>The trap is direction.</strong> Eight stations pass at a 2% tolerance
-with zero differing values &mdash; and at New York all 36 residuals fall on the
-same side per column, TMAX high 12/12 and TMIN low 12/12. A tolerance is a
-per-value predicate and cannot see that. Four stations do not reproduce at all.</p>
+<p><strong>The trap is direction.</strong> At New York every residual sits inside
+a generous tolerance <em>and</em> every one falls on the same side per column
+&mdash; TMAX high 12/12, TMIN low 12/12. A tolerance is a per-value predicate and
+cannot see that. Across 432 values the median error is 0.23&nbsp;&deg;F, but
+reproduction quality spans a twentyfold range: Los&nbsp;Angeles to
+0.04&nbsp;&deg;F, Chicago off by 0.88.</p>
 <p class="mut">Lesson: "36 small random errors" and "36 errors in the same
 direction" are different claims about a reproduction, and only the second says
 the method differs. Also: n&nbsp;=&nbsp;1 produced a compelling and wrong
-explanation, which twelve stations refuted.</p>
+explanation, which twelve stations refuted &mdash; and a <em>relative</em>
+tolerance on a temperature produced a second wrong answer, retracted on the
+page.</p>
 </div>
 
 <h2>Why publish the mistakes</h2>

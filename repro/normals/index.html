@@ -67,28 +67,52 @@ QC flags</strong>. Any difference there is methodological, not missing data.</p>
 
 <p>Each station is fetched, recomputed (mean of daily values per calendar month,
 tenths&nbsp;&deg;C&nbsp;&rarr;&nbsp;&deg;F), and compared against the published
-normals at a 2% relative tolerance. 12 stations, <strong>65 tasks</strong>,
-distributed across a four-host fleet.</p>
+normals. 12 stations, <strong>61 tasks</strong>, distributed across a four-host
+fleet. 432 values in total (12 months &times; TMAX/TMIN/TAVG &times; 12 stations).</p>
+
+<div class="scope">
+<strong>Reproduction quality is a spectrum, not a pass/fail.</strong> An earlier
+version of this page reported "four stations do not reproduce at all". That was
+an artifact of the threshold, not a property of the data &mdash; see
+&sect;6. Sorted by how closely each station reproduces:
+</div>
 
 <table>
-<tr><th>Station</th><th>Location</th><th>Verdict</th><th>TMAX bias &deg;F</th><th>TMIN bias &deg;F</th></tr>
-<tr><td><code>USW00094728</code></td><td>New York NY</td><td class="ok">reproduced</td><td class="">+0.242</td><td class="warn">-0.511</td></tr>
-<tr><td><code>USW00023174</code></td><td>Los Angeles CA</td><td class="ok">reproduced</td><td class="mut">none</td><td class="mut">none</td></tr>
-<tr><td><code>USW00094846</code></td><td>Chicago IL</td><td class="warn">DIFFER (keys)</td><td class="">-0.291</td><td class="warn">-1.452</td></tr>
-<tr><td><code>USW00012960</code></td><td>Houston TX</td><td class="ok">reproduced</td><td class="">-0.278</td><td class="">-0.385</td></tr>
-<tr><td><code>USW00023169</code></td><td>Las Vegas NV</td><td class="warn">DIFFER (keys)</td><td class="">+0.161</td><td class="warn">-0.859</td></tr>
-<tr><td><code>USW00024233</code></td><td>Seattle WA</td><td class="ok">reproduced</td><td class="warn">-0.899</td><td class="warn">-0.472</td></tr>
-<tr><td><code>USW00013874</code></td><td>Atlanta GA</td><td class="ok">reproduced</td><td class="">-0.395</td><td class="mut">none</td></tr>
-<tr><td><code>USW00014922</code></td><td>Minneapolis MN</td><td class="warn">DIFFER (keys)</td><td class="mut">none</td><td class="warn">-0.410</td></tr>
-<tr><td><code>USW00012839</code></td><td>Miami FL</td><td class="ok">reproduced</td><td class="">+0.232</td><td class="mut">none</td></tr>
-<tr><td><code>USW00003017</code></td><td>Denver CO</td><td class="warn">DIFFER (keys)</td><td class="mut">none</td><td class="">-0.237</td></tr>
-<tr><td><code>USW00013881</code></td><td>Charlotte NC</td><td class="ok">reproduced</td><td class="">-0.146</td><td class="mut">none</td></tr>
-<tr><td><code>USW00093814</code></td><td>Cincinnati OH</td><td class="ok">reproduced</td><td class="">-0.233</td><td class="">+0.110</td></tr>
+<tr><th>Station</th><th>median error &deg;F</th><th>max error &deg;F</th>
+    <th>TMAX bias</th><th>TMIN bias</th></tr>
+<tr><td>Los Angeles CA</td><td class="ok">0.040</td><td>0.300</td><td class="mut">none</td><td class="mut">none</td></tr>
+<tr><td>Charlotte NC</td><td class="ok">0.090</td><td>0.200</td><td class="">-0.146</td><td class="mut">none</td></tr>
+<tr><td>Cincinnati OH</td><td class="ok">0.115</td><td>0.290</td><td class="">-0.233</td><td class="">+0.110</td></tr>
+<tr><td>Miami FL</td><td class="ok">0.125</td><td>0.340</td><td class="">+0.232</td><td class="mut">none</td></tr>
+<tr><td>Minneapolis MN</td><td class="">0.205</td><td>0.540</td><td class="mut">none</td><td class="warn">-0.410</td></tr>
+<tr><td>New York NY</td><td class="">0.235</td><td>0.540</td><td class="">+0.242</td><td class="warn">-0.511</td></tr>
+<tr><td>Atlanta GA</td><td class="">0.270</td><td>0.460</td><td class="">-0.395</td><td class="mut">none</td></tr>
+<tr><td>Denver CO</td><td class="">0.335</td><td>0.770</td><td class="mut">none</td><td class="">-0.237</td></tr>
+<tr><td>Houston TX</td><td class="">0.340</td><td>0.520</td><td class="">-0.278</td><td class="">-0.385</td></tr>
+<tr><td>Las Vegas NV</td><td class="">0.340</td><td>1.020</td><td class="">+0.161</td><td class="warn">-0.859</td></tr>
+<tr><td>Seattle WA</td><td class="warn">0.685</td><td>0.960</td><td class="warn">-0.899</td><td class="warn">-0.472</td></tr>
+<tr><td>Chicago IL</td><td class="warn">0.875</td><td>1.540</td><td class="">-0.291</td><td class="warn">-1.452</td></tr>
 </table>
 
 <p class="sub">"Bias" is the mean signed residual (ours &minus; NOAA) where an
-exact sign test finds the residuals systematically one-sided (p&nbsp;&lt;&nbsp;0.01
-over 12 months). <em>none</em> means the residuals were consistent with noise.</p>
+exact sign test finds the residuals systematically one-sided
+(p&nbsp;&lt;&nbsp;0.01 over 12 months); <em>none</em> means consistent with noise.
+The sign test is threshold-independent, so unlike the error magnitudes it does
+not move when the tolerance changes.</p>
+
+<p><strong>Los Angeles reproduces to 0.040&nbsp;&deg;F median; Chicago is off by
+0.875.</strong> That is a twentyfold spread across stations processed from the
+same archive by the same code. Overall:</p>
+
+<table>
+<tr><th>All 432 values</th><th></th></tr>
+<tr><td>median absolute error</td><td>0.230 &deg;F</td></tr>
+<tr><td>90th percentile</td><td>0.820 &deg;F</td></tr>
+<tr><td>maximum</td><td>1.540 &deg;F (Chicago TMIN, January)</td></tr>
+<tr><td>within 0.25 &deg;F</td><td>53.2%</td></tr>
+<tr><td>within 0.50 &deg;F</td><td>81.7%</td></tr>
+<tr><td>within 1.00 &deg;F</td><td>97.0%</td></tr>
+</table>
 
 <div class="scope">
 <strong>The single-station result was misleading, and the fan-out is what showed
@@ -97,27 +121,16 @@ in all 12 (&minus;0.511) &mdash; a clean, consistent offset. The obvious
 explanation is a unit round-trip: US first-order stations record whole
 degrees&nbsp;F, GHCN-Daily archives tenths of a degree&nbsp;C, and the conversion
 does not commute.<br><br>
-Twelve stations refute it. <strong>TMAX bias ranges -0.899 (Seattle) to
+Twelve stations refute it. <strong>TMAX bias runs &minus;0.899 (Seattle) to
 +0.242 (New York) &mdash; it flips sign.</strong> An archive-wide rounding
-artifact would be uniform. Los Angeles shows no systematic bias in either column;
-three more show none in one. The difference is <em>station-specific</em> &mdash;
-consistent with per-station handling of missing days, station moves and
-instrument changes &mdash; not an artifact of the archive.<br><br>
+artifact would be uniform in both magnitude and direction. Los Angeles shows no
+systematic bias in either column, and reproduces to 0.04&nbsp;&deg;F. The
+difference is <em>station-specific</em> &mdash; consistent with per-station
+handling of missing days, station moves and instrument changes &mdash; not an
+artifact of the archive.<br><br>
 With n&nbsp;=&nbsp;1 the wrong explanation was not merely possible, it was
 compelling.
 </div>
-
-<h3>Four stations do not reproduce at all</h3>
-
-<table>
-<tr><th>Station</th><th>Level reached</th><th>Months differing</th></tr>
-<tr><td>Chicago IL</td><td class='warn'>keys</td><td>12 of 12</td></tr><tr><td>Las Vegas NV</td><td class='warn'>keys</td><td>3 of 12</td></tr><tr><td>Minneapolis MN</td><td class='warn'>keys</td><td>3 of 12</td></tr><tr><td>Denver CO</td><td class='warn'>keys</td><td>1 of 12</td></tr>
-</table>
-
-<p>These are not near misses inside a tolerance. They stop at <code>keys</code>:
-values genuinely outside 2%, Chicago in every month. Whatever produced the
-published figures there is not recoverable from the archived daily record by
-averaging it.</p>
 
 <h2>4. How our workflow compares to the published work</h2>
 
@@ -131,10 +144,9 @@ averaging it.</p>
 
 <h3>The algorithmic point: a tolerance cannot see a bias</h3>
 
-<p>Eight of the twelve stations <strong>pass</strong> at 2% tolerance. Reported as
-pass/fail, the study would conclude "reproduced" and stop. But at New York every
-one of 36 values is inside tolerance <em>and</em> every one falls on the same side
-per column &mdash; TMAX high 12/12, TMIN low 12/12.</p>
+<p>At New York every one of 36 values sits within a generous tolerance
+<em>and</em> every one falls on the same side per column &mdash; TMAX high 12/12,
+TMIN low 12/12.</p>
 
 <pre>verdict : agree at level `values`,  differing: 0
 TMAX residuals SYSTEMATIC: 12+/0- of 12, mean +0.2425  (p=0.00049)
@@ -145,7 +157,9 @@ errors in the same direction" are completely different claims about a
 reproduction, and only the second says the method differs. A tolerance is a
 per-value predicate; it cannot express that. So the comparison runs an exact sign
 test over the signed residuals &mdash; Binomial(n,&nbsp;&frac12;) under the null,
-no distributional assumption &mdash; and reports the structure beside the verdict.</p>
+no distributional assumption &mdash; and reports the structure beside the verdict.
+Being threshold-free, it is the part of this study that does not move when the
+tolerance does.</p>
 
 <div class="note">
 The test is <strong>per column, never pooled</strong>. The first implementation
@@ -153,6 +167,37 @@ pooled, and TMAX running high cancelled TMIN running low into a balanced sign
 split reporting "no bias" &mdash; while both columns were systematically wrong in
 opposite directions. The check destroyed the signal it existed to find.
 </div>
+
+<h3>What the verdict levels mean</h3>
+
+<p>The comparison returns the <strong>highest rung reached</strong> on a ladder,
+so the level names what <em>did</em> match and thereby locates the first thing
+that did not:</p>
+
+<table>
+<tr><th>level</th><th>means</th><th>the failure is</th></tr>
+<tr><td><code>exists</code></td><td>readable, fields disagree</td><td>wrong file, schema change</td></tr>
+<tr><td><code>schema</code></td><td>fields agree, record sets do not</td><td>records added, dropped, or out of scope</td></tr>
+<tr><td><code>cardinality</code></td><td>counts agree, <em>which</em> records do not</td><td>same number, different members</td></tr>
+<tr><td><code>keys</code></td><td><strong>the same records exist; their values differ</strong></td><td><strong>the numbers &mdash; a method difference</strong></td></tr>
+<tr><td><code>values</code></td><td>values agree under declared normalisations</td><td>only serialisation differs</td></tr>
+<tr><td><code>bytes</code></td><td>identical files</td><td>nothing</td></tr>
+</table>
+
+<p><code>keys</code> is the informative rung and the easiest to misread. It says
+both sides looked at <em>exactly the same population</em> and computed different
+answers &mdash; nothing lost in transfer, no filter diverged, no schema drifted.
+That is a finding about <em>method</em>. A verdict of <code>cardinality</code> or
+lower usually means something broke before the science started.</p>
+
+<p>The key columns define what "the same record" <em>means</em>, which is a
+substantive claim rather than configuration. Here the key is
+<code>(month)</code>: twelve records, all twelve present on both sides, so every
+disagreement is necessarily at <code>keys</code> &mdash; the months are the same,
+the temperatures are not. In the
+<a href="../giab/">companion GIAB study</a> the key is
+<code>(CHROM, POS, REF, ALT)</code>; without it records would match by position in
+the file, and one inserted row would misalign everything after it.</p>
 
 <h2>5. Reproducing this</h2>
 
@@ -167,7 +212,23 @@ which would exceed the 16&nbsp;MB document limit. <code>foreach &hellip; limit 4
 bounds how many stations are in flight so the run does not pull twelve large
 files from NOAA at once.</p>
 
-<h2>6. Limitations</h2>
+<h2>6. Limitations, and a correction</h2>
+
+<div class="scope">
+<strong>This page previously reported "four stations do not reproduce at all".
+That was wrong</strong> &mdash; an artifact of comparing with a <em>relative</em>
+tolerance. Fahrenheit is an interval scale: its zero is arbitrary, so "within 2%
+of the value" has no physical meaning. Chicago's recomputed TAVG is off by a
+near-constant &minus;0.9&nbsp;&deg;F all year, and 2% of the reading is
+0.50&nbsp;&deg;F in January but 1.55&nbsp;&deg;F in July:<br><br>
+<code>January&nbsp;&nbsp;NOAA 25.2&nbsp;&nbsp;2% = 0.50&nbsp;&nbsp;&rarr;&nbsp;FAIL</code><br>
+<code>July&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOAA 77.5&nbsp;&nbsp;2% = 1.55&nbsp;&nbsp;&rarr;&nbsp;pass</code><br><br>
+Same error, opposite verdict, purely seasonal. The comparison gained an
+<code>abs_tolerance</code> for interval scales and the study was re-run. The
+station-level bias findings are unchanged &mdash; they come from the sign test,
+which has no threshold &mdash; but the pass/fail split is gone, replaced by the
+error distribution above, which was always the more honest presentation.
+</div>
 
 <ul>
 <li><strong>Our method is deliberately naive.</strong> A plain monthly mean is not
@@ -178,8 +239,8 @@ considered one.</li>
 <li>Twelve stations, all US first-order airport/city sites. The pattern may not
 extend to cooperative-observer stations, which have different reporting practices
 and more missing data.</li>
-<li>TAVG is computed as (TMAX+TMIN)/2, which is the conventional definition but
-not necessarily how the published TAVG normal is derived.</li>
+<li>TAVG is computed as (TMAX+TMIN)/2, the conventional definition but not
+necessarily how the published TAVG normal is derived.</li>
 <li>The sign test detects that residuals are one-sided. It does not attribute a
 cause; the station-specific explanations offered above are consistent with the
 data, not demonstrated by it.</li>
