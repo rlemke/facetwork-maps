@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reproduction study — GIAB HG001 benchmark releases</title>
+<title>Reproduction studies</title>
 <style>
  :root{--fg:#1a1a1a;--bg:#fff;--mut:#666;--line:#e2e2e2;--ok:#0a6b3d;--warn:#8a5a00;--acc:#1a4f8a}
  @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e8e8e8;--bg:#141414;--mut:#9a9a9a;--line:#333;--ok:#5fbf8f;--warn:#d0a24a;--acc:#7fb0e8}}
@@ -24,297 +24,65 @@
         background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
  footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.85rem}
 </style>
+
+<style>
+ .card{border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.3rem;margin:1.2rem 0}
+ .card h3{margin-top:0}
+ .mut{color:var(--mut)}
+</style>
 </head><body>
 
-<h1>Do variant-caller validations survive a benchmark update?</h1>
-<p class="sub">A reproduction study of NIST Genome in a Bottle HG001 releases
-v3.3.2 and v4.2.1, run as a Facetwork FFL workflow. September 2026.</p>
+<h1>Reproduction studies</h1>
+<p class="sub">Retrieve a published dataset, rerun the analysis it claims to
+produce, compare the outputs, and document the discrepancies &mdash; each one run
+as a Facetwork FFL workflow on a distributed fleet.</p>
 
-<h2>1. Purpose of the analysis</h2>
+<p>Both studies below reach the same uncomfortable place by different routes: a
+comparison that is <em>arithmetically correct and answers the wrong question</em>.
+Neither failure announces itself. Both runs are green.</p>
 
-<p><a href="https://www.nist.gov/programs-projects/genome-bottle">Genome in a Bottle</a>
-(GIAB) is the reference truth set used worldwide to validate germline variant
-callers. A laboratory measures its caller's sensitivity and precision by
-comparing calls against a GIAB benchmark VCF restricted to GIAB's
-high-confidence regions.</p>
-
-<p>NIST periodically publishes new benchmark releases. That creates a practical
-question with real consequences for any lab that has already validated:</p>
-
-<p><strong>If a caller was validated against HG001 v3.3.2, does that validation
-still hold on v4.2.1 — and if not, exactly where does it stop holding?</strong></p>
-
-<p>Answering it requires knowing not just <em>how many</em> variants changed, but
-<em>which kind</em> of claim changed: whether the sites themselves moved, or only
-the genotype evidence attached to them. Those imply different remediation.</p>
-
-<div class="scope">
-<strong>Scope, stated plainly.</strong> This study compares two <em>published</em>
-NIST releases against each other. It does <strong>not</strong> re-execute GIAB's
-benchmark-construction pipeline, which integrates multiple sequencing platforms
-and callers over ~100&nbsp;GB of reads. No claim is made here about reproducing
-NIST's methodology. What is reproduced is the <em>comparison</em>, and what is
-new is its characterisation.
+<div class="card">
+<h3><a href="giab/">Do variant-caller validations survive a benchmark update?</a></h3>
+<p>NIST Genome in a Bottle HG001, releases v3.3.2 vs v4.2.1 &mdash; 3.6&nbsp;M and
+3.9&nbsp;M variants, compared in under a minute.</p>
+<p><strong>The trap is scope.</strong> The comparison reported 242,958 variants
+"retired, prior validation void". <strong>41% of them were chromosome&nbsp;X</strong>,
+which the newer release does not cover at all &mdash; the files are named
+<code>CHROM1-X</code> and <code>1_22</code>. Nothing was retired. Corrected,
+site-level carryover is 95.9%, not 93.2%.</p>
+<p class="mut">Lesson: every rung of a comparison ladder assumes both artifacts
+describe the same key space. Check that first, or measure content differences
+between things that were never comparable.</p>
 </div>
 
-<h2>2. What the published work reports</h2>
-
-<p>NIST's own description of the v4 series is that it substantially
-<em>expanded</em> the high-confidence regions over v3, by incorporating additional
-sequencing technologies and improved integration methods, and that genotype
-representation was revised. The published artifacts corroborate the expansion
-directly:</p>
-
-<table>
-<tr><th>Published artifact</th><th>v3.3.2</th><th>v4.2.1</th><th>change</th></tr>
-<tr><td>benchmark VCF (GRCh38, gzipped)</td><td>107.1 MB</td><td>125.9 MB</td><td>+17.6%</td></tr>
-<tr><td>high-confidence region BED</td><td>10.5 MB</td><td>15.5 MB</td><td class="ok">+47.6%</td></tr>
-</table>
-
-<p>The BED file defines <em>where</em> the benchmark makes a claim at all. A ~48%
-larger region file is the published evidence for the stated expansion. What the
-release artifacts do not state, and what a validating lab actually needs, is the
-per-variant consequence.</p>
-
-<h2>3. What our FFL workflow found</h2>
-
-<p>The workflow fetches both published releases, compares them keyed on variant
-identity <code>(CHROM, POS, REF, ALT)</code>, and reports the highest level at
-which they agree. Results below are over the <strong>complete GRCh38
-benchmarks</strong> — 3.6&nbsp;M and 3.9&nbsp;M variants — compared in under a
-minute on a single commodity node.</p>
-
-<p>Two things had to be right before the numbers meant anything, and neither is
-obvious. A VCF line can carry several ALT alleles at once, so keying on the whole
-ALT field asks <em>"were these alleles grouped identically?"</em> when the
-question is <em>"is this allele present in both?"</em>; the comparison therefore
-splits ALT and compares alleles. And the two releases <strong>do not span the
-same genome</strong> — see below.</p>
-
-<table>
-<tr><th>Fields compared</th><th>Shared alleles</th><th>Verdict</th></tr>
-<tr><td>sites only — CHROM/POS/REF/ALT</td><td>3,411,989</td><td class="ok">all match</td></tr>
-<tr><td>sites + FILTER status</td><td>3,411,989</td><td class="ok">all match</td></tr>
-<tr><td>sites + genotype (<code>HG001</code> column)</td><td>3,411,989</td><td class="warn">all differ</td></tr>
-</table>
-
-<h3>The releases do not cover the same genome</h3>
-
-<p>Before any content can be compared, the two artifacts have to be describing
-the same key space — and here they are not. v3.3.2 covers chromosomes
-1&ndash;X; v4.2.1 covers 1&ndash;22 and <strong>contains no chrX at all</strong>.
-The release filenames say so outright: <code>&hellip;CHROM1-X_v.3.3.2&hellip;</code>
-versus <code>&hellip;1_22_v4.2.1&hellip;</code>.</p>
-
-<p>That is <strong>101,253 alleles</strong> — 41% of everything a naive
-comparison calls "retired". They were not retired. They are out of scope, and
-the distinction is the whole answer for a lab: <em>"your chrX validation is
-void"</em> and <em>"the new release makes no claim about chrX"</em> demand
-completely different responses.</p>
-
-<table>
-<tr><th></th><th>v3.3.2</th><th>v4.2.1</th></tr>
-<tr><td>VCF records</td><td>3,619,471</td><td>3,893,341</td></tr>
-<tr><td>ALT alleles (the unit compared)</td><td>3,659,369</td><td>3,935,734</td></tr>
-<tr><td>chrX — outside the other's scope</td><td class="warn">101,253</td><td>&mdash;</td></tr>
-<tr><td><strong>in scope for comparison</strong></td><td><strong>3,558,116</strong></td><td><strong>3,935,734</strong></td></tr>
-</table>
-
-<p>Set membership, over the in-scope alleles only:</p>
-
-<table>
-<tr><th>Category</th><th>Count</th><th>Meaning for a prior validation</th></tr>
-<tr><td>shared, site-identical</td><td>3,411,989 <span class="ok">(95.9%)</span></td><td>carries over unchanged</td></tr>
-<tr><td>only in v3.3.2 (retired)</td><td>146,127 (4.1%)</td><td>no longer benchmarked — prior TP/FN claims void</td></tr>
-<tr><td>only in v4.2.1 (added)</td><td>523,745 (13.3%)</td><td>newly benchmarked — never evaluated</td></tr>
-</table>
-
-<p><strong>Without separating scope from content</strong> the same comparison
-reports 247,380 retired variants and 93.2% carryover. Both are wrong, in the
-same direction, and neither looks wrong: the run is green, the arithmetic is
-sound, and the error is entirely in what the numbers were taken to mean.</p>
-
-<h3>Why every genotype differs</h3>
-
-<p>The genotype column differs for <em>every</em> shared variant, in three
-distinct ways at once. A representative record:</p>
-
-<pre>chr1:817186 G&gt;A
-  v3.3.2  FORMAT=GT:DP:ADALL:AD:GQ:IGT:IPS:PS   1|1:823:0,381:78,454:283:1/1:.:PATMAT
-  v4.2.1  FORMAT=GT:PS:DP:ADALL:AD:GQ           1/1:.:1041:78,459:0,88:348</pre>
-
-<ol>
-<li><strong>FORMAT restructured</strong> — <code>IGT</code> and <code>IPS</code>
-dropped, <code>PS</code> moved forward.</li>
-<li><strong>Phasing dropped</strong> — <code>1|1</code> became <code>1/1</code>.</li>
-<li><strong>Evidence values genuinely increased</strong> — depth 823&nbsp;→&nbsp;1041,
-genotype quality 283&nbsp;→&nbsp;348. This is not reformatting; v4.2.1 rests on
-more data.</li>
-</ol>
-
-<h3>The operational answer</h3>
-
-<p><strong>Site-level validation carries over. Genotype-level validation does
-not.</strong> A lab measuring sensitivity/precision on variant sites can rely on
-its v3.3.2 work for the shared set and needs only to evaluate the 523,745 added
-alleles — and must note that chrX is no longer covered at all. A lab whose acceptance criteria touch genotype quality, depth, or phasing
-must re-run in full: every one of those records changed.</p>
-
-<h2>4. How our workflow compares to the published work</h2>
-
-<p>These are complementary rather than competing artifacts, and the distinction
-matters:</p>
-
-<table>
-<tr><th></th><th>NIST GIAB</th><th>This workflow</th></tr>
-<tr><td>Question</td><td>What is the truth for this genome?</td><td>What changed between two truths?</td></tr>
-<tr><td>Input</td><td>~100 GB reads, multiple platforms</td><td>Two published VCFs</td></tr>
-<tr><td>Method</td><td>Multi-caller integration, arbitration, region construction</td><td>Keyed set comparison over a strictness ladder</td></tr>
-<tr><td>Output</td><td>A benchmark</td><td>A characterised discrepancy</td></tr>
-<tr><td>Cost</td><td>Substantial compute + expert curation</td><td>Minutes on commodity hardware</td></tr>
-</table>
-
-<h3>The algorithmic difference that matters</h3>
-
-<p>The conventional comparison for this task is a checksum or a diff, and both
-give the wrong answer here. A checksum reports <em>failed</em>; a naive diff
-reports every record as changed. Neither distinguishes "the sites are identical
-and only the genotype encoding moved" from "the calls disagree" — yet those
-demand opposite responses.</p>
-
-<p>Our comparison instead reports the <strong>highest level at which two outputs
-agree</strong>:</p>
-
-<pre>exists → schema → cardinality → keys → values → bytes</pre>
-
-<p>and, critically, <strong>reports every normalisation required to reach that
-level</strong>. Sorting keys or applying a tolerance until two files match does not
-demonstrate a reproduction — it manufactures one — so each is declared in the
-result rather than hidden inside it.</p>
-
-<p>This study also found the rung the ladder was <em>missing</em>. Every level
-above assumes the two artifacts describe the same key space, and these two did
-not. A comparison that reports content differences between artifacts covering
-different chromosomes answers a question nobody asked, in a form
-indistinguishable from the answer to the one they did — so scope is now checked
-beneath the ladder rather than assumed by it.</p>
-
-<div class="note">
-This design came from an earlier measurement, not from theory. Reproducing
-PyPSA grid-builder's output, two orchestrators produced byte-different files
-containing identical data, because the upstream tool serialises a nested
-dictionary in unstable key order. <em>Bytes differ; the data does not.</em> Any
-comparison that cannot express that distinction will misreport a correct
-reproduction as a failure.
+<div class="card">
+<h3><a href="normals/">Can a published climate normal be recomputed from the data it derives from?</a></h3>
+<p>NOAA 1991&ndash;2020 U.S. Climate Normals recomputed from GHCN-Daily
+observations, across 12 stations &mdash; 65 tasks.</p>
+<p><strong>The trap is direction.</strong> Eight stations pass at a 2% tolerance
+with zero differing values &mdash; and at New York all 36 residuals fall on the
+same side per column, TMAX high 12/12 and TMIN low 12/12. A tolerance is a
+per-value predicate and cannot see that. Four stations do not reproduce at all.</p>
+<p class="mut">Lesson: "36 small random errors" and "36 errors in the same
+direction" are different claims about a reproduction, and only the second says
+the method differs. Also: n&nbsp;=&nbsp;1 produced a compelling and wrong
+explanation, which twelve stations refuted.</p>
 </div>
 
-<h3>Scale</h3>
+<h2>Why publish the mistakes</h2>
 
-<p>The comparison indexes one file at a time into a compact digest map — 16
-bytes per key — rather than materialising records, so peak memory tracks the key
-count rather than the file size. Measured:</p>
+<p>Each study records what went wrong in building it, not only what it found. The
+GIAB page was published twice with figures that were wrong in the same way &mdash;
+arithmetically sound, meaning something other than their label. The normals study
+survived a unit error, a hand-rolled CSV parser that silently shifted every field,
+and a residual test that pooled columns until opposite biases cancelled.</p>
 
-<table>
-<tr><th>Implementation</th><th>Input</th><th>Peak memory</th></tr>
-<tr><td>load everything</td><td>two 38&nbsp;MB slices</td><td class="warn">5.44 GB</td></tr>
-<tr><td>load everything</td><td>the full 233&nbsp;MB pair</td><td class="warn">16.7 GB (projected)</td></tr>
-<tr><td>streaming index</td><td>the full 233&nbsp;MB pair</td><td class="ok">3.08 GB</td></tr>
-</table>
-
-<p>The naive version needed <em>more</em> memory for a sixth of the data than the
-streaming one needs for all of it. That is not an optimisation footnote. The
-first whole-genome attempt exhausted a 23&nbsp;GiB VM, the runner stopped
-answering its heartbeat, the reaper reclaimed the task as a dead host, and it
-dead-lettered after five retries and 24 minutes — a failure that reads as an
-infrastructure fault and was arithmetic. A task-level heartbeat cannot rescue a
-process that is thrashing; the memory had to come down.</p>
-
-<h2>5. Reproducing this</h2>
-
-<p>The workflow is <strong>31 lines of FFL</strong> (plus 70 of commentary)
-composed entirely from built-in facets — no domain-specific handlers were
-written for this. <code>fw.http.Fetch</code> acquires each published release and
-records its digest and provenance; <code>fw.compare.Tabular</code> compares and
-writes the report.</p>
-
-<p>An earlier version also called <code>fw.compare.Summarise</code>, which
-aggregates many file-pair verdicts into the weakest one. Over a <em>single</em>
-pair it was handed an empty verdict list and correctly answered "nothing was
-compared" — the guard working, not a result. It was removed rather than left in
-to look thorough.</p>
-
-<pre>fw ffl run --primary examples/repro-giab/giab_benchmark_diff.ffl \
-           --workflow repro.giab.CompareBenchmarkReleases</pre>
-
-<p>A page about reproducibility should say whether it reproduces. It was run
-twice, an hour apart, on different runner containers of a distributed fleet:</p>
-
-<table>
-<tr><th>Run</th><th>Finished</th><th>Report MD5</th></tr>
-<tr><td>1</td><td>21:36:12 UTC</td><td style="font-family:monospace;font-size:0.82em">5f155ec921e5fd5e7e804670971608b1</td></tr>
-<tr><td>2</td><td>22:34:30 UTC</td><td style="font-family:monospace;font-size:0.82em">5f155ec921e5fd5e7e804670971608b1</td></tr>
-</table>
-
-<p>Byte-identical. That is a weaker claim than it sounds — the inputs are fixed
-artifacts and the comparison is deterministic, so anything else would have been
-a bug. It is worth stating precisely because the interesting failures in this
-project have been the ones that <em>looked</em> fine: an orchestrator that
-retries a task can leave a duplicate output record and make a perfectly
-reproducible pipeline read as irreproducible, which is why the comparison keys
-on record identity rather than file position.</p>
-
-<h2>6. Exactly what was compared</h2>
-
-<p>A reproduction study that cannot be checked is an assertion. <code>fw.http.Fetch</code>
-writes a provenance sidecar beside every download, so these are the precise bytes
-behind every number on this page — not "the v3.3.2 release" but one identified
-artifact. Anyone can fetch the same URLs and verify the digests before deciding
-whether our figures are worth arguing with.</p>
-
-<table>
-<tr><th>Release</th><th>SHA-256</th><th>Bytes</th><th>Published</th></tr>
-<tr><td>v3.3.2</td><td style="font-family:monospace;font-size:0.78em;word-break:break-all">967bda6bf94edf7d1c686f153a7e635cf229c456a538654327081c12c99e76d4</td><td>107,068,737</td><td>2017-02-24</td></tr>
-<tr><td>v4.2.1</td><td style="font-family:monospace;font-size:0.78em;word-break:break-all">93bc4c2c696eaf13515ab058caecc064bfed704f85bac7482330ca91bc730daa</td><td>125,932,193</td><td>2021-09-20</td></tr>
-</table>
-
-<p>Both are served by NIST with a <code>Last-Modified</code> older than four years,
-so the sources are stable and a later rerun compares the same artifacts rather
-than a moving target — which is itself the failure mode that froze an earlier
-pipeline here on a <code>-latest</code> URL.</p>
-
-<h2>7. Limitations</h2>
-
-<ul>
-<li><strong>This page has been wrong twice, in the same way both times</strong>
-— a number that was arithmetically correct and meant something other than what
-it was labelled. First it reported figures from a partial slice as though they
-were whole-genome (the slice was chromosome-1 heavy and under-counted added
-sites threefold). Then it reported 242,958 variants as <em>retired</em> when 41%
-of them were simply outside v4.2.1's scope. Both drafts ran green. The
-corrections are recorded here rather than quietly swapped in, because anyone who
-acted on the earlier figures needs to know they moved.</li>
-<li>Multi-allelic records are split so alleles are compared individually.
-Trimming to parsimony and MNP decomposition are <em>not</em> applied, and
-left-alignment through repeat regions is not either — that one needs the 3&nbsp;GB
-GRCh38 reference for random access. This is a measured decision, not an
-oversight: ablated over the full pair, splitting ALT rescues 396 records from
-"wholly unmatched", adding trimming rescues 24 more, and MNP decomposition
-rescues none. Zero records in either release are even trimmable, because both
-come from pipelines that already normalise. Against an arbitrary variant
-caller's output the calculation would come out differently, and these are the
-numbers to re-measure before assuming otherwise.</li>
-<li>Scope detection uses the first key column (here <code>CHROM</code>) and only
-while its cardinality stays modest. It catches a whole partition missing from
-one side; it does <em>not</em> catch a partially-covered one. The high-confidence
-BED files define coverage precisely and are not consulted — a variant inside
-both VCFs but outside the newer BED region is still counted as shared here.</li>
-<li>GIAB's methodology is not re-executed, so this cannot detect an error in the
-benchmark construction itself — only differences between two published outputs.</li>
-</ul>
+<p>All three were caught by checking a result against an independent path rather
+than by anything failing. That is the actual method these studies are arguing
+for, so hiding the misses would misrepresent it.</p>
 
 <footer>
-Produced with <a href="https://github.com/rlemke/facetwork">Facetwork</a> —
+Produced with <a href="https://github.com/rlemke/facetwork">Facetwork</a> &mdash;
 workflows in FFL, executed on a distributed runner fleet.
-Source data © NIST Genome in a Bottle Consortium.
 </footer>
 </body></html>
