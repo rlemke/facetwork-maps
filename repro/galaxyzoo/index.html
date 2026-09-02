@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reproduction study &mdash; Galaxy Zoo 1 morphology flags</title>
+<style>
+ :root{--fg:#1a1a1a;--bg:#fff;--mut:#666;--line:#e2e2e2;--ok:#0a6b3d;--warn:#8a5a00;--acc:#1a4f8a}
+ @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e8e8e8;--bg:#141414;--mut:#9a9a9a;--line:#333;--ok:#5fbf8f;--warn:#d0a24a;--acc:#7fb0e8}}
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:52rem;margin:2.5rem auto;padding:0 1.1rem;
+      line-height:1.6;color:var(--fg);background:var(--bg)}
+ h1{font-size:1.7rem;line-height:1.25;margin-bottom:.2rem}
+ h2{font-size:1.15rem;margin-top:2.2rem;border-bottom:1px solid var(--line);padding-bottom:.3rem}
+ h3{font-size:1rem;margin-top:1.5rem;color:var(--acc)}
+ .sub{color:var(--mut);margin-top:0}
+ table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+ th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+ th{font-weight:600;color:var(--mut);font-size:.82rem;text-transform:uppercase;letter-spacing:.03em}
+ code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}
+ pre{background:color-mix(in srgb,var(--fg) 5%,var(--bg));padding:.8rem 1rem;border-radius:6px;
+     overflow-x:auto;border:1px solid var(--line)}
+ .ok{color:var(--ok);font-weight:600}
+ .warn{color:var(--warn);font-weight:600}
+ .note{border-left:3px solid var(--warn);padding:.5rem 0 .5rem .9rem;margin:1.1rem 0;color:var(--mut)}
+ .scope{border:1px solid var(--warn);border-radius:6px;padding:.9rem 1.1rem;margin:1.4rem 0;
+        background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
+ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.85rem}
+</style>
+
+</head><body>
+
+<p style="margin-bottom:1.6rem"><a href="../">&larr; Reproduction studies</a></p>
+
+<h1>When one file contains two derivations of the same quantity</h1>
+<p class="sub">Reproducing the SPIRAL / ELLIPTICAL / UNCERTAIN flags of Galaxy Zoo 1
+from the rule its own data release states, across 667,944 galaxies, as a
+Facetwork FFL workflow. September 2026.</p>
+
+<h2>1. Purpose of the analysis</h2>
+
+<p>Galaxy Zoo 1 is the morphology catalogue a great deal of extragalactic work is
+built on &mdash; if you want a clean sample of spirals or ellipticals from SDSS,
+this is where you get it. Its data release publishes the entire chain in a single
+table: what volunteers voted, the bias-corrected likelihoods derived from those
+votes, and the final classification flags.</p>
+
+<p>That makes it unusually checkable. The question here is narrow: <strong>does
+applying the documented rule to the published columns produce the published
+flags?</strong> If it does not, anyone who builds a sample the obvious way gets a
+different sample from the one the catalogue's authors intended.</p>
+
+<h2>2. What the original work does</h2>
+
+<p><a href="https://www.zooniverse.org/projects/zookeeper/galaxy-zoo/">Galaxy Zoo</a>
+asked volunteers to classify SDSS galaxy images; each galaxy received a median of
+around 40 independent classifications. Raw vote fractions are not directly usable
+as morphology, because <strong>the vote is biased by distance</strong>: a spiral
+far enough away looks smooth, so it collects elliptical votes. The published
+catalogue therefore carries bias-corrected ("debiased") likelihoods alongside the
+raw fractions.</p>
+
+<table>
+<tr><th>Column group</th><th>What it is</th></tr>
+<tr><td><code>NVOTE</code>, <code>P_EL</code>, <code>P_CS</code>, &hellip;</td><td>raw vote fractions &mdash; the input</td></tr>
+<tr><td><code>P_EL_DEBIASED</code>, <code>P_CS_DEBIASED</code></td><td>bias-corrected likelihoods</td></tr>
+<tr><td><code>SPIRAL</code>, <code>ELLIPTICAL</code>, <code>UNCERTAIN</code></td><td>the classification flags &mdash; the product</td></tr>
+</table>
+
+<p>The data release's one-line summary of the flags is that they "are based upon
+a vote fraction threshold of 0.8". Read further and the same note says something
+much more specific:</p>
+
+<div class="scope">
+"for the debiased type likelihoods we computed the bias correction based on the
+elliptical/spiral ratio <strong>using the likelihoods directly</strong>; for the
+type flags we debiased the raw type likelihoods using a correction based on the
+elliptical/spiral ratio <strong>determined after applying a 0.8 threshold</strong>,
+and then applied the same threshold to produce the flags. <strong>Therefore, the
+type flags do not correspond to simply applying a 0.8 threshold on the debiased
+type likelihoods</strong>, though for many galaxies these will agree."
+<br><span class="sub">&mdash; <a href="https://data.galaxyzoo.org/">Galaxy Zoo 1 data release</a></span>
+</div>
+
+<p>There are <strong>two different debiasings of the same quantity in adjacent
+columns</strong>. Both are correct. They answer different questions: the bias in a
+likelihood and the bias in a thresholded classification are not the same
+quantity, and Bamford et al. found the latter is worse. Nothing in the file marks
+the two as incommensurable.</p>
+
+<p class="sub">Method: Lintott et al.,
+<a href="https://arxiv.org/abs/0804.4483">Galaxy Zoo: morphologies from visual
+inspection of SDSS galaxies</a> (2008);
+<a href="https://arxiv.org/abs/1007.3265">Galaxy Zoo 1 data release</a> (2011);
+debiasing in Bamford et al.,
+<a href="https://arxiv.org/abs/0805.2612">morphology and colour vs environment</a> (2009).</p>
+
+<h3>What we do differently</h3>
+
+<table>
+<tr><th></th><th>Galaxy Zoo</th><th>This workflow</th></tr>
+<tr><td>Bias correction</td><td class="ok">two, each matched to its use</td><td class="warn">none &mdash; uses the published column as-is</td></tr>
+<tr><td>Threshold</td><td>0.8, applied to the flag-specific debiasing</td><td>0.8, applied to the published likelihoods</td></tr>
+<tr><td>What it produces</td><td>the catalogue</td><td>what the summarised rule would produce</td></tr>
+</table>
+
+<p>Deliberately naive, and the naivety is the experiment: this is precisely what a
+reader who stops at "a vote fraction threshold of 0.8" would compute.</p>
+
+<h2>3. What our FFL workflow found</h2>
+
+<p>Both sides are read from <strong>the same file</strong> &mdash; one applies the
+documented rule, one reads the published flags &mdash; so any difference is
+provably the rule, not the data. No tolerance and no normalisation: these are
+flags, so the comparison is exact.</p>
+
+<pre>verdict   : DIFFER at level `keys`
+expected  : flags-as-published.csv         (667,944 records)
+actual    : flags-from-documented-rule.csv (667,944 records)
+differing : 89,332
+normalised by : (nothing — compared as-is)</pre>
+
+<p><strong>89,332 galaxies &mdash; 13.4% &mdash; are classified differently.</strong>
+The verdict sits at <code>keys</code>: every galaxy is present on both sides, so
+nothing was lost or filtered. The two artifacts describe exactly the same
+population and disagree about it.</p>
+
+<table>
+<tr><th>Published</th><th>The documented rule says</th><th>Galaxies</th></tr>
+<tr><td>SPIRAL</td><td class="warn">UNCERTAIN</td><td>42,922</td></tr>
+<tr><td>UNCERTAIN</td><td>ELLIPTICAL</td><td>28,182</td></tr>
+<tr><td>UNCERTAIN</td><td>SPIRAL</td><td>13,628</td></tr>
+<tr><td>ELLIPTICAL</td><td class="warn">UNCERTAIN</td><td>4,435</td></tr>
+<tr><td>SPIRAL</td><td class="warn">ELLIPTICAL</td><td>165</td></tr>
+</table>
+
+<div class="scope">
+<strong>The practical consequence.</strong> The published catalogue contains
+190,225 spirals. Thresholding the published debiased column drops
+<strong>42,922 of them &mdash; 22.6% of every spiral in the catalogue</strong>
+&mdash; while promoting 41,810 galaxies out of UNCERTAIN that the catalogue does
+not classify. A researcher who builds a spiral sample the obvious way is not
+working with a slightly noisier version of the Galaxy Zoo sample. They are
+working with a materially different one, and nothing in their pipeline would
+tell them.<br><br>
+165 galaxies change morphological class outright &mdash; published SPIRAL, rule
+says ELLIPTICAL.
+</div>
+
+<h2>4. How our workflow compares to the published work</h2>
+
+<p>This study does not evaluate Galaxy Zoo's classifications and could not: the
+volunteer votes, the redshift-dependent bias model and the validation are the
+scientific work, and none of it is reproduced here. <strong>The flags are the
+more careful artifact and the catalogue is right to publish them.</strong></p>
+
+<p>What the workflow measures is the distance between a published result and its
+own one-line summary &mdash; how far a documented subtlety moves a sample when a
+reader does not follow it through. The note names its own victim: "users who do
+not want to get into the details too much".</p>
+
+<h3>Why this needed no tolerance</h3>
+
+<p>The <a href="../normals/">companion NOAA study</a> spent considerable effort on
+choosing a tolerance, and got it wrong the first time. Here there is nothing to
+choose: flags are categorical, so the comparison is exact and the verdict cannot
+be an artifact of a threshold. That is worth noticing when designing a
+reproduction &mdash; <em>where you can arrange to compare categories rather than
+magnitudes, do</em>.</p>
+
+<h2>5. Reproducing this</h2>
+
+<pre>fw ffl run --primary examples/repro-galaxyzoo/gz1_morphology_repro.ffl \
+           --library facetwork/ffl/file.ffl \
+           --workflow repro.galaxyzoo.ReproduceMorphologyFlags</pre>
+
+<p>The catalogue is 20&nbsp;MB gzipped, 667,944 rows. Both derivations are FFL
+<code>script</code> blocks bound to <code>fw.file.FileOps</code> &mdash; no handler
+and no domain package. The comparison indexes 667,944 keys.</p>
+
+<h2>6. Limitations</h2>
+
+<ul>
+<li><strong>This is not a defect report.</strong> The behaviour is documented in
+the data release, the reasoning behind it is sound, and the published flags are
+the artifact to use. The finding is about how easily a documented subtlety is
+missed, not about whether Galaxy Zoo is correct.</li>
+<li>We do not reproduce the debiasing itself, which depends on redshift and
+apparent magnitude. Only the final thresholding step is recomputed, which is why
+the study can say <em>that</em> the two disagree but not re-derive the correct
+flags from raw votes.</li>
+<li>Table 2 covers galaxies with SDSS DR7 spectra. Table 3 &mdash; those without
+&mdash; publishes no debiased columns at all, because the bias cannot be
+estimated without redshifts, so this comparison does not apply there.</li>
+<li>The 0.8 threshold is applied as <code>&gt;=</code>. The data release does not
+state the boundary convention; at three-decimal precision a handful of galaxies
+sit exactly on it.</li>
+</ul>
+
+<footer>
+Produced with <a href="https://github.com/rlemke/facetwork">Facetwork</a> &mdash;
+workflows in FFL, executed on a distributed runner fleet.
+Data: <a href="https://data.galaxyzoo.org/">Galaxy Zoo 1</a>, via
+<a href="https://science.nasa.gov/mission/hubble/science/citizen-science/">NASA Hubble citizen science</a>.
+Galaxy Zoo is a Zooniverse project built on volunteer classifications.
+</footer>
+</body></html>

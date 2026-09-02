@@ -37,7 +37,7 @@
 produce, compare the outputs, and document the discrepancies &mdash; each one run
 as a Facetwork FFL workflow on a distributed fleet.</p>
 
-<p>Both studies below reach the same uncomfortable place by different routes: a
+<p>The three studies below reach the same uncomfortable place by different routes: a
 comparison that is <em>arithmetically correct and answers the wrong question</em>.
 Neither failure announces itself. Both runs are green.</p>
 
@@ -78,6 +78,21 @@ the method differs. Also: n&nbsp;=&nbsp;1 produced a compelling and wrong
 explanation, which twelve stations refuted &mdash; and a <em>relative</em>
 tolerance on a temperature produced a second wrong answer, retracted on the
 page.</p>
+</div>
+
+<div class="card">
+<h3><a href="galaxyzoo/">When one file contains two derivations of the same quantity</a></h3>
+<p>Galaxy Zoo 1 morphology flags recomputed from the rule its own data release
+states &mdash; 667,944 galaxies, compared exactly.</p>
+<p><strong>The trap is provenance within a single artifact.</strong> The
+catalogue publishes bias-corrected likelihoods and classification flags side by
+side, and the flags use a <em>different</em> bias correction from the likelihoods
+&mdash; documented, but easy to miss. Thresholding the published column at the
+documented 0.8 disagrees for <strong>89,332 galaxies (13.4%)</strong>, dropping
+22.6% of every spiral in the catalogue.</p>
+<p class="mut">Lesson: adjacent columns are not necessarily commensurable, and
+nothing in a file format can say so. This one needed no tolerance at all &mdash;
+flags are categorical, so the verdict cannot be an artifact of a threshold.</p>
 </div>
 
 <h2>Why publish the mistakes</h2>
