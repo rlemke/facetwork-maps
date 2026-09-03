@@ -382,21 +382,43 @@ exposures, 5 published trails, a standard <code>ACS-WFC-DITHER-LINE</code>
 pattern with all twelve pointings identical.</p>
 
 <table>
-<tr><th></th><th>Raw frames</th><th>Difference imaged</th></tr>
-<tr><td>Trails matched anywhere</td><td>5/16</td><td class="warn">0/16</td></tr>
-<tr><td>Background z (median of top 200)</td><td>211</td><td class="warn">8,244</td></tr>
+<tr><th></th><th>Raw frames</th><th>Global shift</th><th>Distortion-corrected</th></tr>
+<tr><td>Trails matched anywhere</td><td>5/17</td><td class="warn">0/16</td><td class="warn">0/17</td></tr>
+<tr><td>Background z (median of top 200)</td><td>211</td><td class="warn">8,244</td><td class="warn">2,085</td></tr>
+</table>
+
+<p>Resampling each frame through its full WCS &mdash; distortion lookup tables
+included &mdash; improved the background by 4&times;, so misalignment was a real
+part of it. It did not come close to fixing it. The reason is measurable, so we
+measured it: bin every pixel by how bright the static sky model is there, and
+look at the residual left behind.</p>
+
+<table>
+<tr><th>Model brightness at that pixel</th><th>Pixels</th><th>Median |residual|</th></tr>
+<tr><td>blank sky (below median)</td><td>253,076</td><td class="ok">0.5 sigma</td></tr>
+<tr><td>median &ndash; p90</td><td>202,460</td><td class="ok">0.8 sigma</td></tr>
+<tr><td>p90 &ndash; p99</td><td>45,553</td><td class="warn">5.4 sigma</td></tr>
+<tr><td>p99 &ndash; p99.9 (sources)</td><td>4,555</td><td class="warn">24 sigma</td></tr>
+<tr><td>p99.9 &ndash; max (bright stars)</td><td>507</td><td class="warn">84 sigma</td></tr>
 </table>
 
 <div class="scope">
-<strong>It made things worse, and the reason is physical.</strong>
-ACS/WFC <code>FLT</code> frames are geometrically distorted. Across this
-field&rsquo;s 298&nbsp;px dither the <em>differential</em> distortion is several
-pixels, and a stellar PSF is about 2&nbsp;px across &mdash; so every star leaves
-a residual comparable to its own peak, and those artifacts outrank the trails.
-Differencing done properly needs distortion-corrected resampling, which is
-drizzle: the same machinery whose cosmic-ray rejection removes the centres of
-bright trails to begin with. The shortcut and the thing being worked around are
-the same tool.
+<strong>The subtraction is not the problem. The resampling is.</strong>
+On blank sky the difference is clean to 0.5&nbsp;sigma &mdash; exactly what it
+should be. The residual scales with the flux underneath it, reaching
+84&nbsp;sigma at bright stars, and correlates with model brightness
+(<code>r&nbsp;=&nbsp;+0.34</code> in log&ndash;log). That is the signature of
+<strong>undersampling</strong>: HST&rsquo;s PSF is about 2&nbsp;px across at
+0.05&Prime;/px, so interpolating it to a sub-pixel offset leaves an error
+proportional to the source. Five hundred pixels at 84&nbsp;sigma are more than
+enough to outrank an asteroid worth a few sigma per pixel.
+<br><br>
+This is precisely the problem <em>drizzle</em> exists to solve, and it cannot be
+interpolated away &mdash; which is why HAH&nbsp;I worked from drizzled products
+despite their cosmic-ray step removing the centres of bright trails. Doing this
+properly means running the drizzle toolchain with CR rejection disabled, so the
+stack is built without destroying the thing being looked for. That is a
+different and much larger project than a better threshold.
 </div>
 
 <div class="scope">
