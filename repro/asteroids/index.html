@@ -320,6 +320,110 @@ achievements.</p>
 <tr><td>24.4</td><td>0.6</td><td class="">no</td><td>&mdash;</td><td class="">no</td></tr>
 </table>
 
+<h2>5c. Can the candidate list be thresholded? No.</h2>
+
+<p>Section&nbsp;5b ends on a claim that was qualitative: a matched filter cannot
+tell an asteroid from an instrumental artifact. The obvious next move is to keep
+only the strongest candidates. We measured whether that works, on the
+<strong>20 richest fields in the catalogue</strong> &mdash; 182 exposures,
+364&nbsp;chips, 327,600&nbsp;candidates, 81&nbsp;trail&times;exposure
+observations, about 31&nbsp;GB streamed.</p>
+
+<table>
+<tr><th>z cut</th><th>Trails kept</th><th>Recall</th><th>Candidates per exposure</th></tr>
+<tr><td>3 (as shipped)</td><td>32</td><td class="warn">40%</td><td>1800</td></tr>
+<tr><td>100</td><td>20</td><td class="warn">25%</td><td>649</td></tr>
+<tr><td>200</td><td>7</td><td class="warn">9%</td><td>219</td></tr>
+<tr><td>300</td><td>1</td><td class="warn">1%</td><td>126</td></tr>
+<tr><td>350</td><td>0</td><td class="warn">0%</td><td>98</td></tr>
+</table>
+
+<p><strong>There is no cut that makes the list reviewable.</strong> At the
+threshold where recall reaches zero, 98&nbsp;candidates per exposure still
+survive. Real trails have median z&nbsp;=&nbsp;128; the background has median
+z&nbsp;=&nbsp;84 and a 99th percentile of 465. The distributions overlap almost
+entirely.</p>
+
+<div class="scope">
+<strong>Why: the score is a flux statistic, not a significance.</strong>
+The lowest-scoring candidate anywhere in 327,600 is <code>z = 30.6</code>. A
+noise-normalised score would pile up against the detector&rsquo;s own
+<code>z&nbsp;&gt;&nbsp;3</code> cut; nothing comes within a factor of ten of it.
+The denominator is global pixel noise, so every galaxy, star halo and
+diffraction spike scores in the hundreds. Tuning the cut cannot repair a
+discriminant that measures brightness rather than straightness.
+</div>
+
+<p>The magnitude breakdown carries a second finding, and it is not the expected
+shape:</p>
+
+<table>
+<tr><th>Magnitude</th><th>Recall</th><th></th></tr>
+<tr><td>15&ndash;20 (brightest)</td><td class="warn">27%</td><td>worse than the middle</td></tr>
+<tr><td>20&ndash;22</td><td class="ok">74%</td><td></td></tr>
+<tr><td>22&ndash;23</td><td class="warn">25%</td><td></td></tr>
+<tr><td>23&ndash;25 (faintest)</td><td class="warn">26%</td><td></td></tr>
+</table>
+
+<p>The brightest bin does <em>worse</em> than the middle. Section&nbsp;4 records
+why capping replaced masking: masking at 50&nbsp;sigma once deleted a trail that
+was itself an 8,000&nbsp;sigma feature. But capping at 30&nbsp;sigma flattens a
+magnitude&nbsp;15 trail to the same level as a bright star, discarding exactly
+the advantage that should make it trivial to find.</p>
+
+<h3>Differencing the frames does not fix it either</h3>
+
+<p>Every one of the 1,316 fields with a published trail has at least
+<strong>two</strong> exposures &mdash; 4,059 in total. The asteroid moves between
+them; the sky does not. So a median stack of the association is a model of the
+static sky, and subtracting it should remove the structure that makes
+<code>z</code> meaningless. We tested this on <code>j96v05020</code>: 12
+exposures, 5 published trails, a standard <code>ACS-WFC-DITHER-LINE</code>
+pattern with all twelve pointings identical.</p>
+
+<table>
+<tr><th></th><th>Raw frames</th><th>Difference imaged</th></tr>
+<tr><td>Trails matched anywhere</td><td>5/16</td><td class="warn">0/16</td></tr>
+<tr><td>Background z (median of top 200)</td><td>211</td><td class="warn">8,244</td></tr>
+</table>
+
+<div class="scope">
+<strong>It made things worse, and the reason is physical.</strong>
+ACS/WFC <code>FLT</code> frames are geometrically distorted. Across this
+field&rsquo;s 298&nbsp;px dither the <em>differential</em> distortion is several
+pixels, and a stellar PSF is about 2&nbsp;px across &mdash; so every star leaves
+a residual comparable to its own peak, and those artifacts outrank the trails.
+Differencing done properly needs distortion-corrected resampling, which is
+drizzle: the same machinery whose cosmic-ray rejection removes the centres of
+bright trails to begin with. The shortcut and the thing being worked around are
+the same tool.
+</div>
+
+<div class="scope">
+<strong>Two corrections to our own method, found while doing this.</strong>
+The alignment above was first attempted with phase cross-correlation, which
+reported offsets of 740&ndash;860&nbsp;px for a dither the WCS puts at
+298&nbsp;px; the WCS is authoritative and the correlation was simply wrong.
+Separately, the catalogued <code>RAs,DEs&nbsp;&rarr;&nbsp;RAe,DEe</code> is the
+path across <em>all</em> the exposures a trail appears in &mdash; 74.5% of the
+catalogue has <code>Nex&nbsp;&gt;&nbsp;1</code> &mdash; not the path within one
+frame, so matching it against a single exposure can place the target more than
+200&nbsp;px from the object.
+<br><br>
+<strong>The figures in sections 3 and 5b are unaffected and have been
+re-verified.</strong> That sample is drawn only from trails with
+<code>Nex&nbsp;=&nbsp;1</code> that start with the first exposure, so the
+catalogued path lies within one frame by construction: all 40 have an MJD span
+equal to their exposure time, 0 of 40 disagreeing.
+</div>
+
+<p>What this costs to answer at scale is now known rather than guessed: the
+1,316 fields hold 4,059 individual exposures, about 684&nbsp;GB. The subset
+worth searching first is smaller &mdash; 1,107 frames (~187&nbsp;GB) that sit
+inside a field already known to contain an asteroid but which no published trail
+is recorded in. None of it is worth downloading until a discriminant exists that
+survives the table at the top of this section.</p>
+
 <h2>6. Limitations</h2>
 
 <ul>
