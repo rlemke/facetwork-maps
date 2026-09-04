@@ -1,0 +1,56 @@
+# Every map must be reachable from the front door.
+#
+# ⚠️ This exists because on 2026-09-01 a publish wrote a FRESH root index.html
+# instead of adding to the existing one: 102 links removed, 4 added. All 220 map
+# pages still existed — ten sections were simply orphaned in plain sight, and the
+# publish reported success. It was found by a human noticing the site looked
+# empty, three days later.
+#
+# It was also self-perpetuating: the publisher harvests the link list out of the
+# EXISTING root index to merge into, so a truncated root stays truncated through
+# every later regeneration.
+name: Reachability
+
+on: [push, pull_request]
+
+jobs:
+  reachable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every section with maps is linked from the root index
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys
+
+          root = pathlib.Path("index.html")
+          if not root.exists():
+              sys.exit("no root index.html")
+          links = re.findall(r'<li><a href="([^"]+)"', root.read_text())
+          linked_sections = {l.split("/")[0] for l in links if "/" in l}
+
+          have = {p.parts[0] for p in pathlib.Path(".").glob("*/**/index.html")}
+          have |= {p.parts[0] for p in pathlib.Path(".").glob("*/index.html")}
+          have -= {".github"}
+
+          orphaned = sorted(have - linked_sections)
+          print(f"root links      : {len(links)}")
+          print(f"sections linked : {len(linked_sections)}")
+          print(f"sections on disk: {len(have)}")
+
+          broken = [l for l in links if not pathlib.Path(l).exists()]
+          if broken:
+              print("\nBROKEN links (target missing):")
+              for b in broken:
+                  print(f"  {b}")
+
+          if orphaned:
+              print("\nORPHANED sections — maps exist but nothing links to them:")
+              for o in orphaned:
+                  n = len(list(pathlib.Path(o).glob("**/index.html")))
+                  print(f"  {o}  ({n} page(s))")
+
+          if orphaned or broken:
+              sys.exit("the front door does not reach every map")
+          print("\nOK — every section is reachable and every link resolves")
+          PY
