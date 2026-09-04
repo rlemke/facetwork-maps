@@ -45,8 +45,14 @@ lg.innerHTML='<b>per 100M VMT</b><br>'+PAL.map((c,i)=>{
 const map=new maplibregl.Map({container:'map',style:{version:8,
   sources:{bm:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
     tileSize:256,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}},
-  layers:[{id:'bm',type:'raster',source:'bm'}]},center:[-96,38.5],zoom:3.2});
+  layers:[{id:'bg',type:'background',paint:{'background-color':'#eef1f4'}},{id:'bm',type:'raster',source:'bm'}]},center:[-96,38.5],zoom:3.2});
 map.addControl(new maplibregl.NavigationControl());
+// A third-party basemap is decoration; the choropleth is the data. If tiles
+// fail (rate limit, blocked CDN, offline) drop the raster layer and keep the
+// map readable, rather than leaving an error where the map should be.
+map.on('error',e=>{const m=String((e&&e.error&&e.error.message)||'');
+  if(/tile|429|403|key|Failed to fetch/i.test(m)&&map.getLayer&&map.getLayer('bm')){
+    try{map.removeLayer('bm');}catch(_){}console.warn('basemap dropped:',m);}});
 map.on('load',()=>{
   map.addSource('d',{type:'geojson',data:FC});
   map.addLayer({id:'fill',type:'fill',source:'d',

@@ -34,6 +34,35 @@ jobs:
           have -= {".github"}
 
           orphaned = sorted(have - linked_sections)
+
+          # ⚠️ Section reachability is NOT enough. Both road-safety maps were
+          # linked only from us/index.html, so the section check passed while
+          # neither map appeared on the front page — the user found them missing,
+          # not the guard. Every map page must be reachable from the root either
+          # DIRECTLY or via a section index that the root links.
+          linked_pages = {l for l in links}
+          for sec in sorted(linked_sections):
+              sidx = pathlib.Path(sec, "index.html")
+              if sidx.exists():
+                  for m in re.findall(r'href="([^"]+)"', sidx.read_text()):
+                      if m.startswith(("http", "#", "mailto:")):
+                          continue
+                      m = m.split("#")[0].rstrip("/")
+                      # A directory-style link ("giab/" or "giab") is the same
+                      # page as "giab/index.html"; not normalising it reported
+                      # four perfectly reachable studies as orphans.
+                      cand = pathlib.Path(sec, m)
+                      linked_pages.add(str(cand))
+                      if not m.endswith(".html"):
+                          linked_pages.add(str(cand / "index.html"))
+          all_pages = {str(q) for q in pathlib.Path(".").glob("*/*/index.html")}
+          unreachable = sorted(all_pages - linked_pages)
+          print(f"map pages      : {len(all_pages)}")
+          print(f"reachable      : {len(all_pages) - len(unreachable)}")
+          if unreachable:
+              print("\nUNREACHABLE map pages — nothing links to them, directly or via a section index:")
+              for u in unreachable:
+                  print(f"  {u}")
           print(f"root links      : {len(links)}")
           print(f"sections linked : {len(linked_sections)}")
           print(f"sections on disk: {len(have)}")
@@ -50,7 +79,7 @@ jobs:
                   n = len(list(pathlib.Path(o).glob("**/index.html")))
                   print(f"  {o}  ({n} page(s))")
 
-          if orphaned or broken:
+          if orphaned or broken or unreachable:
               sys.exit("the front door does not reach every map")
           print("\nOK — every section is reachable and every link resolves")
           PY
