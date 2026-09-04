@@ -38,9 +38,8 @@
   const map = new maplibregl.Map({
     container:'map',
     style:{version:8,sources:{carto:{type:'raster',
-      tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-             'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
-      tileSize:256,attribution:'&copy; OpenStreetMap &copy; CARTO'}},
+      tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize:256,attribution:'&copy; OpenStreetMap '}},
       layers:[{id:'carto',type:'raster',source:'carto'}]},
     bounds:[[-111.05, 32.1], [-110.75, 32.35]], fitBoundsOptions:{padding:30}
   });
