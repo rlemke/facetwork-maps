@@ -26,7 +26,7 @@ jobs:
           root = pathlib.Path("index.html")
           if not root.exists():
               sys.exit("no root index.html")
-          links = re.findall(r'<li><a href="([^"]+)"', root.read_text())
+          links = re.findall(r'<li><a href=[\'"]([^\'"]+)[\'"]', root.read_text())
           linked_sections = {l.split("/")[0] for l in links if "/" in l}
 
           have = {p.parts[0] for p in pathlib.Path(".").glob("*/**/index.html")}
@@ -44,7 +44,7 @@ jobs:
           for sec in sorted(linked_sections):
               sidx = pathlib.Path(sec, "index.html")
               if sidx.exists():
-                  for m in re.findall(r'href="([^"]+)"', sidx.read_text()):
+                  for m in re.findall(r'href=[\'"]([^\'"]+)[\'"]', sidx.read_text()):
                       if m.startswith(("http", "#", "mailto:")):
                           continue
                       m = m.split("#")[0].rstrip("/")
