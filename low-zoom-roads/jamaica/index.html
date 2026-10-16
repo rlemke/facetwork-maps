@@ -230,6 +230,24 @@ map.on('styledata',syncLayers);
 })();
 </script>
 <!-- /fw:route-split -->
+<!-- fw:basemap-zoom -->
+<script>
+(function(){
+ var Z0=5.5,Z1=6;
+ function ramp(a,b){return ['interpolate',['linear'],['zoom'],Z0,a,Z1,b];}
+ var P={'raster-brightness-max':[0.45,1],'raster-saturation':[-0.85,0],'raster-contrast':[0.15,0]};
+ // Not gated on isStyleLoaded(): that also waits for every source, i.e. the
+ // remote PMTiles headers. The bg layer is settable as soon as it exists.
+ function apply(){var l=map.getLayer('bg');if(!l)return false;
+   if(l.type!=='raster')return true;
+   try{for(var k in P)if(!Array.isArray(map.getPaintProperty('bg',k)))
+     map.setPaintProperty('bg',k,ramp(P[k][0],P[k][1]));}catch(e){return false;}
+   return true;}
+ map.on('load',apply);map.on('styledata',apply);
+ var n=0,t=setInterval(function(){if(apply()||++n>120)clearInterval(t);},250);
+})();
+</script>
+<!-- /fw:basemap-zoom -->
 </body>
 <style>
 #about-map{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:10000;max-width:min(430px,92vw);
