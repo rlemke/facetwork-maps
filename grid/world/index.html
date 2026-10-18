@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World power grid (OpenStreetMap)</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
+<style>
+html,body,#map{margin:0;height:100%;background:#1b1d22}
+#panel{position:absolute;top:10px;left:10px;z-index:2;max-width:300px;background:rgba(255,255,255,.94);
+ font:13px/1.4 system-ui,sans-serif;padding:10px 12px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+#panel h1{font-size:15px;margin:0 0 6px}#panel label{display:block;cursor:pointer}
+.sw{display:inline-block;width:18px;height:4px;margin-right:6px;vertical-align:middle}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 10px 0 4px;vertical-align:middle}
+#panel small{color:#555}
+</style></head><body><div id="map"></div>
+<div id="panel"><h1>World power grid (OpenStreetMap)</h1>
+<label><input type="checkbox" data-layer="line" checked> <span class="sw" style="background:#e8432e"></span>≥ 220 kV</label>
+<label><input type="checkbox" data-layer="line" checked> <span class="sw" style="background:#f39c12"></span>110–219 kV</label>
+<label><input type="checkbox" data-layer="line" checked> <span class="sw" style="background:#2e86de"></span>33–109 kV</label>
+<label><input type="checkbox" data-layer="line" checked> <span class="sw" style="background:#7f8c8d"></span>&lt; 33 kV / unknown</label>
+<label><input type="checkbox" data-layer="cable" checked> <span class="sw" style="background:repeating-linear-gradient(90deg,#8e44ad 0 4px,transparent 4px 7px)"></span>Underground / submarine cable</label>
+<label><input type="checkbox" data-layer="substation" checked> <span class="dot" style="background:#111;border:1px solid #fff"></span>Substation</label>
+<small id="stats"></small><br>
+<small>Lines appear by voltage as you zoom in: transmission first, distribution from z8.
+Data © OpenStreetMap contributors (ODbL), extracted with earth_osm.</small></div>
+<script>
+const SOURCES = [{"region": "north-america", "url": "north-america.pmtiles", "maxzoom": 8}, {"region": "central-america", "url": "central-america.pmtiles", "maxzoom": 8}, {"region": "south-america", "url": "south-america.pmtiles", "maxzoom": 8}, {"region": "europe", "url": "europe.pmtiles", "maxzoom": 8}, {"region": "africa", "url": "africa.pmtiles", "maxzoom": 8}, {"region": "russia", "url": "russia.pmtiles", "maxzoom": 8}, {"region": "asia", "url": "asia.pmtiles", "maxzoom": 8}, {"region": "australia-oceania", "url": "australia-oceania.pmtiles", "maxzoom": 8}], TOTALS = {"line": 1185560, "cable": 185876, "substation": 884839};
+document.getElementById('stats').textContent =
+  Object.entries(TOTALS).map(([k,v]) => v.toLocaleString() + ' ' + k + (v === 1 ? '' : 's')).join(' · ') + '';
+const protocol = new pmtiles.Protocol(); maplibregl.addProtocol('pmtiles', protocol.tile);
+const base = new URL('.', location.href).href;
+const map = new maplibregl.Map({container: 'map', center: [10, 25], zoom: 1.6, hash: true,
+  style: {version: 8, glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+    sources: {osm: {type: 'raster', tileSize: 256, maxzoom: 19,
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      attribution: '© OpenStreetMap contributors'}},
+    layers: [{id: 'osm', type: 'raster', source: 'osm',
+      paint: {'raster-saturation': -0.9, 'raster-brightness-max': 0.55, 'raster-contrast': -0.1}}]}});
+map.addControl(new maplibregl.NavigationControl());
+const kvColor = ['step', ['get', 'kv'], '#7f8c8d', 33, '#2e86de', 110, '#f39c12', 220, '#e8432e'];
+const byLayer = {line: [], cable: [], substation: []};
+// 'style.load', not 'load': 'load' waits for every basemap tile, so a slow or
+// throttled raster server would hold back the grid itself.
+map.once('style.load', () => {
+  for (const s of SOURCES) {
+    const id = 'src-' + s.region;
+    map.addSource(id, {type: 'vector', url: 'pmtiles://' + base + s.url, maxzoom: s.maxzoom});
+    const add = (lyr, def) => { map.addLayer(Object.assign({id: lyr + '-' + s.region, source: id, 'source-layer': lyr}, def));
+      byLayer[lyr].push(lyr + '-' + s.region); };
+    add('line', {type: 'line', layout: {'line-cap': 'round'}, paint: {'line-color': kvColor,
+      'line-width': ['interpolate', ['linear'], ['zoom'], 2, ['step', ['get', 'kv'], 0.4, 220, 1.1], 10, ['step', ['get', 'kv'], 1, 110, 2.2]]}});
+    add('cable', {type: 'line', paint: {'line-color': '#8e44ad', 'line-dasharray': [2, 1.5],
+      'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.6, 10, 2]}});
+    add('substation', {type: 'circle', paint: {'circle-color': kvColor, 'circle-stroke-color': '#fff',
+      'circle-stroke-width': 0.6, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 1.2, 12, 5]}});
+  }
+  for (const box of document.querySelectorAll('#panel input')) box.addEventListener('change', () => {
+    const lyr = box.dataset.layer, on = [...document.querySelectorAll('#panel input[data-layer="' + lyr + '"]')];
+    if (lyr === 'line') {
+      const bands = [[-1e9, 33], [33, 110], [110, 220], [220, 1e9]].reverse().filter((_, i) => on[i].checked);
+      const f = ['any', ...bands.map(([lo, hi]) => ['all', ['>=', ['get', 'kv'], lo], ['<', ['get', 'kv'], hi]])];
+      for (const id of byLayer.line) map.setFilter(id, bands.length ? f : ['==', 1, 0]);
+    } else for (const id of byLayer[lyr]) map.setLayoutProperty(id, 'visibility', box.checked ? 'visible' : 'none');
+  });
+  const popup = new maplibregl.Popup({closeButton: false});
+  const ids = () => [...byLayer.line, ...byLayer.cable, ...byLayer.substation];
+  map.on('click', (e) => {
+    const f = map.queryRenderedFeatures(e.point, {layers: ids()})[0]; if (!f) return;
+    const p = f.properties, rows = [['', f.sourceLayer], ['name', p.name], ['voltage', p.voltage],
+      ['operator', p.operator], ['class', p['class']], ['OSM', p.id]].filter(r => r[1] !== undefined && r[1] !== null);
+    popup.setLngLat(e.lngLat).setHTML(rows.map(([k, v]) => (k ? '<b>' + k + '</b> ' : '') +
+      String(v).replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;')).join('<br>')).addTo(map);
+  });
+});
+</script></body></html>
