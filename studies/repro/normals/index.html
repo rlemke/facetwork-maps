@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reproduction study — NOAA 1991-2020 Climate Normals</title>
+<style>
+ :root{--fg:#1a1a1a;--bg:#fff;--mut:#666;--line:#e2e2e2;--ok:#0a6b3d;--warn:#8a5a00;--acc:#1a4f8a}
+ @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e8e8e8;--bg:#141414;--mut:#9a9a9a;--line:#333;--ok:#5fbf8f;--warn:#d0a24a;--acc:#7fb0e8}}
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:52rem;margin:2.5rem auto;padding:0 1.1rem;
+      line-height:1.6;color:var(--fg);background:var(--bg)}
+ h1{font-size:1.7rem;line-height:1.25;margin-bottom:.2rem}
+ h2{font-size:1.15rem;margin-top:2.2rem;border-bottom:1px solid var(--line);padding-bottom:.3rem}
+ h3{font-size:1rem;margin-top:1.5rem;color:var(--acc)}
+ .sub{color:var(--mut);margin-top:0}
+ table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+ th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+ th{font-weight:600;color:var(--mut);font-size:.82rem;text-transform:uppercase;letter-spacing:.03em}
+ code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}
+ pre{background:color-mix(in srgb,var(--fg) 5%,var(--bg));padding:.8rem 1rem;border-radius:6px;
+     overflow-x:auto;border:1px solid var(--line)}
+ .ok{color:var(--ok);font-weight:600}
+ .warn{color:var(--warn);font-weight:600}
+ .note{border-left:3px solid var(--warn);padding:.5rem 0 .5rem .9rem;margin:1.1rem 0;color:var(--mut)}
+ .scope{border:1px solid var(--warn);border-radius:6px;padding:.9rem 1.1rem;margin:1.4rem 0;
+        background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
+ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.85rem}
+</style>
+
+</head><body>
+
+<p style="margin-bottom:1.6rem"><a href="../">&larr; Reproduction studies</a></p>
+
+<h1>Can a published climate normal be recomputed from the data it derives from?</h1>
+<p class="sub">Recomputing NOAA's 1991&ndash;2020 U.S. Climate Normals from the
+GHCN-Daily observations they are built on, across 12 stations, as a Facetwork
+FFL workflow. September 2026.</p>
+
+<h2>1. Purpose of the analysis</h2>
+
+<p>A climate normal is the reference against which "hotter than average" is
+measured &mdash; in agriculture, energy demand forecasting, insurance pricing and
+building codes. NOAA publishes the normals <em>and</em> the daily observations
+they derive from, so unlike most published results this one can be checked
+rather than trusted.</p>
+
+<p>The question is not "are the published normals correct". It is narrower and
+more useful: <strong>can an independent party, starting from the same archived
+observations, arrive at the same numbers?</strong> Where the answer is no, the
+gap measures how much of the published product depends on decisions that are
+documented in prose but not reproducible from the archive.</p>
+
+<h2>2. What the original work does</h2>
+
+<p>NOAA NCEI's <a href="https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals">U.S. Climate Normals</a> are not an average of the
+daily archive. Their published
+<a href="https://www.ncei.noaa.gov/data/normals-monthly/1991-2020/doc/Normals_Calculation_Methodology_2020.pdf">Normals Calculation Methodology (2020)</a> describes a
+substantially longer pipeline, and the two steps that matter here are both
+<em>corrections</em> applied before any averaging:</p>
+
+<table>
+<tr><th>Step</th><th>What it does</th><th>NCEI's own words</th></tr>
+<tr><td><strong>Time-of-observation adjustment</strong></td>
+    <td>Corrects for <em>when</em> the observer read the thermometer. A station
+        read at 5&nbsp;pm double-counts hot afternoons in TMAX; one read at
+        7&nbsp;am double-counts cold mornings in TMIN.</td>
+    <td>"a time of observation (TOB) adjustment that strives to make it as if the
+        observations at a particular station had been taken at local
+        midnight"</td></tr>
+<tr><td><strong>Homogenisation</strong></td>
+    <td>Detects and corrects breaks from station moves, instrument changes and
+        other shifts in practice, by pairwise comparison with neighbours
+        (Menne&nbsp;&amp;&nbsp;Williams&nbsp;2009).</td>
+    <td>"GHCN-Daily &hellip; is not homogenized like the monthly temperature
+        dataset &hellip; The standardization procedures account for both
+        documented and undocumented station moves and other changes in observing
+        practices."</td></tr>
+<tr><td>Gap filling</td>
+    <td>Regression against nearby stations, for monthly temperature and
+        precipitation, where suitable neighbours exist.</td>
+    <td>flagged <code>R</code> in the output</td></tr>
+<tr><td>Rounding</td>
+    <td>Banker's rounding, computed in metric units at machine precision and
+        rounded only at output.</td>
+    <td>one decimal place in &deg;F</td></tr>
+</table>
+
+<p>NCEI even give a worked example of the homogenisation adjustment, at exactly
+the magnitude this study measures:</p>
+
+<div class="note">
+"if the 31 daily minimum temperature values from January 2000 average to
+45.5&nbsp;F, but the monthly homogenized mean minimum temperature value for
+January 2000 is 44.5&nbsp;F, the 31 daily minimum temperature values are each
+reduced by 1.0&nbsp;&deg;F"
+</div>
+
+<h3>What we do differently &mdash; deliberately</h3>
+
+<table>
+<tr><th></th><th>NOAA NCEI</th><th>This workflow</th></tr>
+<tr><td>Input</td><td>GHCN-Daily <em>plus</em> the homogenised monthly series</td><td>GHCN-Daily alone</td></tr>
+<tr><td>TOB adjustment</td><td class="ok">applied, per station</td><td class="warn">none</td></tr>
+<tr><td>Homogenisation</td><td class="ok">applied, per station</td><td class="warn">none</td></tr>
+<tr><td>Gap filling</td><td class="ok">where neighbours allow</td><td class="warn">none</td></tr>
+<tr><td>Averaging</td><td>over the corrected series</td><td>arithmetic mean of raw dailies</td></tr>
+</table>
+
+<p><strong>So the difference we measure is not an error on either side &mdash; it
+is the size of NOAA's corrections.</strong> That reframes the whole study: it is
+not "can the normals be reproduced?" but "how much of the published normal comes
+from the raw record, and how much from the adjustments applied to it?" Those
+adjustments are station-specific by construction, which is precisely what the
+twelve-station spread shows.</p>
+
+<p class="sub">Two things we assumed and the documentation corrects. The
+<code>comp_flag</code> value <code>S</code> does <em>not</em> mean 30 complete
+years &mdash; under the 2020 WMO guidelines it means <strong>at least 24 years
+(80%)</strong>. And TAVG is not defined as (TMAX+TMIN)/2: NCEI note the average
+temperature normal "may not be identical, but within rounding error, of the sum
+of the corresponding maximum and minimum temperature normals". Our TAVG column
+uses the conventional midpoint, so a small part of its residual is definitional.
+Full field layout: <a href="https://www.ncei.noaa.gov/data/normals-monthly/1991-2020/doc/Readme_By-Variable_By-Station_Normals_Files.txt">the by-station readme</a>.</p>
+
+<h2>3. What our FFL workflow found</h2>
+
+<p>Each station is fetched, recomputed (mean of daily values per calendar month,
+tenths&nbsp;&deg;C&nbsp;&rarr;&nbsp;&deg;F), and compared against the published
+normals. 12 stations, <strong>61 tasks</strong>, distributed across a four-host
+fleet. 432 values in total (12 months &times; TMAX/TMIN/TAVG &times; 12 stations).</p>
+
+<div class="scope">
+<strong>Reproduction quality is a spectrum, not a pass/fail.</strong> An earlier
+version of this page reported "four stations do not reproduce at all". That was
+an artifact of the threshold, not a property of the data &mdash; see
+&sect;6. Sorted by how closely each station reproduces:
+</div>
+
+<table>
+<tr><th>Station</th><th>median error &deg;F</th><th>max error &deg;F</th>
+    <th>TMAX bias</th><th>TMIN bias</th></tr>
+<tr><td>Los Angeles CA</td><td class="ok">0.040</td><td>0.300</td><td class="mut">none</td><td class="mut">none</td></tr>
+<tr><td>Charlotte NC</td><td class="ok">0.090</td><td>0.200</td><td class="">-0.146</td><td class="mut">none</td></tr>
+<tr><td>Cincinnati OH</td><td class="ok">0.115</td><td>0.290</td><td class="">-0.233</td><td class="">+0.110</td></tr>
+<tr><td>Miami FL</td><td class="ok">0.125</td><td>0.340</td><td class="">+0.232</td><td class="mut">none</td></tr>
+<tr><td>Minneapolis MN</td><td class="">0.205</td><td>0.540</td><td class="mut">none</td><td class="warn">-0.410</td></tr>
+<tr><td>New York NY</td><td class="">0.235</td><td>0.540</td><td class="">+0.242</td><td class="warn">-0.511</td></tr>
+<tr><td>Atlanta GA</td><td class="">0.270</td><td>0.460</td><td class="">-0.395</td><td class="mut">none</td></tr>
+<tr><td>Denver CO</td><td class="">0.335</td><td>0.770</td><td class="mut">none</td><td class="">-0.237</td></tr>
+<tr><td>Houston TX</td><td class="">0.340</td><td>0.520</td><td class="">-0.278</td><td class="">-0.385</td></tr>
+<tr><td>Las Vegas NV</td><td class="">0.340</td><td>1.020</td><td class="">+0.161</td><td class="warn">-0.859</td></tr>
+<tr><td>Seattle WA</td><td class="warn">0.685</td><td>0.960</td><td class="warn">-0.899</td><td class="warn">-0.472</td></tr>
+<tr><td>Chicago IL</td><td class="warn">0.875</td><td>1.540</td><td class="">-0.291</td><td class="warn">-1.452</td></tr>
+</table>
+
+<p class="sub">"Bias" is the mean signed residual (ours &minus; NOAA) where an
+exact sign test finds the residuals systematically one-sided
+(p&nbsp;&lt;&nbsp;0.01 over 12 months); <em>none</em> means consistent with noise.
+The sign test is threshold-independent, so unlike the error magnitudes it does
+not move when the tolerance changes.</p>
+
+<p><strong>Los Angeles reproduces to 0.040&nbsp;&deg;F median; Chicago is off by
+0.875.</strong> That is a twentyfold spread across stations processed from the
+same archive by the same code. Overall:</p>
+
+<table>
+<tr><th>All 432 values</th><th></th></tr>
+<tr><td>median absolute error</td><td>0.230 &deg;F</td></tr>
+<tr><td>90th percentile</td><td>0.820 &deg;F</td></tr>
+<tr><td>maximum</td><td>1.540 &deg;F (Chicago TMIN, January)</td></tr>
+<tr><td>within 0.25 &deg;F</td><td>53.2%</td></tr>
+<tr><td>within 0.50 &deg;F</td><td>81.7%</td></tr>
+<tr><td>within 1.00 &deg;F</td><td>97.0%</td></tr>
+</table>
+
+<div class="scope">
+<strong>The single-station result was misleading, and the fan-out is what showed
+it.</strong> New York alone gives TMAX high in all 12 months (+0.242) and TMIN low
+in all 12 (&minus;0.511) &mdash; a clean, consistent offset. The explanation that
+suggests itself is a unit round-trip: US first-order stations record whole
+degrees&nbsp;F, GHCN-Daily archives tenths of a degree&nbsp;C, and the conversion
+does not commute.<br><br>
+<strong>Twelve stations refute that, and NOAA's own documentation supplies the
+right answer.</strong> TMAX bias runs &minus;0.899 (Seattle) to +0.242 (New York)
+&mdash; it flips sign, which an archive-wide rounding artifact cannot do. What
+does vary by station, by construction, is the <em>time-of-observation adjustment
+and the homogenisation correction</em> described in &sect;2: TOB depends on the
+hour each station's observer reads the thermometer, and homogenisation depends on
+that station's particular history of moves and instrument changes. A station
+whose observer read in the afternoon needs a different correction, in a different
+direction, from one who read at dawn.<br><br>
+So the residuals are not noise and not an artifact &mdash; <strong>they are a
+measurement of NOAA's per-station corrections</strong>, recovered by subtracting
+the raw archive from the published product. Los Angeles reproduces to
+0.04&nbsp;&deg;F because its corrections are near zero; Chicago is off by 0.875
+because its are not.<br><br>
+With n&nbsp;=&nbsp;1 the wrong explanation was not merely possible, it was
+compelling.
+</div>
+
+<h2>4. How our workflow compares to the published work</h2>
+
+<table>
+<tr><th></th><th>NOAA</th><th>This workflow</th></tr>
+<tr><td>Question</td><td>What is the climate normal?</td><td>Can it be recomputed from the archive?</td></tr>
+<tr><td>Input</td><td>Full station history + homogenisation</td><td>The published daily archive alone</td></tr>
+<tr><td>Method</td><td>Documented estimation, QC, infilling</td><td>Arithmetic mean per calendar month</td></tr>
+<tr><td>Output</td><td>A reference product</td><td>A measured gap, per station</td></tr>
+</table>
+
+<h3>The algorithmic point: a tolerance cannot see a bias</h3>
+
+<p>At New York every one of 36 values sits within a generous tolerance
+<em>and</em> every one falls on the same side per column &mdash; TMAX high 12/12,
+TMIN low 12/12.</p>
+
+<pre>verdict : agree at level `values`,  differing: 0
+TMAX residuals SYSTEMATIC: 12+/0- of 12, mean +0.2425  (p=0.00049)
+TMIN residuals SYSTEMATIC: 0+/12- of 12, mean -0.5108  (p=0.00049)</pre>
+
+<p><strong>Agrees and differs at once.</strong> "36 small random errors" and "36
+errors in the same direction" are completely different claims about a
+reproduction, and only the second says the method differs. A tolerance is a
+per-value predicate; it cannot express that. So the comparison runs an exact sign
+test over the signed residuals &mdash; Binomial(n,&nbsp;&frac12;) under the null,
+no distributional assumption &mdash; and reports the structure beside the verdict.
+Being threshold-free, it is the part of this study that does not move when the
+tolerance does.</p>
+
+<div class="note">
+The test is <strong>per column, never pooled</strong>. The first implementation
+pooled, and TMAX running high cancelled TMIN running low into a balanced sign
+split reporting "no bias" &mdash; while both columns were systematically wrong in
+opposite directions. The check destroyed the signal it existed to find.
+</div>
+
+<h3>What the verdict levels mean</h3>
+
+<p>The comparison returns the <strong>highest rung reached</strong> on a ladder,
+so the level names what <em>did</em> match and thereby locates the first thing
+that did not:</p>
+
+<table>
+<tr><th>level</th><th>means</th><th>the failure is</th></tr>
+<tr><td><code>exists</code></td><td>readable, fields disagree</td><td>wrong file, schema change</td></tr>
+<tr><td><code>schema</code></td><td>fields agree, record sets do not</td><td>records added, dropped, or out of scope</td></tr>
+<tr><td><code>cardinality</code></td><td>counts agree, <em>which</em> records do not</td><td>same number, different members</td></tr>
+<tr><td><code>keys</code></td><td><strong>the same records exist; their values differ</strong></td><td><strong>the numbers &mdash; a method difference</strong></td></tr>
+<tr><td><code>values</code></td><td>values agree under declared normalisations</td><td>only serialisation differs</td></tr>
+<tr><td><code>bytes</code></td><td>identical files</td><td>nothing</td></tr>
+</table>
+
+<p><code>keys</code> is the informative rung and the easiest to misread. It says
+both sides looked at <em>exactly the same population</em> and computed different
+answers &mdash; nothing lost in transfer, no filter diverged, no schema drifted.
+That is a finding about <em>method</em>. A verdict of <code>cardinality</code> or
+lower usually means something broke before the science started.</p>
+
+<p>The key columns define what "the same record" <em>means</em>, which is a
+substantive claim rather than configuration. Here the key is
+<code>(month)</code>: twelve records, all twelve present on both sides, so every
+disagreement is necessarily at <code>keys</code> &mdash; the months are the same,
+the temperatures are not. In the
+<a href="../giab/">companion GIAB study</a> the key is
+<code>(CHROM, POS, REF, ALT)</code>; without it records would match by position in
+the file, and one inserted row would misalign everything after it.</p>
+
+<h2>5. Reproducing this</h2>
+
+<pre>fw ffl run --primary examples/repro-normals/noaa_normals_repro.ffl \
+           --library facetwork/ffl/file.ffl \
+           --workflow repro.normals.ReproduceManyStations</pre>
+
+<p>The recomputation is an FFL <code>script</code> block bound to
+<code>fw.file.FileOps</code> &mdash; no handler and no domain package. The ~18&nbsp;MB
+daily file is read inside the script rather than passed through a step payload,
+which would exceed the 16&nbsp;MB document limit. <code>foreach &hellip; limit 4</code>
+bounds how many stations are in flight so the run does not pull twelve large
+files from NOAA at once.</p>
+
+<h2>6. Limitations, and a correction</h2>
+
+<div class="scope">
+<strong>This page previously reported "four stations do not reproduce at all".
+That was wrong</strong> &mdash; an artifact of comparing with a <em>relative</em>
+tolerance. Fahrenheit is an interval scale: its zero is arbitrary, so "within 2%
+of the value" has no physical meaning. Chicago's recomputed TAVG is off by a
+near-constant &minus;0.9&nbsp;&deg;F all year, and 2% of the reading is
+0.50&nbsp;&deg;F in January but 1.55&nbsp;&deg;F in July:<br><br>
+<code>January&nbsp;&nbsp;NOAA 25.2&nbsp;&nbsp;2% = 0.50&nbsp;&nbsp;&rarr;&nbsp;FAIL</code><br>
+<code>July&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOAA 77.5&nbsp;&nbsp;2% = 1.55&nbsp;&nbsp;&rarr;&nbsp;pass</code><br><br>
+Same error, opposite verdict, purely seasonal. The comparison gained an
+<code>abs_tolerance</code> for interval scales and the study was re-run. The
+station-level bias findings are unchanged &mdash; they come from the sign test,
+which has no threshold &mdash; but the pass/fail split is gone, replaced by the
+error distribution above, which was always the more honest presentation.
+</div>
+
+<ul>
+<li><strong>Our method is deliberately naive, and the published value is the
+better one.</strong> A plain monthly mean omits the TOB adjustment and the
+homogenisation described in &sect;2. Where the two differ, NOAA's figure is the
+more considered: it corrects for observation time, station moves and instrument
+changes that the raw archive still contains. This study measures the size of
+those corrections; it does not evaluate their correctness.</li>
+<li>Twelve stations, all US first-order airport/city sites. The pattern may not
+extend to cooperative-observer stations, which have different reporting practices
+and more missing data.</li>
+<li>TAVG is computed as (TMAX+TMIN)/2, the conventional definition but not
+necessarily how the published TAVG normal is derived.</li>
+<li>The sign test detects that residuals are one-sided. It does not attribute a
+cause; the station-specific explanations offered above are consistent with the
+data, not demonstrated by it.</li>
+</ul>
+
+<footer>
+Produced with <a href="https://github.com/rlemke/facetwork">Facetwork</a> &mdash;
+workflows in FFL, executed on a distributed runner fleet.
+Source data: NOAA National Centers for Environmental Information.
+</footer>
+<div data-fw-provenance="1" style="position:fixed;bottom:10px;left:10px;z-index:9999;background:rgba(255,255,255,0.92);border-radius:6px;padding:6px 10px;box-shadow:0 1px 4px rgba(0,0,0,0.2);font:11px system-ui,sans-serif;color:#444;max-width:440px">Generated by Facetwork workflow <code style="background:#f0f0f0;padding:0 3px;border-radius:3px">repro.normals.ReproduceManyStations</code> &middot; <a href="https://github.com/rlemke/facetwork/blob/main/examples/repro-normals/noaa_normals_repro.ffl" target="_blank" rel="noopener" style="color:#1565c0;text-decoration:none">view FFL</a> &middot; <a href="https://github.com/rlemke/facetwork" target="_blank" rel="noopener" style="color:#1565c0;text-decoration:none">source repo</a></div>
+</body></html>
