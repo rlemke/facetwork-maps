@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seattle Seahawks — NFL predictions</title>
+<meta name="description" content="NFL game predictions, playoff odds, team and player history — an Elo model scored against the betting line.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#f1f3f6; --surface-3:#e4e8ee; --border:#dde2e8; --border-strong:#b9c1cc;
+  --text:#14181f; --text-2:#3c4552; --muted:#677283; --accent:#1f6fd1;
+  --series-1:#2a78d6; --series-2:#eb6834; --good:#006300; --bad:#c22c2c;
+  --r-sm:5px; --r-md:8px; --r-lg:10px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1217; --surface:#161a21; --surface-2:#1c212a; --surface-3:#2a313c; --border:#2a313b; --border-strong:#46505e;
+    --text:#e8ebf0; --text-2:#c2c8d2; --muted:#8c96a5; --accent:#5aa2f5;
+    --series-1:#3987e5; --series-2:#d95926; --good:#3fbf3f; --bad:#e25a5a;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 var(--sans)}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .in,main,footer .in{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top .in{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;min-height:52px}
+header.top .brand{font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+header.top nav{display:flex;gap:.2rem;flex-wrap:wrap}
+header.top nav a{color:var(--text-2);text-decoration:none;padding:.35rem .6rem;border-radius:var(--r-sm);font-weight:500}
+header.top nav a:hover,header.top nav a.cur{background:var(--surface-2);color:var(--text)}
+main{padding-top:1.1rem;padding-bottom:1.5rem}
+h1.page{font-size:22px;margin:0 0 .9rem;letter-spacing:-.02em}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.7rem .95rem;border-bottom:1px solid var(--border)}
+.panel-head h2{margin:0;font-size:15px}
+table.dtable{width:100%;border-collapse:collapse}
+.dtable th{font:600 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.dtable td{padding:.45rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+.dtable tr:last-child td{border-bottom:0}
+.btn{font:500 13px var(--sans);background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:.35rem .6rem}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:12px;padding:1rem 0 2rem}
+footer a{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:1.1rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.9rem;margin-bottom:1.1rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:.85rem .95rem}
+.kpi .lbl{font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .val{font-size:24px;font-weight:600;letter-spacing:-.02em;margin-top:.35rem;line-height:1.1}
+.kpi .sub{font-size:11.5px;color:var(--muted);margin-top:.25rem;line-height:1.4}
+.section{margin-bottom:1.1rem}
+.tm{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--text);font-weight:600;white-space:nowrap}
+.tm i{width:4px;height:16px;border-radius:2px;display:inline-block;flex:none}
+.tm:hover{color:var(--accent)}
+.t{font-size:11.5px;color:var(--muted)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.good{color:var(--good)} .bad{color:var(--bad)}
+.pbar{display:inline-block;width:64px;height:7px;border-radius:4px;background:var(--surface-3);vertical-align:middle;margin-left:.4rem;overflow:hidden}
+.pbar>b{display:block;height:100%;background:var(--series-1)}
+.note{font-size:12px;color:var(--text-2);line-height:1.55;padding:.8rem .95rem;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--r-md);margin-top:1rem}
+.note b{color:var(--text)}
+.weeks{display:flex;gap:.3rem;flex-wrap:wrap}
+.weeks button{font:600 11px/1 var(--mono);padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.weeks button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.bracket{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:.6rem;padding:.9rem;overflow-x:auto}
+.bracket .col h4{margin:0 0 .5rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.slot{border:1px solid var(--border);border-radius:var(--r-sm);padding:.4rem .5rem;margin-bottom:.4rem;background:var(--surface-2);font-size:12.5px}
+.slot .seed{font:600 10.5px/1 var(--mono);color:var(--muted);margin-right:.35rem}
+.slot .p{float:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart svg{width:100%;height:auto;display:block}
+.chart polyline{fill:none;stroke:var(--series-1);stroke-width:1.6}
+.chart .axis{stroke:var(--border);stroke-width:1}
+.chart text{fill:var(--muted);font:10px var(--mono)}
+.overflow-x{overflow-x:auto}
+.champ{font-weight:600;color:var(--good)}
+.roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.2rem 1.2rem;padding:.8rem .95rem}
+.roster h4{margin:.6rem 0 .2rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.roster a{display:block;font-size:12.5px;padding:.1rem 0;text-decoration:none;color:var(--text)}
+.roster a:hover{color:var(--accent)}
+.search{display:flex;gap:.5rem;padding:.8rem .9rem}
+.search input{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);padding:.5rem .65rem;font:14px var(--sans)}
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.3rem .8rem;padding:.8rem .95rem}
+@media (max-width:640px){ .bracket{grid-template-columns:repeat(4,minmax(110px,1fr))} .kpi .val{font-size:20px} }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="../index.html">NFL predictions</a>
+  <nav>
+    <a href="../index.html">This season</a>
+    <a href="../players/index.html">Players</a>
+    <a href="../model.html">How good is the model?</a>
+  </nav>
+</div></header>
+<main>
+<h1 class="page">Seattle Seahawks</h1>
+
+<section class="kpis">
+  <div class="kpi" style="border-left:4px solid #002244">
+    <div class="lbl">NFC West</div>
+    <div class="val">3-3</div>
+    <div class="sub">2026 regular season</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Elo rating</div>
+    <div class="val">1637</div>
+    <div class="sub">#3 of 32 &middot; league average 1505</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Playoffs</div>
+    <div class="val">68%</div>
+    <div class="sub">Division 12% &middot; projected 10.1 wins</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Super Bowl</div>
+    <div class="val">12%</div>
+    <div class="sub">Win it 7%</div>
+  </div>
+</section>
+
+<section class="panel section">
+  <div class="panel-head"><h2>Path to the Super Bowl</h2><span class="t">from 10,000 simulated seasons</span></div>
+  <table class="dtable"><tbody>
+    <tr><td>Make the playoffs</td><td class="num">68%<span class="pbar"><b style="width:67.8%"></b></span></td></tr>
+    <tr><td>Win the division</td><td class="num">12%<span class="pbar"><b style="width:12.3%"></b></span></td></tr>
+    <tr><td>First-round bye (1 seed)</td><td class="num">3%<span class="pbar"><b style="width:3.3%"></b></span></td></tr>
+    <tr><td>Reach the divisional round</td><td class="num">41%<span class="pbar"><b style="width:41.1%"></b></span></td></tr>
+    <tr><td>Reach the conference game</td><td class="num">22%<span class="pbar"><b style="width:21.6%"></b></span></td></tr>
+    <tr><td>Reach the Super Bowl</td><td class="num">12%<span class="pbar"><b style="width:12.3%"></b></span></td></tr>
+    <tr><td>Win the Super Bowl</td><td class="num">7%<span class="pbar"><b style="width:7.0%"></b></span></td></tr>
+    <tr><td>Seed</td><td class="num t" style="white-space:normal">1: 3% &middot; 2: 7% &middot; 3: 2% &middot; 4: &lt;1% &middot; 5: 22% &middot; 6: 19% &middot; 7: 15%</td></tr>
+  </tbody></table>
+</section>
+
+<section class="panel section">
+  <div class="panel-head"><h2>2026 schedule</h2></div>
+  <div class="overflow-x">
+  <table class="dtable">
+    <thead><tr><th>Week</th><th>Opponent</th><th>Date</th><th class="num">Win chance</th><th class="num">Model line</th><th class="num">Betting line</th><th class="num">Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="t">Week 1</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/NE.html" title="New England Patriots"><i style="background:#002244"></i>NE</a></td>
+        <td class="t">2026-09-09</td>
+        <td class="num">65%<span class="pbar"><b style="width:65.5%"></b></span></td>
+        <td class="num">SEA &minus;4.4</td>
+        <td class="num">SEA &minus;3.0</td>
+        <td class="num">          <span class="good">W</span> 13&ndash;10
+</td>
+      </tr>
+      <tr>
+        <td class="t">Week 2</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/ARI.html" title="Arizona Cardinals"><i style="background:#97233F"></i>ARI</a></td>
+        <td class="t">2026-09-20</td>
+        <td class="num">73%<span class="pbar"><b style="width:72.5%"></b></span></td>
+        <td class="num">SEA &minus;6.8</td>
+        <td class="num">SEA &minus;3.5</td>
+        <td class="num">          <span class="good">W</span> 31&ndash;7
+</td>
+      </tr>
+      <tr>
+        <td class="t">Week 3</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/WAS.html" title="Washington Commanders"><i style="background:#5A1414"></i>WAS</a></td>
+        <td class="t">2026-09-27</td>
+        <td class="num">76%<span class="pbar"><b style="width:75.6%"></b></span></td>
+        <td class="num">SEA &minus;7.9</td>
+        <td class="num">SEA &minus;8.5</td>
+        <td class="num">          <span class="bad">L</span> 31&ndash;33
+</td>
+      </tr>
+      <tr>
+        <td class="t">Week 4</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/LAC.html" title="Los Angeles Chargers"><i style="background:#007BC7"></i>LAC</a></td>
+        <td class="t">2026-10-04</td>
+        <td class="num">82%<span class="pbar"><b style="width:82.5%"></b></span></td>
+        <td class="num">SEA &minus;10.8</td>
+        <td class="num">SEA &minus;7.0</td>
+        <td class="num">          <span class="good">W</span> 30&ndash;23
+</td>
+      </tr>
+      <tr>
+        <td class="t">Week 5</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/SF.html" title="San Francisco 49ers"><i style="background:#AA0000"></i>SF</a></td>
+        <td class="t">2026-10-11</td>
+        <td class="num">62%<span class="pbar"><b style="width:61.9%"></b></span></td>
+        <td class="num">SEA &minus;3.4</td>
+        <td class="num">SEA &minus;3.0</td>
+        <td class="num">          <span class="bad">L</span> 29&ndash;32
+</td>
+      </tr>
+      <tr>
+        <td class="t">Week 6</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/DEN.html" title="Denver Broncos"><i style="background:#002244"></i>DEN</a></td>
+        <td class="t">2026-10-15</td>
+        <td class="num">52%<span class="pbar"><b style="width:52.1%"></b></span></td>
+        <td class="num">SEA &minus;0.6</td>
+        <td class="num">SEA &minus;2.5</td>
+        <td class="num">          <span class="bad">L</span> 14&ndash;17
+</td>
+      </tr>
+      <tr>
+        <td class="t">Week 7</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/KC.html" title="Kansas City Chiefs"><i style="background:#E31837"></i>KC</a></td>
+        <td class="t">2026-10-25</td>
+        <td class="num">65%<span class="pbar"><b style="width:64.6%"></b></span></td>
+        <td class="num">SEA &minus;4.2</td>
+        <td class="num">SEA &minus;3.0</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 8</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/CHI.html" title="Chicago Bears"><i style="background:#0B162A"></i>CHI</a></td>
+        <td class="t">2026-11-02</td>
+        <td class="num">65%<span class="pbar"><b style="width:64.8%"></b></span></td>
+        <td class="num">SEA &minus;4.2</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 9</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/ARI.html" title="Arizona Cardinals"><i style="background:#97233F"></i>ARI</a></td>
+        <td class="t">2026-11-08</td>
+        <td class="num">84%<span class="pbar"><b style="width:83.8%"></b></span></td>
+        <td class="num">SEA &minus;11.4</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 10</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/LV.html" title="Las Vegas Raiders"><i style="background:#000000"></i>LV</a></td>
+        <td class="t">2026-11-15</td>
+        <td class="num">71%<span class="pbar"><b style="width:71.0%"></b></span></td>
+        <td class="num">SEA &minus;6.2</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 12</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/SF.html" title="San Francisco 49ers"><i style="background:#AA0000"></i>SF</a></td>
+        <td class="t">2026-11-29</td>
+        <td class="num">44%<span class="pbar"><b style="width:43.9%"></b></span></td>
+        <td class="num">SF &minus;1.7</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 13</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/DAL.html" title="Dallas Cowboys"><i style="background:#002244"></i>DAL</a></td>
+        <td class="t">2026-12-07</td>
+        <td class="num">81%<span class="pbar"><b style="width:80.7%"></b></span></td>
+        <td class="num">SEA &minus;10.0</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 14</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/NYG.html" title="New York Giants"><i style="background:#0B2265"></i>NYG</a></td>
+        <td class="t">2026-12-13</td>
+        <td class="num">80%<span class="pbar"><b style="width:80.2%"></b></span></td>
+        <td class="num">SEA &minus;9.7</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 15</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/PHI.html" title="Philadelphia Eagles"><i style="background:#004C54"></i>PHI</a></td>
+        <td class="t">2026-12-19</td>
+        <td class="num">65%<span class="pbar"><b style="width:65.0%"></b></span></td>
+        <td class="num">SEA &minus;4.3</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 16</td>
+        <td><span class="t">vs</span> <a class="tm" href="../teams/LA.html" title="Los Angeles Rams"><i style="background:#003594"></i>LA</a></td>
+        <td class="t">2026-12-25</td>
+        <td class="num">68%<span class="pbar"><b style="width:68.4%"></b></span></td>
+        <td class="num">SEA &minus;5.4</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 17</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/CAR.html" title="Carolina Panthers"><i style="background:#0085CA"></i>CAR</a></td>
+        <td class="t">2027-01-03</td>
+        <td class="num">62%<span class="pbar"><b style="width:62.0%"></b></span></td>
+        <td class="num">SEA &minus;3.4</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td class="t">Week 18</td>
+        <td><span class="t">at</span> <a class="tm" href="../teams/LA.html" title="Los Angeles Rams"><i style="background:#003594"></i>LA</a></td>
+        <td class="t">2027-01-10</td>
+        <td class="num">55%<span class="pbar"><b style="width:55.5%"></b></span></td>
+        <td class="num">SEA &minus;1.5</td>
+        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="panel section chart">
+  <div class="panel-head"><h2>Rating since 1999</h2><span class="t">Elo after every game &middot; range 1354&ndash;1769</span></div>
+  <div style="padding:.6rem .9rem .9rem">
+    <svg viewBox="0 0 760 186" role="img" aria-label="Seattle Seahawks Elo rating history">
+<line class="axis" x1="32.8" x2="32.8" y1="0" y2="170"/><text x="34.8" y="182">2000</text><line class="axis" x1="162.2" x2="162.2" y1="0" y2="170"/><text x="164.2" y="182">2005</text><line class="axis" x1="299.5" x2="299.5" y1="0" y2="170"/><text x="301.5" y="182">2010</text><line class="axis" x1="441.5" x2="441.5" y1="0" y2="170"/><text x="443.5" y="182">2015</text><line class="axis" x1="578.8" x2="578.8" y1="0" y2="170"/><text x="580.8" y="182">2020</text><line class="axis" x1="714.5" x2="714.5" y1="0" y2="170"/><text x="716.5" y="182">2025</text>      <polyline points="6.0,116.1 7.6,112.7 9.2,96.5 10.7,94.3 12.3,98.8 13.9,90.8 15.5,77.7 17.0,74.1 18.6,71.2 20.2,61.4 21.8,75.8 23.4,85.8 24.9,94.1 26.5,101.9 28.1,92.5 29.7,100.4 31.2,107.4 32.8,117.4 34.4,120.9 36.0,114.7 37.6,105.9 39.1,112.0 40.7,123.0 42.3,130.6 43.9,136.4 45.5,141.1 47.0,138.0 48.6,126.3 50.2,133.5 51.8,123.3 53.3,127.0 54.9,118.8 56.5,131.4 58.1,116.9 59.7,128.6 61.2,134.2 62.8,124.5 64.4,111.9 66.0,117.4 67.5,126.9 69.1,114.5 70.7,110.0 72.3,119.8 73.9,116.0 75.4,123.8 77.0,114.4 78.6,118.7 80.2,114.1 81.7,109.8 83.3,115.2 84.9,127.9 86.5,131.4 88.1,122.5 89.6,129.3 91.2,135.4 92.8,129.3 94.4,139.0 95.9,123.8 97.5,134.0 99.1,125.2 100.7,129.5 102.3,133.4 103.8,121.7 105.4,109.2 107.0,104.0 108.6,95.9 110.2,86.3 111.7,84.4 113.3,96.7 114.9,94.7 116.5,91.2 118.0,98.4 119.6,93.5 121.2,102.8 122.8,97.5 124.4,102.4 125.9,94.3 127.5,107.7 129.1,111.2 130.7,107.3 132.2,97.3 133.8,100.8 135.4,91.1 137.0,84.7 138.6,76.5 140.1,87.1 141.7,91.5 143.3,102.2 144.9,96.9 146.4,88.8 148.0,98.1 149.6,92.6 151.2,109.2 152.8,117.8 154.3,109.8 155.9,117.4 157.5,114.4 159.1,110.2 160.6,119.7 162.2,122.4 163.8,116.7 165.4,109.2 167.0,113.5 168.5,105.0 170.1,97.7 171.7,93.5 173.3,87.0 174.9,79.5 176.4,77.7 178.0,73.7 179.6,60.9 181.2,58.6 182.7,55.7 184.3,43.2 185.9,55.8 187.5,50.4 189.1,40.4 190.6,47.5 192.2,67.8 193.8,63.8 195.4,57.9 196.9,71.3 198.5,68.2 200.1,83.4 201.7,90.6 203.3,85.8 204.8,83.6 206.4,93.8 208.0,88.8 209.6,81.5 211.1,92.5 212.7,108.2 214.3,110.9 215.9,101.7 217.5,99.7 219.0,102.2 220.6,97.7 222.2,103.7 223.8,99.0 225.4,88.2 226.9,97.0 228.5,111.4 230.1,104.6 231.7,110.2 233.2,104.3 234.8,97.7 236.4,92.6 238.0,85.8 239.6,78.8 241.1,86.0 242.7,80.6 244.3,89.5 245.9,78.8 247.4,85.9 249.0,106.8 250.6,114.8 252.2,108.3 253.8,115.3 255.3,124.6 256.9,129.9 258.5,118.8 260.1,128.4 261.6,131.6 263.2,137.5 264.8,141.8 266.4,147.0 268.0,150.0 269.5,145.5 271.1,134.0 272.7,141.2 274.3,119.5 275.8,127.5 277.4,134.3 279.0,137.9 280.6,122.5 282.2,133.7 283.7,139.7 285.3,134.9 286.9,139.0 288.5,143.3 290.1,135.9 291.6,130.8 293.2,139.6 294.8,155.4 296.4,160.3 297.9,164.0 299.5,126.8 301.1,136.0 302.7,125.0 304.3,137.8 305.8,130.1 307.4,118.5 309.0,130.8 310.6,139.9 312.1,125.1 313.7,129.0 315.3,141.2 316.9,133.8 318.5,143.0 320.0,147.8 321.6,155.2 323.2,146.6 324.8,135.3 326.3,138.1 327.9,133.9 329.5,139.8 331.1,135.4 332.7,138.6 334.2,123.1 335.8,128.7 337.4,139.2 339.0,145.1 340.5,134.0 342.1,123.5 343.7,134.3 345.3,122.4 346.9,117.3 348.4,100.2 350.0,103.7 351.6,109.3 353.2,113.8 354.8,102.8 356.3,98.0 357.9,108.2 359.5,102.1 361.1,98.6 362.6,103.6 364.2,109.4 365.8,102.7 367.4,93.9 369.0,100.3 370.5,90.1 372.1,83.2 373.7,73.3 375.3,58.2 376.8,55.0 378.4,47.2 380.0,50.6 381.6,66.7 383.2,55.5 384.7,53.2 386.3,48.6 387.9,57.1 389.5,53.6 391.0,47.8 392.6,44.0 394.2,42.9 395.8,36.0 397.4,33.1 398.9,25.5 400.5,30.0 402.1,24.3 403.7,37.8 405.2,33.0 406.8,28.9 408.4,22.3 410.0,9.5 411.6,43.3 413.1,54.2 414.7,48.2 416.3,45.2 417.9,57.0 419.5,63.3 421.0,58.2 422.6,56.9 424.2,52.4 425.8,58.7 427.3,48.6 428.9,37.6 430.5,29.0 432.1,25.3 433.7,14.4 435.2,12.0 436.8,9.6 438.4,6.0 440.0,13.4 441.5,58.1 443.1,66.5 444.7,62.6 446.3,60.2 447.9,65.0 449.4,72.2 451.0,63.6 452.6,61.5 454.2,71.0 455.7,65.8 457.3,58.6 458.9,45.6 460.5,37.8 462.1,35.8 463.6,50.2 465.2,31.8 466.8,29.6 468.4,36.1 469.9,62.5 471.5,73.0 473.1,67.5 474.7,59.7 476.3,57.1 477.8,57.1 479.4,67.4 481.0,62.3 482.6,51.1 484.2,45.4 485.7,58.7 487.3,50.7 488.9,66.9 490.5,63.2 492.0,71.4 493.6,70.1 495.2,64.1 496.8,71.0 498.4,91.8 499.9,89.9 501.5,97.7 503.1,89.4 504.7,82.8 506.2,74.0 507.8,70.5 509.4,78.8 511.0,72.8 512.6,78.8 514.1,74.4 515.7,63.0 517.3,71.1 518.9,88.2 520.4,77.7 522.0,84.3 523.6,99.1 525.2,107.8 526.8,98.8 528.3,94.5 529.9,98.3 531.5,90.4 533.1,79.8 534.6,88.9 536.2,93.1 537.8,89.5 539.4,82.9 541.0,78.5 542.5,70.5 544.1,78.8 545.7,69.7 547.3,68.5 548.9,72.4 550.4,84.7 552.0,80.1 553.6,88.6 555.2,82.1 556.7,79.7 558.3,74.7 559.9,87.7 561.5,82.0 563.1,78.3 564.6,71.4 566.2,63.5 567.8,55.9 569.4,67.3 570.9,63.1 572.5,83.2 574.1,89.9 575.7,79.3 577.3,83.1 578.8,81.1 580.4,75.1 582.0,69.9 583.6,64.4 585.1,62.8 586.7,69.5 588.3,62.2 589.9,71.9 591.5,78.8 593.0,73.2 594.6,68.1 596.2,80.4 597.8,77.5 599.4,71.8 600.9,63.9 602.5,60.6 604.1,72.9 605.7,75.1 607.2,82.7 608.8,94.3 610.4,85.5 612.0,95.0 613.6,100.2 615.1,104.5 616.7,99.6 618.3,105.9 619.9,114.0 621.4,117.9 623.0,109.3 624.6,101.6 626.2,107.4 627.8,111.4 629.3,106.3 630.9,95.5 632.5,98.1 634.1,107.4 635.6,116.0 637.2,110.9 638.8,117.9 640.4,109.7 642.0,97.3 643.5,89.7 645.1,81.3 646.7,88.9 648.3,100.9 649.8,95.4 651.4,105.9 653.0,111.5 654.6,115.2 656.2,107.5 657.7,104.2 659.3,107.5 660.9,121.7 662.5,111.7 664.1,105.1 665.6,93.3 667.2,98.6 668.8,94.1 670.4,89.1 671.9,98.2 673.5,95.1 675.1,97.9 676.7,106.0 678.3,109.7 679.8,112.6 681.4,105.6 683.0,101.1 684.6,110.9 686.1,108.8 687.7,102.0 689.3,97.0 690.9,87.6 692.5,95.4 694.0,108.6 695.6,117.1 697.2,103.1 698.8,112.6 700.3,121.0 701.9,112.6 703.5,104.3 705.1,97.7 706.7,88.5 708.2,98.8 709.8,103.1 711.4,99.3 713.0,90.1 714.5,104.8 716.1,92.0 717.7,86.0 719.3,80.9 720.9,87.4 722.4,79.1 724.0,72.0 725.6,62.0 727.2,56.4 728.8,59.9 730.3,57.9 731.9,52.6 733.5,46.4 735.1,44.5 736.6,42.2 738.2,37.2 739.8,28.9 741.4,23.1 743.0,19.2 744.5,10.9 746.1,45.6 747.7,39.4 749.3,46.4 750.8,43.9 752.4,50.7 754.0,56.2"/>
+    </svg>
+  </div>
+</section>
+
+<div class="grid2 section">
+  <section class="panel">
+    <div class="panel-head"><h2>2026 leaders</h2></div>
+    <table class="dtable"><tbody>
+      <tr><td class="t">Passing yards</td><td><a href="../players/s17.html#00-0034869">Sam Darnold</a> <span class="t">QB</span> 1,033 &middot; <a href="../players/s50.html#00-0035704">Drew Lock</a> <span class="t">QB</span> 422</td></tr>
+      <tr><td class="t">Rushing yards</td><td><a href="../players/s28.html#00-0038797">Emanuel Wilson</a> <span class="t">RB</span> 303 &middot; <a href="../players/s47.html#00-0041512">Jadarian Price</a> <span class="t">RB</span> 119 &middot; <a href="../players/s21.html#00-0039299">George Holani</a> <span class="t">RB</span> 97</td></tr>
+      <tr><td class="t">Receiving yards</td><td><a href="../players/s38.html#00-0038543">Jaxon Smith-Njigba</a> <span class="t">WR</span> 717 &middot; <a href="../players/s15.html#00-0033908">Cooper Kupp</a> <span class="t">WR</span> 179 &middot; <a href="../players/s05.html#00-0037545">Rashid Shaheed</a> <span class="t">WR</span> 162</td></tr>
+      <tr><td class="t">Sacks</td><td><a href="../players/s15.html#00-0031933">Leonard Williams</a> <span class="t">DE</span> 3.0 &middot; <a href="../players/s31.html#00-0036994">Ernest Jones</a> <span class="t">LB</span> 3.0 &middot; <a href="../players/s43.html#00-0039309">Byron Murphy II</a> <span class="t">DT</span> 3.0</td></tr>
+      <tr><td class="t">Tackles (solo)</td><td><a href="../players/s31.html#00-0036994">Ernest Jones</a> <span class="t">LB</span> 31 &middot; <a href="../players/s03.html#00-0039169">Devon Witherspoon</a> <span class="t">CB</span> 22 &middot; <a href="../players/s18.html#00-0038922">Drake Thomas</a> <span class="t">LB</span> 20</td></tr>
+    </tbody></table>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Active roster</h2><span class="t">as nflverse lists it</span></div>
+    <div class="roster">
+      <div><h4>QB</h4>
+<a href="../players/s36.html#MAT266407">Bruce Mathison <span class="t">QB</span></a><a href="../players/s05.html#LIN200480">David Lindley <span class="t">QB</span></a><a href="../players/s50.html#00-0035704">Drew Lock <span class="t">QB #2</span></a><a href="../players/s04.html#00-0005379">Glenn Foley <span class="t">QB #13</span></a><a href="../players/s03.html#00-0040673">Jalen Milroe <span class="t">QB #6</span></a><a href="../players/s35.html#00-0038598">Jaren Hall <span class="t">QB #15</span></a><a href="../players/s10.html#00-0021334">Jeff Kelly <span class="t">QB #17</span></a><a href="../players/s62.html#00-0015778">Kelly Stouffer <span class="t">QB</span></a><a href="../players/s30.html#00-0026927">Mike Teel <span class="t">QB #14</span></a><a href="../players/s46.html#ADK692150">Sam Adkins <span class="t">QB</span></a><a href="../players/s17.html#00-0034869">Sam Darnold <span class="t">QB #14</span></a><a href="../players/s36.html#00-0005869">Stan Gelbaugh <span class="t">QB #8</span></a><a href="../players/s10.html#MYE059327">Steve Myer <span class="t">QB</span></a><a href="../players/s54.html#00-0024279">Tarvaris Jackson <span class="t">QB #7</span></a>      </div>
+      <div><h4>RB</h4>
+<a href="../players/s22.html#HUN445676">Al Hunter <span class="t">RB</span></a><a href="../players/s60.html#MOO173025">Alvin Moore <span class="t">RB</span></a><a href="../players/s31.html#00-0002132">Beno Bryant <span class="t">RB</span></a><a href="../players/s34.html#GRE105006">Boyce Green <span class="t">RB</span></a><a href="../players/s21.html#00-0038488">Brady Russell <span class="t">RB #38</span></a><a href="../players/s28.html#00-0029429">Bryce Brown <span class="t">RB #36</span></a><a href="../players/s04.html#00-0036414">Cam Akers <span class="t">RB</span></a><a href="../players/s52.html#STA531024">Chad Stark <span class="t">RB</span></a><a href="../players/s36.html#DOO692150">Dan Doornink <span class="t">RB</span></a><a href="../players/s22.html#SIM685516">David Sims <span class="t">RB</span></a><a href="../players/s32.html#00-0008030">Dou Innocent <span class="t">RB #28</span></a><a href="../players/s17.html#MAR141980">Ed Marinaro <span class="t">RB</span></a><a href="../players/s07.html#00-0030485">Eddie Lacy <span class="t">RB #27</span></a><a href="../players/s37.html#HAR378664">Elroy Harris <span class="t">RB</span></a><a href="../players/s28.html#00-0038797">Emanuel Wilson <span class="t">RB #23</span></a><a href="../players/s51.html#LAN229723">Eric Lane <span class="t">RB</span></a><a href="../players/s38.html#HAR387270">Franco Harris <span class="t">RB</span></a><a href="../players/s12.html#00-0024204">Fred Jackson <span class="t">RB #22</span></a><a href="../players/s21.html#00-0039299">George Holani <span class="t">RB #36</span></a><a href="../players/s09.html#IVO276861">Horace Ivory <span class="t">RB</span></a><a href="../players/s50.html#MCK593260">Hugh McKinnis <span class="t">RB</span></a><a href="../players/s13.html#WAL598950">Jim Walsh <span class="t">RB</span></a><a href="../players/s63.html#WIL332647">Jim Williams <span class="t">RB</span></a><a href="../players/s40.html#00-0036799">Josh Johnson <span class="t">RB #34</span></a><a href="../players/s50.html#00-0021098">Josh Scobey <span class="t">RB #33</span></a><a href="../players/s56.html#HAR206544">Kevin Harmon <span class="t">RB</span></a><a href="../players/s23.html#BRI482875">Larry Brinson <span class="t">RB</span></a><a href="../players/s52.html#00-0025841">Louis Rankin <span class="t">RB #40</span></a><a href="../players/s26.html#00-0026393">Marcel Reece <span class="t">FB #44</span></a><a href="../players/s29.html#00-0023064">Marquis Weeks <span class="t">RB #30</span></a><a href="../players/s42.html#00-0025399">Marshawn Lynch <span class="t">RB #24</span></a><a href="../players/s37.html#MOR813600">Michael Morton <span class="t">RB</span></a><a href="../players/s44.html#00-0024315">Michael Robinson <span class="t">FB #26</span></a><a href="../players/s05.html#HAG244285">Mike Hagen <span class="t">RB</span></a><a href="../players/s02.html#ROS664440">Oliver Ross <span class="t">RB</span></a><a href="../players/s08.html#NEL609092">Ralph Nelson <span class="t">RB</span></a><a href="../players/s38.html#00-0002027">Reggie Brown <span class="t">FB #34</span></a><a href="../players/s35.html#PAR694416">Rick Parros <span class="t">RB</span></a><a href="../players/s43.html#00-0041178">Robert Henry Jr. <span class="t">RB</span></a><a href="../players/s53.html#00-0029273">Robert Turbin <span class="t">RB #34</span></a><a href="../players/s25.html#CRA729288">Rufus Crawford <span class="t">RB</span></a><a href="../players/s37.html#00-0001868">Steve Broussard <span class="t">RB #31</span></a><a href="../players/s34.html#00-0015306">Steve Smith <span class="t">FB</span></a><a href="../players/s34.html#00-0021376">T.J. Duckett <span class="t">RB #42</span></a><a href="../players/s18.html#MIL575610">Terry Miller <span class="t">RB</span></a><a href="../players/s47.html#BEN124584">Tony Benjamin <span class="t">RB</span></a><a href="../players/s32.html#BUR701977">Tony Burse <span class="t">RB</span></a><a href="../players/s63.html#GRE047730">Tony Green <span class="t">RB</span></a><a href="../players/s32.html#00-0032472">Tre Madden <span class="t">FB #38</span></a><a href="../players/s43.html#00-0037745">Velus Jones Jr. <span class="t">RB #33</span></a><a href="../players/s40.html#00-0039165">Zach Charbonnet <span class="t">RB #26</span></a><a href="../players/s37.html#DIX766692">Zachary Dixon <span class="t">RB</span></a>      </div>
+      <div><h4>WR</h4>
+<a href="../players/s57.html#BEN041528">Brant Bengen <span class="t">WR</span></a><a href="../players/s36.html#00-0001321">Brian Blades <span class="t">WR #89</span></a><a href="../players/s11.html#00-0016604">Brian Treggs <span class="t">WR</span></a><a href="../players/s38.html#FRA408673">Byron Franklin <span class="t">WR</span></a><a href="../players/s27.html#WAL087846">Byron Walker <span class="t">WR</span></a><a href="../players/s01.html#CAS805408">Chris Castor <span class="t">WR</span></a><a href="../players/s15.html#00-0033908">Cooper Kupp <span class="t">WR #10</span></a><a href="../players/s36.html#00-0025584">Courtney Taylor <span class="t">WR #86</span></a><a href="../players/s62.html#PAR040848">Curt Pardridge <span class="t">WR</span></a><a href="../players/s60.html#GRE515484">Danny Greene <span class="t">WR</span></a><a href="../players/s05.html#00-0007524">Daryl Hobbs <span class="t">WR #18</span></a><a href="../players/s09.html#TUR252784">Daryl Turner <span class="t">WR</span></a><a href="../players/s38.html#00-0003863">David Daniels <span class="t">WR</span></a><a href="../players/s41.html#00-0027063">Deon Butler <span class="t">WR #10</span></a><a href="../players/s58.html#00-0010599">Derrick Mayes <span class="t">WR #87</span></a><a href="../players/s62.html#00-0024272">Devin Hester <span class="t">WR #17</span></a><a href="../players/s62.html#CLU415291">Don Clune <span class="t">WR</span></a><a href="../players/s13.html#SNE311466">Donald Snell <span class="t">WR</span></a><a href="../players/s05.html#00-0028434">Doug Baldwin <span class="t">WR #89</span></a><a href="../players/s29.html#00-0016251">Doug Thomas <span class="t">WR</span></a><a href="../players/s24.html#SCA146571">Dwight Scales <span class="t">WR</span></a><a href="../players/s38.html#00-0001582">Fabien Bownes <span class="t">WR #19</span></a><a href="../players/s28.html#00-0036877">Jaelon Darden <span class="t">WR</span></a><a href="../players/s38.html#00-0038543">Jaxon Smith-Njigba <span class="t">WR #11</span></a><a href="../players/s07.html#00-0013639">Jerry Rice <span class="t">WR #80</span></a><a href="../players/s06.html#GRE267288">Jessie Green <span class="t">WR</span></a><a href="../players/s12.html#JUM415291">Kevin Juma <span class="t">WR</span></a><a href="../players/s57.html#00-0020490">Koren Robinson <span class="t">WR #18</span></a><a href="../players/s11.html#00-0013258">Mike Pritchard <span class="t">WR #85</span></a><a href="../players/s42.html#00-0040621">Montorie Foster Jr <span class="t">WR #87</span></a><a href="../players/s59.html#JOH019428">Paul Johns <span class="t">WR</span></a><a href="../players/s32.html#00-0019455">Peter Warrick <span class="t">WR #81</span></a><a href="../players/s05.html#00-0037545">Rashid Shaheed <span class="t">WR #22</span></a><a href="../players/s18.html#BUT519100">Ray Butler <span class="t">WR</span></a><a href="../players/s61.html#EVA771238">Russell Evans <span class="t">WR</span></a><a href="../players/s34.html#LAR118653">Steve Largent <span class="t">WR</span></a><a href="../players/s22.html#RAI118654">Steve Raible <span class="t">WR</span></a><a href="../players/s40.html#CAR745881">Terry Carter <span class="t">WR</span></a><a href="../players/s51.html#00-0009006">Tommy Kane <span class="t">WR</span></a><a href="../players/s08.html#00-0040648">Tory Horton <span class="t">WR #15</span></a><a href="../players/s11.html#00-0004061">Tyree Davis <span class="t">WR #83</span></a>      </div>
+      <div><h4>TE</h4>
+<a href="../players/s32.html#00-0039793">AJ Barner <span class="t">TE #88</span></a><a href="../players/s03.html#00-0022082">Bennie Joppru <span class="t">TE #47</span></a><a href="../players/s23.html#YOU131139">Charle Young <span class="t">TE</span></a><a href="../players/s31.html#COR383346">Chris Corley <span class="t">TE</span></a><a href="../players/s61.html#00-0001021">Coleman Bell <span class="t">TE #45</span></a><a href="../players/s59.html#00-0010589">Deems May <span class="t">TE #88</span></a><a href="../players/s50.html#DEE138430">Donnie Dee <span class="t">TE</span></a><a href="../players/s43.html#00-0033576">Eric Saubert <span class="t">TE #81</span></a><a href="../players/s54.html#00-0004742">Ferrell Edmunds <span class="t">TE</span></a><a href="../players/s37.html#RAY664464">Fred Rayhle <span class="t">TE</span></a><a href="../players/s33.html#HUD363377">Gordon Hudson <span class="t">TE</span></a><a href="../players/s49.html#00-0025418">Greg Olsen <span class="t">TE #88</span></a><a href="../players/s24.html#00-0007438">James Hill <span class="t">TE #47</span></a><a href="../players/s49.html#LAU553720">Jim Laughton <span class="t">TE</span></a><a href="../players/s58.html#MCM199338">John McMakin <span class="t">TE</span></a><a href="../players/s27.html#OCA415291">John O&#39;Callaghan <span class="t">TE</span></a><a href="../players/s45.html#00-0021255">John Owens <span class="t">TE #86</span></a><a href="../players/s47.html#SAG415290">Ken Sager <span class="t">TE</span></a><a href="../players/s48.html#00-0030089">Luke Willson <span class="t">TE #82</span></a><a href="../players/s59.html#00-0040058">Nick Kallerup <span class="t">TE #89</span></a><a href="../players/s38.html#TYL474616">Robert Tyler <span class="t">TE</span></a><a href="../players/s06.html#JON690976">Rod Jones <span class="t">TE</span></a><a href="../players/s22.html#00-0007225">Ron Heller <span class="t">TE</span></a><a href="../players/s61.html#00-0017926">Ronnie Williams <span class="t">TE #83</span></a><a href="../players/s48.html#00-0020208">Russell Stewart <span class="t">TE #87</span></a>      </div>
+      <div><h4>OL</h4>
+<a href="../players/s48.html#00-0037812">Abraham Lucas <span class="t">OT #72</span></a><a href="../players/s25.html#HIN131142">Andre Hines <span class="t">OT</span></a><a href="../players/s01.html#00-0032455">Austin Blythe <span class="t">C #63</span></a><a href="../players/s16.html#00-0040882">Beau Stephens <span class="t">G #70</span></a><a href="../players/s37.html#FIF553722">Bill Fifer <span class="t">OT</span></a><a href="../players/s06.html#HIT285861">Bill Hitchcock <span class="t">G</span></a><a href="../players/s19.html#CRY415291">Bob Cryder <span class="t">OT</span></a><a href="../players/s49.html#NEW750204">Bob Newton <span class="t">G</span></a><a href="../players/s14.html#PEN191673">Bob Penchion <span class="t">G</span></a><a href="../players/s02.html#PRA664464">Bob Pratt <span class="t">G</span></a><a href="../players/s31.html#00-0006577">Brian Habib <span class="t">G #68</span></a><a href="../players/s42.html#00-0033744">Chad Wheeler <span class="t">OT #75</span></a><a href="../players/s28.html#AIU415291">Charles Aiu <span class="t">G</span></a><a href="../players/s09.html#00-0037821">Charles Cross <span class="t">OT #67</span></a><a href="../players/s55.html#GOD276860">Chris Godfrey <span class="t">G</span></a><a href="../players/s40.html#00-0023318">Chris White <span class="t">G #63</span></a><a href="../players/s09.html#00-0039839">Christian Haynes <span class="t">G #64</span></a><a href="../players/s27.html#00-0019664">Damion McIntosh <span class="t">OT #77</span></a><a href="../players/s00.html#KRA025169">Dave Kraayeveld <span class="t">G</span></a><a href="../players/s34.html#PER457650">Dean Perriman <span class="t">G</span></a><a href="../players/s56.html#BOY095835">Dennis Boyd <span class="t">OT</span></a><a href="../players/s39.html#HIR207645">Doug Hire <span class="t">G</span></a><a href="../players/s23.html#00-0003756">Ed Cunningham <span class="t">G #79</span></a><a href="../players/s46.html#00-0017383">Floyd Wedderburn <span class="t">G #69</span></a><a href="../players/s46.html#00-0000999">Frank Beede <span class="t">G #63</span></a><a href="../players/s21.html#00-0023596">Frank Omiyale <span class="t">OT #65</span></a><a href="../players/s01.html#HOA276860">Fred Hoaglin <span class="t">C</span></a><a href="../players/s37.html#THO169736">Garth Thomas <span class="t">G</span></a><a href="../players/s55.html#JOL355962">Gordon Jolley <span class="t">G</span></a><a href="../players/s13.html#00-0001373">Greg Bloedorn <span class="t">C #60</span></a><a href="../players/s25.html#00-0040639">Grey Zabel <span class="t">G #76</span></a><a href="../players/s26.html#00-0000682">Howard Ballard <span class="t">OT #75</span></a><a href="../players/s56.html#RIC257760">Howard Richards <span class="t">OT</span></a><a href="../players/s59.html#CAM405615">Jack Campbell <span class="t">OT</span></a><a href="../players/s22.html#SIM711882">Jack Sims <span class="t">G</span></a><a href="../players/s46.html#00-0039926">Jalen Sundell <span class="t">C #61</span></a><a href="../players/s37.html#00-0028621">Jarriel King <span class="t">OT #77</span></a><a href="../players/s17.html#00-0010831">Jason McEndoo <span class="t">C #52</span></a><a href="../players/s26.html#SEV553722">Jeff Sevy <span class="t">G</span></a><a href="../players/s56.html#00-0016518">Joe Tofflemire <span class="t">C</span></a><a href="../players/s56.html#DEM221488">John Demarie <span class="t">G</span></a><a href="../players/s20.html#YAR519110">John Yarno <span class="t">C</span></a><a href="../players/s56.html#BOR110744">Jon Borchardt <span class="t">G</span></a><a href="../players/s37.html#00-0036363">Josh Jones <span class="t">OT #74</span></a><a href="../players/s25.html#00-0020756">Konrad Dean <span class="t">OT #79</span></a><a href="../players/s40.html#00-0027309">Lemuel Jeanpierre <span class="t">C #61</span></a><a href="../players/s37.html#BUL377535">Louis Bullard <span class="t">OT</span></a><a href="../players/s60.html#00-0030545">Luke Joeckel <span class="t">G #78</span></a><a href="../players/s50.html#00-0013932">Mark Rodenhauser <span class="t">C #61</span></a><a href="../players/s05.html#HAN442968">Matt Hanousek <span class="t">G</span></a><a href="../players/s15.html#00-0027869">Mike Iupati <span class="t">G #70</span></a><a href="../players/s52.html#00-0009076">Mike Keim <span class="t">OT</span></a><a href="../players/s23.html#00-0011519">Mike Moody <span class="t">OT</span></a><a href="../players/s62.html#WIL820674">Mike Wilson <span class="t">OT</span></a><a href="../players/s43.html#EVA593260">Norm Evans <span class="t">OT</span></a><a href="../players/s43.html#00-0038593">Olu Oluwatimi <span class="t">C #55</span></a><a href="../players/s33.html#MCK296630">Reggie McKenzie <span class="t">G</span></a><a href="../players/s04.html#00-0016505">Robbie Tobeck <span class="t">C #61</span></a><a href="../players/s54.html#00-0000820">Robert Barr <span class="t">OT #64</span></a><a href="../players/s41.html#00-0022836">Robert Gallery <span class="t">G #72</span></a><a href="../players/s03.html#WEB490789">Roger Weber <span class="t">G</span></a><a href="../players/s42.html#ESS553722">Ron Essink <span class="t">OT</span></a><a href="../players/s29.html#SCO036914">Ron Scoggins <span class="t">OT</span></a><a href="../players/s54.html#00-0005080">Sean Farrell <span class="t">G</span></a><a href="../players/s00.html#00-0010966">Steve McKinney <span class="t">G #64</span></a><a href="../players/s58.html#BUR494350">Tim Burnham <span class="t">OT</span></a><a href="../players/s08.html#00-0012175">Todd Norman <span class="t">OT</span></a><a href="../players/s28.html#AND729288">Tom Andrews <span class="t">OT</span></a><a href="../players/s63.html#00-0019995">Tom Ashworth <span class="t">OT #68</span></a><a href="../players/s14.html#00-0001194">Tony Berti <span class="t">OT #72</span></a><a href="../players/s30.html#00-0017485">Warren Wheat <span class="t">G</span></a>      </div>
+      <div><h4>DL</h4>
+<a href="../players/s01.html#ROC092287">Alden Roche <span class="t">DE</span></a><a href="../players/s29.html#00-0022753">Anthony Hargrove <span class="t">DE #94</span></a><a href="../players/s48.html#COO289725">Bill Cooke <span class="t">DE</span></a><a href="../players/s47.html#GRE801864">Bill Gregory <span class="t">DE</span></a><a href="../players/s25.html#SAN565472">Bill Sandifer <span class="t">DT</span></a><a href="../players/s33.html#LUR415291">Bob Lurtsema <span class="t">DT</span></a><a href="../players/s59.html#00-0011398">Brandon Mitchell <span class="t">DE #97</span></a><a href="../players/s17.html#00-0038694">Brandon Pili <span class="t">DT #95</span></a><a href="../players/s43.html#00-0039309">Byron Murphy II <span class="t">DT #91</span></a><a href="../players/s46.html#ELL106485">Carl Eller <span class="t">DE</span></a><a href="../players/s04.html#WIL051696">Charles Wiley <span class="t">DT</span></a><a href="../players/s07.html#00-0009148">Cortez Kennedy <span class="t">DT #96</span></a><a href="../players/s48.html#00-0022692">Craig Terrill <span class="t">DT #93</span></a><a href="../players/s43.html#DOR311466">Dale Dorning <span class="t">DE</span></a><a href="../players/s26.html#00-0014264">Dan Saleaumua <span class="t">DT #97</span></a><a href="../players/s21.html#IRV311466">Darrell Irvin <span class="t">DE</span></a><a href="../players/s32.html#TIP415288">Dave Tipton <span class="t">DE</span></a><a href="../players/s37.html#GRA167055">David Graham <span class="t">NT</span></a><a href="../players/s60.html#00-0028479">Demarcus Dobbs <span class="t">DE #95</span></a><a href="../players/s55.html#FAI226521">Don Fairbanks <span class="t">DE</span></a><a href="../players/s07.html#HOL247920">Doug Hollie <span class="t">DE</span></a><a href="../players/s03.html#SUT177981">Doug Sutherland <span class="t">DT</span></a><a href="../players/s32.html#AND232967">Fred Anderson <span class="t">DE</span></a><a href="../players/s49.html#00-0018131">Grant Wistrom <span class="t">DE #98</span></a><a href="../players/s12.html#RAM363377">Greg Ramsey <span class="t">DE</span></a><a href="../players/s17.html#JON398640">Horace Jones <span class="t">DE</span></a><a href="../players/s37.html#00-0032387">Jarran Reed <span class="t">DT #90</span></a><a href="../players/s52.html#00-0002140">Jeff Bryant <span class="t">DE</span></a><a href="../players/s16.html#FRA474588">Jethro Franklin <span class="t">DE</span></a><a href="../players/s14.html#00-0020069">Joe Brown <span class="t">DT #60</span></a><a href="../players/s48.html#00-0011929">Joe Nash <span class="t">DT #72</span></a><a href="../players/s37.html#EIS553720">John Eisenhooth <span class="t">DT</span></a><a href="../players/s00.html#00-0019544">John Hilliard <span class="t">DE #95</span></a><a href="../players/s01.html#00-0013405">John Randle <span class="t">DT #93</span></a><a href="../players/s25.html#00-0026356">Landon Cohen <span class="t">DE #67</span></a><a href="../players/s26.html#WOO524556">Larry Woods <span class="t">DT</span></a><a href="../players/s15.html#00-0031933">Leonard Williams <span class="t">DE #99</span></a><a href="../players/s30.html#WIL429723">Lester Williams <span class="t">NT</span></a><a href="../players/s04.html#00-0017444">Matt Werner <span class="t">DT</span></a><a href="../players/s15.html#00-0003664">Mike Croel <span class="t">DE #90</span></a><a href="../players/s52.html#FAN138430">Mike Fanning <span class="t">DT</span></a><a href="../players/s07.html#00-0038591">Mike Morris <span class="t">DE #94</span></a><a href="../players/s63.html#WHI270628">Mike White <span class="t">DT</span></a><a href="../players/s31.html#00-0019520">Norris McCleary <span class="t">DT #64</span></a><a href="../players/s39.html#00-0013756">Pat Riley <span class="t">DT #78</span></a><a href="../players/s12.html#00-0009173">Patrick Kerney <span class="t">DE #97</span></a><a href="../players/s20.html#00-0021340">Raheem Brock <span class="t">DE #98</span></a><a href="../players/s04.html#00-0015808">Rahmaan Streater <span class="t">DE #93</span></a><a href="../players/s32.html#EDW646002">Randy Edwards <span class="t">DE</span></a><a href="../players/s03.html#KIN709747">Reggie Kinlaw <span class="t">NT</span></a><a href="../players/s25.html#00-0012476">Rich Owens <span class="t">DE #67</span></a><a href="../players/s25.html#HAR516360">Richard Harris <span class="t">DE</span></a><a href="../players/s37.html#HAR124787">Robert Hardy <span class="t">DT</span></a><a href="../players/s02.html#00-0032761">Robert Nkemdiche <span class="t">DT #92</span></a><a href="../players/s27.html#BAR014830">Roland Barbay <span class="t">NT</span></a><a href="../players/s19.html#EAS664464">Ron East <span class="t">DT</span></a><a href="../players/s25.html#00-0040647">Rylie Mills <span class="t">DT #98</span></a><a href="../players/s25.html#DIO276861">Terry Dion <span class="t">DE</span></a><a href="../players/s05.html#DOV664464">Wes Dove <span class="t">DE</span></a>      </div>
+      <div><h4>LB</h4>
+<a href="../players/s55.html#MAR511128">Amos Martin <span class="t">LB</span></a><a href="../players/s13.html#00-0030380">Benson Mayowa <span class="t">OLB #10</span></a><a href="../players/s53.html#BOS781712">Brian Bosworth <span class="t">ILB</span></a><a href="../players/s21.html#FLO079102">Brian Flones <span class="t">LB</span></a><a href="../players/s05.html#MCS166116">Charles McShane <span class="t">LB</span></a><a href="../players/s31.html#00-0037003">Chazz Surratt <span class="t">LB #44</span></a><a href="../players/s46.html#BUT129775">Chuck Butler <span class="t">LB</span></a><a href="../players/s28.html#00-0040061">Connor O&#39;Toole <span class="t">LB #57</span></a><a href="../players/s21.html#00-0023667">Cornelius Wortham <span class="t">LB #46</span></a><a href="../players/s37.html#00-0020995">D.D. Lewis <span class="t">LB #52</span></a><a href="../players/s62.html#00-0032052">Dante Fowler Jr. <span class="t">LB #56</span></a><a href="../players/s05.html#00-0003343">Darren Comeaux <span class="t">MLB</span></a><a href="../players/s27.html#MIL213798">Darrin Miller <span class="t">LB</span></a><a href="../players/s08.html#00-0006837">Darryl Hardy <span class="t">LB #58</span></a><a href="../players/s12.html#AHR415291">Dave Ahrens <span class="t">OLB</span></a><a href="../players/s50.html#00-0031411">DeMarcus Lawrence <span class="t">LB</span></a><a href="../players/s00.html#00-0027812">Dekoda Watson <span class="t">LB #51</span></a><a href="../players/s49.html#00-0039047">Derick Hall <span class="t">LB #58</span></a><a href="../players/s31.html#00-0006582">Dino Hackett <span class="t">LB</span></a><a href="../players/s04.html#MIL222021">Donald Miller <span class="t">LB</span></a><a href="../players/s18.html#00-0038922">Drake Thomas <span class="t">LB #32</span></a><a href="../players/s25.html#00-0016796">Eric Unverzagt <span class="t">LB #53</span></a><a href="../players/s31.html#00-0036994">Ernest Jones <span class="t">LB #13</span></a><a href="../players/s45.html#WIL274635">Eugene Williams <span class="t">LB</span></a><a href="../players/s07.html#ORN415291">Fred Orns <span class="t">LB</span></a><a href="../players/s02.html#WIM664464">Gary Wimmer <span class="t">LB</span></a><a href="../players/s41.html#00-0009418">George Koonce <span class="t">MLB #53</span></a><a href="../players/s38.html#00-0003040">Greg Clark <span class="t">LB</span></a><a href="../players/s62.html#GAI319455">Greg Gaines <span class="t">LB</span></a><a href="../players/s03.html#00-0002414">Hillary Butler <span class="t">LB #55</span></a><a href="../players/s26.html#00-0010029">James Logan <span class="t">LB #56</span></a><a href="../players/s02.html#00-0017975">James Willis <span class="t">LB #95</span></a><a href="../players/s54.html#BOY223615">Jerome Boyd <span class="t">LB</span></a><a href="../players/s00.html#00-0002502">Joe Cain <span class="t">LB #59</span></a><a href="../players/s56.html#JAC279868">Joe Jackson <span class="t">LB</span></a><a href="../players/s00.html#NOR288896">Joe Norman <span class="t">ILB</span></a><a href="../players/s57.html#TER519110">Joe Terry <span class="t">LB</span></a><a href="../players/s62.html#MCV553722">John McVeigh <span class="t">LB</span></a><a href="../players/s35.html#COR745395">Julio Cortes <span class="t">LB</span></a><a href="../players/s30.html#BUT415280">Keith Butler <span class="t">LB</span></a><a href="../players/s25.html#00-0019032">Keith Miller <span class="t">LB #53</span></a><a href="../players/s13.html#GED207645">Ken Geddes <span class="t">OLB</span></a><a href="../players/s60.html#00-0011844">Kevin Murphy <span class="t">OLB</span></a><a href="../players/s56.html#POL664464">Larry Polowski <span class="t">LB</span></a><a href="../players/s16.html#00-0023533">Leroy Hill <span class="t">OLB #56</span></a><a href="../players/s22.html#00-0023480">Lofa Tatupu <span class="t">MLB #51</span></a><a href="../players/s41.html#JOH514842">M.L. Johnson <span class="t">OLB</span></a><a href="../players/s37.html#JAC415288">Michael Jackson <span class="t">LB</span></a><a href="../players/s13.html#00-0028836">Michael Wilhoite <span class="t">OLB #57</span></a><a href="../players/s30.html#JON618267">Mike Jones <span class="t">LB</span></a><a href="../players/s33.html#00-0028443">Mike Morgan <span class="t">OLB #57</span></a><a href="../players/s35.html#00-0020451">Patrick Chukwurah <span class="t">LB</span></a><a href="../players/s41.html#00-0038764">Patrick O&#39;Connell <span class="t">LB #52</span></a><a href="../players/s05.html#00-0032167">Paul Dawson <span class="t">LB #47</span></a><a href="../players/s19.html#LAV692150">Paul Lavine <span class="t">LB</span></a><a href="../players/s36.html#00-0001188">Ray Berry <span class="t">LB</span></a><a href="../players/s60.html#00-0012045">Richard Newbill <span class="t">LB</span></a><a href="../players/s14.html#AND719159">Ricky Andrews <span class="t">LB</span></a><a href="../players/s02.html#TIP449895">Rico Tipton <span class="t">LB</span></a><a href="../players/s45.html#DEV237308">Rob DeVita <span class="t">LB</span></a><a href="../players/s04.html#00-0031073">Ronald Powell <span class="t">LB #59</span></a><a href="../players/s16.html#MER563597">Sam Merriman <span class="t">LB</span></a><a href="../players/s16.html#00-0022058">Solomon Bates <span class="t">LB #50</span></a><a href="../players/s17.html#REN537427">Terry Rennaker <span class="t">LB</span></a><a href="../players/s50.html#00-0016192">Tim Terry <span class="t">OLB #59</span></a><a href="../players/s54.html#WAL327426">Tim Walker <span class="t">LB</span></a><a href="../players/s26.html#CAL110744">Tony Caldwell <span class="t">LB</span></a><a href="../players/s28.html#ALL676025">Ty Allert <span class="t">LB</span></a><a href="../players/s32.html#00-0039815">Tyrice Knight <span class="t">LB #48</span></a><a href="../players/s23.html#00-0034350">Uchenna Nwosu <span class="t">LB #7</span></a><a href="../players/s05.html#MAX726754">Vernon Maxwell <span class="t">OLB</span></a>      </div>
+      <div><h4>DB</h4>
+<a href="../players/s18.html#BRO267444">Arnold Brown <span class="t">DB</span></a><a href="../players/s20.html#00-0041382">Avery Smith <span class="t">CB #27</span></a><a href="../players/s16.html#00-0035294">Blessuan Austin <span class="t">DB #36</span></a><a href="../players/s04.html#00-0016082">Bobby Taylor <span class="t">CB #24</span></a><a href="../players/s35.html#00-0028111">Byron Maxwell <span class="t">CB #41</span></a><a href="../players/s11.html#00-0013672">C.J. Richardson <span class="t">DB #29</span></a><a href="../players/s54.html#GLA755060">Charles Glaze <span class="t">DB</span></a><a href="../players/s56.html#ROM692145">Charles Romes <span class="t">DB</span></a><a href="../players/s14.html#WHI463489">Chris White <span class="t">DB</span></a><a href="../players/s42.html#WEB566295">Cornell Webster <span class="t">CB</span></a><a href="../players/s02.html#BAH138430">Curt Baham <span class="t">DB</span></a><a href="../players/s00.html#SMI153120">Dallis Smith <span class="t">DB</span></a><a href="../players/s05.html#HOL285108">Dave Hollis <span class="t">DB</span></a><a href="../players/s26.html#00-0010707">Dave McCloughan <span class="t">DB</span></a><a href="../players/s25.html#00-0015445">Del Speer <span class="t">DB</span></a><a href="../players/s03.html#00-0039169">Devon Witherspoon <span class="t">CB #21</span></a><a href="../players/s11.html#00-0014641">Dexter Seigler <span class="t">DB #23</span></a><a href="../players/s07.html#DUF184574">Don Dufek <span class="t">DB</span></a><a href="../players/s23.html#LON269376">Doug Long <span class="t">SAF</span></a><a href="../players/s61.html#00-0015748">Eric Stokes <span class="t">DB #37</span></a><a href="../players/s32.html#00-0004561">Forey Duckett <span class="t">CB</span></a><a href="../players/s07.html#DAV321726">Fred Davis <span class="t">DB</span></a><a href="../players/s49.html#00-0024186">Gerard Ross <span class="t">CB #35</span></a><a href="../players/s06.html#00-0003987">Harlan Davis <span class="t">DB</span></a><a href="../players/s36.html#00-0020371">Harold Blackmon <span class="t">DB #28</span></a><a href="../players/s24.html#ALL405615">Harvey Allen <span class="t">DB</span></a><a href="../players/s25.html#00-0008307">James Jefferson <span class="t">DB</span></a><a href="../players/s14.html#00-0029295">Jeremy Lane <span class="t">CB #20</span></a><a href="../players/s13.html#00-0028441">Jeron Johnson <span class="t">DB #39</span></a><a href="../players/s61.html#00-0004881">Joey Eloms <span class="t">DB #43</span></a><a href="../players/s50.html#00-0037137">Josh Jobe <span class="t">CB #29</span></a><a href="../players/s45.html#00-0027482">Josh Pinkard <span class="t">CB #24</span></a><a href="../players/s26.html#00-0034974">Julian Love <span class="t">SAF #20</span></a><a href="../players/s00.html#00-0031796">Justin Coleman <span class="t">CB #28</span></a><a href="../players/s05.html#SIM553686">Keith Simpson <span class="t">DB</span></a><a href="../players/s50.html#00-0029107">Kelcie McCray <span class="t">S #33</span></a><a href="../players/s29.html#00-0020499">Ken Lucas <span class="t">CB #31</span></a><a href="../players/s54.html#00-0026391">Kennard Cox <span class="t">DB #35</span></a><a href="../players/s34.html#EAS083058">Kenny Easley <span class="t">DB</span></a><a href="../players/s62.html#00-0008941">Kerry Joseph <span class="t">DB #36</span></a><a href="../players/s16.html#JUS553720">Kerry Justin <span class="t">DB</span></a><a href="../players/s41.html#MAC327855">Kim Mack <span class="t">DB</span></a><a href="../players/s55.html#00-0011326">Lawyer Milloy <span class="t">S #36</span></a><a href="../players/s50.html#FRA283434">Malcolm Frank <span class="t">DB</span></a><a href="../players/s38.html#00-0013835">Marcus Robertson <span class="t">FS #31</span></a><a href="../players/s22.html#00-0022046">Marcus Trufant <span class="t">CB #23</span></a><a href="../players/s45.html#00-0003301">Mark Collins <span class="t">DB #25</span></a><a href="../players/s46.html#MOO542145">Mark Moore <span class="t">DB</span></a><a href="../players/s29.html#00-0006775">Merton Hanks <span class="t">DB #36</span></a><a href="../players/s08.html#00-0022418">Michael Harden <span class="t">DB #25</span></a><a href="../players/s01.html#OBR609092">Mike O&#39;Brien <span class="t">DB</span></a><a href="../players/s21.html#00-0039795">Nehemiah Pritchett <span class="t">CB #28</span></a><a href="../players/s48.html#00-0040733">Nick Emmanwori <span class="t">SAF #3</span></a><a href="../players/s22.html#00-0036127">Nigel Warrior <span class="t">DB #39</span></a><a href="../players/s08.html#00-0017321">Orlando Watters <span class="t">CB</span></a><a href="../players/s45.html#MOY415290">Paul Moyer <span class="t">FS</span></a><a href="../players/s57.html#00-0021281">Pete Hunter <span class="t">DB #29</span></a><a href="../players/s00.html#00-0005635">Randy Fuller <span class="t">DB #21</span></a><a href="../players/s06.html#WIL636507">Ray Wilmer <span class="t">DB</span></a><a href="../players/s06.html#YOU480843">Renard Young <span class="t">DB</span></a><a href="../players/s60.html#SAN724511">Rick Sanford <span class="t">DB</span></a><a href="../players/s20.html#THO333410">Ricky Thomas <span class="t">DB</span></a><a href="../players/s04.html#00-0037323">Rodney Thomas <span class="t">SAF #24</span></a><a href="../players/s16.html#00-0025848">Roy Lewis <span class="t">DB #34</span></a><a href="../players/s34.html#PRE166116">Steve Preece <span class="t">FS</span></a><a href="../players/s00.html#00-0021239">Terreal Bierria <span class="t">S #34</span></a><a href="../players/s03.html#JAC568764">Terry Jackson <span class="t">DB</span></a><a href="../players/s38.html#00-0010791">Terry McDaniel <span class="t">DB #36</span></a><a href="../players/s12.html#BLU118654">Tony Blue <span class="t">DB</span></a><a href="../players/s34.html#00-0002067">Tony Brown <span class="t">CB</span></a><a href="../players/s40.html#00-0003559">Tony Covington <span class="t">SAF</span></a><a href="../players/s09.html#00-0036361">Trevon Diggs <span class="t">CB #16</span></a><a href="../players/s63.html#00-0038765">Ty Okada <span class="t">SAF #39</span></a><a href="../players/s29.html#DEA711924">Vernon Dean <span class="t">DB</span></a><a href="../players/s08.html#MIN586284">Vic Minor <span class="t">DB</span></a><a href="../players/s30.html#00-0020254">Walter Bernard <span class="t">CB #30</span></a><a href="../players/s51.html#00-0035293">Xavier Crawford <span class="t">DB #37</span></a>      </div>
+      <div><h4>SPEC</h4>
+<a href="../players/s53.html#BOW456819">Barry Bowman <span class="t">P</span></a><a href="../players/s20.html#00-0038769">Chris Stoll <span class="t">LS #41</span></a><a href="../players/s52.html#00-0027555">Clint Gresham <span class="t">LS #49</span></a><a href="../players/s52.html#FIN771251">Dave Finzer <span class="t">P</span></a><a href="../players/s45.html#BIT415291">Don Bitterlich <span class="t">K</span></a><a href="../players/s62.html#WEA791020">Herman Weaver <span class="t">P</span></a><a href="../players/s00.html#00-0031492">Jason Myers <span class="t">K #5</span></a><a href="../players/s01.html#00-0013872">Jeff Robinson <span class="t">LS #49</span></a><a href="../players/s14.html#WES276860">Jeff West <span class="t">P</span></a><a href="../players/s50.html#COL769050">Jimmy Colquitt <span class="t">P</span></a><a href="../players/s48.html#LEY415291">John Leypoldt <span class="t">K</span></a><a href="../players/s47.html#00-0023742">Jon Ryan <span class="t">P #9</span></a><a href="../players/s58.html#00-0034160">Michael Dickson <span class="t">P #4</span></a><a href="../players/s14.html#00-0015572">Rohn Stark <span class="t">P #3</span></a><a href="../players/s39.html#GRI453024">Russ Griffith <span class="t">P</span></a><a href="../players/s23.html#00-0010072">Ryan Longwell <span class="t">K</span></a><a href="../players/s54.html#HAG683998">Scott Hagler <span class="t">K</span></a><a href="../players/s53.html#00-0019646">Sebastian Janikowski <span class="t">K #11</span></a><a href="../players/s25.html#00-0014083">Tom Rouen <span class="t">P #16</span></a><a href="../players/s11.html#ALV207645">Wilson Alvarez <span class="t">K</span></a>      </div>
+    </div>
+  </section>
+</div>
+
+<section class="panel section">
+  <div class="panel-head"><h2>Season by season</h2></div>
+  <div class="overflow-x">
+  <table class="dtable">
+    <thead><tr><th>Season</th><th class="num">Record</th><th class="num">Points for</th><th class="num">Against</th><th>Postseason</th><th class="num">Final Elo</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>2026</td>
+        <td class="num">3-3</td>
+        <td class="num">148</td>
+        <td class="num">122</td>
+        <td class=""></td>
+        <td class="num">1637</td>
+      </tr>
+      <tr>
+        <td>2025</td>
+        <td class="num">14-3</td>
+        <td class="num">483</td>
+        <td class="num">292</td>
+        <td class="champ">Won Super Bowl</td>
+        <td class="num">1756</td>
+      </tr>
+      <tr>
+        <td>2024</td>
+        <td class="num">10-7</td>
+        <td class="num">375</td>
+        <td class="num">368</td>
+        <td class=""></td>
+        <td class="num">1548</td>
+      </tr>
+      <tr>
+        <td>2023</td>
+        <td class="num">9-8</td>
+        <td class="num">364</td>
+        <td class="num">402</td>
+        <td class=""></td>
+        <td class="num">1499</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td class="num">9-8</td>
+        <td class="num">407</td>
+        <td class="num">401</td>
+        <td class="">Lost wild card round</td>
+        <td class="num">1502</td>
+      </tr>
+      <tr>
+        <td>2021</td>
+        <td class="num">7-10</td>
+        <td class="num">395</td>
+        <td class="num">366</td>
+        <td class=""></td>
+        <td class="num">1534</td>
+      </tr>
+      <tr>
+        <td>2020</td>
+        <td class="num">12-4</td>
+        <td class="num">459</td>
+        <td class="num">371</td>
+        <td class="">Lost wild card round</td>
+        <td class="num">1593</td>
+      </tr>
+      <tr>
+        <td>2019</td>
+        <td class="num">11-5</td>
+        <td class="num">405</td>
+        <td class="num">398</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1566</td>
+      </tr>
+      <tr>
+        <td>2018</td>
+        <td class="num">10-6</td>
+        <td class="num">428</td>
+        <td class="num">347</td>
+        <td class="">Lost wild card round</td>
+        <td class="num">1594</td>
+      </tr>
+      <tr>
+        <td>2017</td>
+        <td class="num">9-7</td>
+        <td class="num">366</td>
+        <td class="num">332</td>
+        <td class=""></td>
+        <td class="num">1563</td>
+      </tr>
+      <tr>
+        <td>2016</td>
+        <td class="num">10-5-1</td>
+        <td class="num">354</td>
+        <td class="num">292</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1598</td>
+      </tr>
+      <tr>
+        <td>2015</td>
+        <td class="num">10-6</td>
+        <td class="num">423</td>
+        <td class="num">277</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1690</td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td class="num">12-4</td>
+        <td class="num">394</td>
+        <td class="num">254</td>
+        <td class="">Lost super bowl</td>
+        <td class="num">1749</td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td class="num">13-3</td>
+        <td class="num">417</td>
+        <td class="num">231</td>
+        <td class="champ">Won Super Bowl</td>
+        <td class="num">1760</td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td class="num">11-5</td>
+        <td class="num">412</td>
+        <td class="num">245</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1652</td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td class="num">7-9</td>
+        <td class="num">321</td>
+        <td class="num">315</td>
+        <td class=""></td>
+        <td class="num">1497</td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td class="num">7-9</td>
+        <td class="num">310</td>
+        <td class="num">407</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1422</td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td class="num">5-11</td>
+        <td class="num">280</td>
+        <td class="num">390</td>
+        <td class=""></td>
+        <td class="num">1354</td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td class="num">4-12</td>
+        <td class="num">294</td>
+        <td class="num">392</td>
+        <td class=""></td>
+        <td class="num">1414</td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td class="num">10-6</td>
+        <td class="num">393</td>
+        <td class="num">291</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1559</td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td class="num">9-7</td>
+        <td class="num">335</td>
+        <td class="num">341</td>
+        <td class="">Lost divisional round</td>
+        <td class="num">1516</td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td class="num">13-3</td>
+        <td class="num">452</td>
+        <td class="num">271</td>
+        <td class="">Lost super bowl</td>
+        <td class="num">1660</td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td class="num">9-7</td>
+        <td class="num">371</td>
+        <td class="num">373</td>
+        <td class="">Lost wild card round</td>
+        <td class="num">1470</td>
+      </tr>
+      <tr>
+        <td>2003</td>
+        <td class="num">10-6</td>
+        <td class="num">404</td>
+        <td class="num">327</td>
+        <td class="">Lost wild card round</td>
+        <td class="num">1520</td>
+      </tr>
+      <tr>
+        <td>2002</td>
+        <td class="num">7-9</td>
+        <td class="num">355</td>
+        <td class="num">369</td>
+        <td class=""></td>
+        <td class="num">1511</td>
+      </tr>
+      <tr>
+        <td>2001</td>
+        <td class="num">9-7</td>
+        <td class="num">301</td>
+        <td class="num">324</td>
+        <td class=""></td>
+        <td class="num">1496</td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td class="num">6-10</td>
+        <td class="num">320</td>
+        <td class="num">405</td>
+        <td class=""></td>
+        <td class="num">1439</td>
+      </tr>
+      <tr>
+        <td>1999</td>
+        <td class="num">9-7</td>
+        <td class="num">338</td>
+        <td class="num">298</td>
+        <td class="">Lost wild card round</td>
+        <td class="num">1502</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+</main>
+<footer><div class="in">
+  Data: <a href="https://github.com/nflverse">nflverse</a>, through 2026-10-25.
+  Ratings, predictions and odds are this site's own model, not the league's or a sportsbook's.
+  Generated by Facetwork workflow <code>nfl.publish.UpdateSite</code> &middot; <a href="https://github.com/rlemke/fwh_nfl/blob/main/src/nfl/ffl/nfl_site.ffl">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_nfl">source repo</a>
+</div></footer>
+</body>
+</html>
