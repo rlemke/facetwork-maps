@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nashville SC — MLS 2026</title>
+<meta name="description" content="MLS game predictions, playoff odds, team and player history from an Elo model, scored against naive baselines.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#f1f3f6; --surface-3:#e4e8ee; --border:#dde2e8; --border-strong:#b9c1cc;
+  --text:#14181f; --text-2:#3c4552; --muted:#677283; --accent:#1f6fd1;
+  --series-1:#2a78d6; --series-2:#eb6834; --good:#006300; --bad:#c22c2c;
+  --r-sm:5px; --r-md:8px; --r-lg:10px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1217; --surface:#161a21; --surface-2:#1c212a; --surface-3:#2a313c; --border:#2a313b; --border-strong:#46505e;
+    --text:#e8ebf0; --text-2:#c2c8d2; --muted:#8c96a5; --accent:#5aa2f5;
+    --series-1:#3987e5; --series-2:#d95926; --good:#3fbf3f; --bad:#e25a5a;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 var(--sans)}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .in,main,footer .in{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top .in{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;min-height:52px}
+header.top .brand{font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+header.top nav{display:flex;gap:.2rem;flex-wrap:wrap}
+header.top nav a{color:var(--text-2);text-decoration:none;padding:.35rem .6rem;border-radius:var(--r-sm);font-weight:500}
+header.top nav a:hover,header.top nav a.cur{background:var(--surface-2);color:var(--text)}
+main{padding-top:1.1rem;padding-bottom:1.5rem}
+h1.page{font-size:22px;margin:0 0 .9rem;letter-spacing:-.02em}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.7rem .95rem;border-bottom:1px solid var(--border)}
+.panel-head h2{margin:0;font-size:15px}
+table.dtable{width:100%;border-collapse:collapse}
+.dtable th{font:600 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.dtable td{padding:.45rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+.dtable tr:last-child td{border-bottom:0}
+.btn{font:500 13px var(--sans);background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:.35rem .6rem}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:12px;padding:1rem 0 2rem}
+footer a{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:1.1rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.9rem;margin-bottom:1.1rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:.85rem .95rem}
+.kpi .lbl{font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .val{font-size:24px;font-weight:600;letter-spacing:-.02em;margin-top:.35rem;line-height:1.1}
+.kpi .sub{font-size:11.5px;color:var(--muted);margin-top:.25rem;line-height:1.4}
+.section{margin-bottom:1.1rem}
+.tm{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--text);font-weight:600;white-space:nowrap}
+.tm i{width:4px;height:16px;border-radius:2px;display:inline-block;flex:none}
+.tm:hover{color:var(--accent)}
+.t{font-size:11.5px;color:var(--muted)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.good{color:var(--good)} .bad{color:var(--bad)}
+.pbar{display:inline-block;width:64px;height:7px;border-radius:4px;background:var(--surface-3);vertical-align:middle;margin-left:.4rem;overflow:hidden}
+.pbar>b{display:block;height:100%;background:var(--series-1)}
+.note{font-size:12px;color:var(--text-2);line-height:1.55;padding:.8rem .95rem;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--r-md);margin-top:1rem}
+.note b{color:var(--text)}
+.weeks{display:flex;gap:.3rem;flex-wrap:wrap}
+.weeks button{font:600 11px/1 var(--mono);padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.weeks button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.bracket{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:.6rem;padding:.9rem;overflow-x:auto}
+.bracket .col h4{margin:0 0 .5rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.slot{border:1px solid var(--border);border-radius:var(--r-sm);padding:.4rem .5rem;margin-bottom:.4rem;background:var(--surface-2);font-size:12.5px}
+.slot .seed{font:600 10.5px/1 var(--mono);color:var(--muted);margin-right:.35rem}
+.slot .p{float:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart svg{width:100%;height:auto;display:block}
+.chart polyline{fill:none;stroke:var(--series-1);stroke-width:1.6}
+.chart .axis{stroke:var(--border);stroke-width:1}
+.chart text{fill:var(--muted);font:10px var(--mono)}
+.overflow-x{overflow-x:auto}
+.champ{font-weight:600;color:var(--good)}
+.roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.2rem 1.2rem;padding:.8rem .95rem}
+.roster h4{margin:.6rem 0 .2rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.roster a{display:block;font-size:12.5px;padding:.1rem 0;text-decoration:none;color:var(--text)}
+.roster a:hover{color:var(--accent)}
+.search{display:flex;gap:.5rem;padding:.8rem .9rem}
+.search input{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);padding:.5rem .65rem;font:14px var(--sans)}
+.lnav{display:flex;gap:.15rem;flex-wrap:wrap;margin-left:auto}
+.lnav a{font:600 11px/1 var(--mono);color:var(--muted);text-decoration:none;padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid transparent}
+.lnav a:hover{color:var(--text);border-color:var(--border)}
+.lnav a.cur{color:var(--text);border-color:var(--border-strong)}
+.tabs{display:flex;gap:.3rem}
+.tabs button{font:600 11px/1 var(--mono);padding:.35rem .55rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.tabs button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.p3{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.3rem .8rem;padding:.8rem .95rem}
+@media (max-width:640px){ .bracket{grid-template-columns:repeat(4,minmax(110px,1fr))} .kpi .val{font-size:20px} }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="../index.html">MLS predictions</a>
+  <nav>
+    <a href="../index.html">This season</a>
+    <a href="../players.html">Players</a>
+    <a href="../model.html">How good is the model?</a>
+  </nav>
+  <nav class="lnav" aria-label="Other leagues">
+<a href="../../nba/index.html">NBA</a><a href="../../wnba/index.html">WNBA</a><a href="../../mlb/index.html">MLB</a><a href="../../mls/index.html" class="cur">MLS</a><a href="../../nwsl/index.html">NWSL</a>    <a href="../../nfl/index.html">NFL</a>
+  </nav>
+</div></header>
+<main>
+<h1 class="page"><span class="tm" style="font-size:22px"><i style="background:#ece83a;height:22px;width:6px"></i>Nashville SC</span></h1>
+
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl">2026 record</div>
+    <div class="val">21-7-3</div>
+    <div class="sub">70 points &middot; goal difference +43</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Elo rating</div>
+    <div class="val">1641</div>
+    <div class="sub">#1 in the league</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Playoffs</div>
+    <div class="val">100%</div>
+    <div class="sub">Projected 76.0 points</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">MLS Cup</div>
+    <div class="val">33.6%</div>
+    <div class="sub">Supporters&#39; Shield 100%</div>
+  </div>
+</section>
+
+<section class="panel section chart">
+  <div class="panel-head"><h2>Rating history</h2><span class="t">After every game since 2012; range 1394&ndash;1641</span></div>
+  <svg viewBox="0 0 760 186" role="img" aria-label="Elo rating over time">
+    <line class="axis" x1="6" x2="754" y1="164" y2="164"/>
+    <polyline points="6.0,161.8 9.2,164.0 12.4,156.3 15.6,153.8 18.8,156.8 22.0,160.3 25.2,157.2 28.4,157.4 31.6,156.0 34.8,149.4 38.0,152.2 41.2,148.3 44.4,149.0 47.6,146.3 50.8,146.5 53.9,148.9 57.1,138.3 60.3,130.9 63.5,131.6 66.7,125.3 69.9,126.8 73.1,132.4 76.3,124.9 79.5,120.4 82.7,113.0 85.9,116.7 89.1,107.2 92.3,108.9 95.5,110.8 98.7,105.0 101.9,103.4 105.1,101.0 108.3,99.3 111.5,104.1 114.7,100.8 117.9,102.6 121.1,98.6 124.3,100.4 127.5,95.4 130.7,93.3 133.9,89.1 137.1,87.9 140.3,85.6 143.5,90.2 146.6,84.8 149.8,86.3 153.0,77.1 156.2,71.6 159.4,65.9 162.6,70.7 165.8,61.3 169.0,61.5 172.2,63.8 175.4,62.4 178.6,61.4 181.8,63.6 185.0,66.8 188.2,60.2 191.4,59.3 194.6,61.3 197.8,57.2 201.0,55.6 204.2,68.0 207.4,66.8 210.6,73.0 213.8,76.4 217.0,70.1 220.2,64.1 223.4,63.8 226.6,67.5 229.8,69.0 233.0,64.7 236.2,71.4 239.4,68.4 242.5,70.5 245.7,61.2 248.9,63.8 252.1,71.1 255.3,63.4 258.5,65.4 261.7,74.0 264.9,70.9 268.1,76.9 271.3,76.6 274.5,78.9 277.7,77.1 280.9,84.7 284.1,91.0 287.3,84.6 290.5,74.3 293.7,69.5 296.9,64.2 300.1,66.5 303.3,65.2 306.5,72.8 309.7,65.7 312.9,69.3 316.1,76.3 319.3,75.0 322.5,70.5 325.7,74.1 328.9,80.7 332.1,71.7 335.2,74.1 338.4,77.4 341.6,78.3 344.8,73.6 348.0,69.2 351.2,68.8 354.4,66.2 357.6,60.9 360.8,56.8 364.0,50.9 367.2,50.9 370.4,47.7 373.6,51.7 376.8,57.4 380.0,54.1 383.2,58.5 386.4,67.9 389.6,72.2 392.8,78.7 396.0,78.2 399.2,80.5 402.4,70.0 405.6,69.3 408.8,71.2 412.0,77.5 415.2,75.3 418.4,72.1 421.6,79.1 424.8,81.7 427.9,87.4 431.1,92.0 434.3,91.1 437.5,92.9 440.7,89.9 443.9,96.1 447.1,96.8 450.3,102.4 453.5,107.1 456.7,109.2 459.9,103.2 463.1,106.6 466.3,102.3 469.5,103.9 472.7,102.7 475.9,91.4 479.1,98.7 482.3,96.6 485.5,91.0 488.7,87.8 491.9,93.7 495.1,96.9 498.3,102.3 501.5,106.5 504.7,116.9 507.9,122.0 511.1,131.5 514.3,135.6 517.5,125.0 520.6,122.0 523.8,122.2 527.0,125.8 530.2,132.3 533.4,135.9 536.6,125.1 539.8,111.0 543.0,115.2 546.2,109.9 549.4,99.2 552.6,94.1 555.8,100.4 559.0,103.2 562.2,99.8 565.4,104.6 568.6,98.6 571.8,97.3 575.0,93.7 578.2,90.3 581.4,92.7 584.6,87.1 587.8,84.9 591.0,86.7 594.2,77.1 597.4,71.1 600.6,66.3 603.8,62.9 607.0,65.6 610.2,59.0 613.4,57.2 616.5,61.2 619.7,68.9 622.9,72.3 626.1,65.3 629.3,72.8 632.5,75.9 635.7,78.7 638.9,74.8 642.1,74.7 645.3,84.4 648.5,87.7 651.7,83.1 654.9,87.3 658.1,85.5 661.3,84.1 664.5,79.1 667.7,72.8 670.9,67.3 674.1,70.9 677.3,64.7 680.5,57.4 683.7,53.4 686.9,52.8 690.1,55.6 693.3,45.7 696.5,42.9 699.7,40.4 702.9,38.8 706.1,37.2 709.2,41.6 712.4,41.8 715.6,35.2 718.8,30.5 722.0,28.5 725.2,24.0 728.4,23.7 731.6,28.8 734.8,27.2 738.0,23.1 741.2,20.6 744.4,12.8 747.6,10.8 750.8,10.9 754.0,6.0"/>
+<text x="6.0" y="182" text-anchor="middle">2020</text><text x="539.8" y="182" text-anchor="middle">2025</text>  </svg>
+</section>
+
+<div class="grid2 section">
+<section class="panel">
+  <div class="panel-head"><h2>2026 games</h2></div>
+  <div class="overflow-x" style="max-height:640px;overflow-y:auto">
+  <table class="dtable">
+    <thead><tr><th>Date</th><th>Opponent</th><th>Model</th><th class="num">Result</th></tr></thead>
+    <tbody>
+      <tr><td class="t">2026-02-21</td>
+        <td>vs <a class="tm" href="../teams/NE.html" title="New England Revolution"><i style="background:#022166"></i>NE</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 59%<span class="pbar"><b style="width:59.3%"></b></span><div class="p3">H 59% &middot; D 24% &middot; A 16%</div></td>
+        <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-02-28</td>
+        <td>at <a class="tm" href="../teams/DAL.html" title="FC Dallas"><i style="background:#c6093b"></i>DAL</a></td>
+        <td><a class="tm" href="../teams/DAL.html" title="FC Dallas"><i style="background:#c6093b"></i>DAL</a> 51%<span class="pbar"><b style="width:50.9%"></b></span><div class="p3">H 51% &middot; D 27% &middot; A 22%</div></td>
+        <td class="num">0&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-03-07</td>
+        <td>vs <a class="tm" href="../teams/MIN.html" title="Minnesota United FC"><i style="background:#000000"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 52%<span class="pbar"><b style="width:52.0%"></b></span><div class="p3">H 52% &middot; D 27% &middot; A 21%</div></td>
+        <td class="num">1&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-03-14</td>
+        <td>at <a class="tm" href="../teams/CLB.html" title="Columbus Crew"><i style="background:#000000"></i>CLB</a></td>
+        <td><a class="tm" href="../teams/CLB.html" title="Columbus Crew"><i style="background:#000000"></i>CLB</a> 53%<span class="pbar"><b style="width:52.6%"></b></span><div class="p3">H 53% &middot; D 27% &middot; A 20%</div></td>
+        <td class="num">1&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-03-21</td>
+        <td>vs <a class="tm" href="../teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 60%<span class="pbar"><b style="width:59.5%"></b></span><div class="p3">H 60% &middot; D 24% &middot; A 16%</div></td>
+        <td class="num">0&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-04</td>
+        <td>at <a class="tm" href="../teams/CHI.html" title="Chicago Fire FC"><i style="background:#7ccdef"></i>CHI</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Fire FC"><i style="background:#7ccdef"></i>CHI</a> 49%<span class="pbar"><b style="width:49.0%"></b></span><div class="p3">H 49% &middot; D 28% &middot; A 23%</div></td>
+        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-11</td>
+        <td>at <a class="tm" href="../teams/CLT.html" title="Charlotte FC"><i style="background:#0085ca"></i>CLT</a></td>
+        <td><a class="tm" href="../teams/CLT.html" title="Charlotte FC"><i style="background:#0085ca"></i>CLT</a> 51%<span class="pbar"><b style="width:50.9%"></b></span><div class="p3">H 51% &middot; D 27% &middot; A 22%</div></td>
+        <td class="num">2&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-18</td>
+        <td>at <a class="tm" href="../teams/ATL.html" title="Atlanta United FC"><i style="background:#9d2235"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta United FC"><i style="background:#9d2235"></i>ATL</a> 36%<span class="pbar"><b style="width:35.6%"></b></span><div class="p3">H 36% &middot; D 30% &middot; A 34%</div></td>
+        <td class="num">2&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-25</td>
+        <td>vs <a class="tm" href="../teams/CLT.html" title="Charlotte FC"><i style="background:#0085ca"></i>CLT</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 60%<span class="pbar"><b style="width:60.2%"></b></span><div class="p3">H 60% &middot; D 24% &middot; A 16%</div></td>
+        <td class="num">2&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-02</td>
+        <td>at <a class="tm" href="../teams/PHI.html" title="Philadelphia Union"><i style="background:#051f31"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/PHI.html" title="Philadelphia Union"><i style="background:#051f31"></i>PHI</a> 42%<span class="pbar"><b style="width:41.7%"></b></span><div class="p3">H 42% &middot; D 30% &middot; A 29%</div></td>
+        <td class="num">0&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-09</td>
+        <td>vs <a class="tm" href="../teams/DC.html" title="D.C. United"><i style="background:#000000"></i>DC</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 69%<span class="pbar"><b style="width:68.7%"></b></span><div class="p3">H 69% &middot; D 20% &middot; A 11%</div></td>
+        <td class="num">2&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-13</td>
+        <td>at <a class="tm" href="../teams/NE.html" title="New England Revolution"><i style="background:#022166"></i>NE</a></td>
+        <td><a class="tm" href="../teams/NE.html" title="New England Revolution"><i style="background:#022166"></i>NE</a> 44%<span class="pbar"><b style="width:44.1%"></b></span><div class="p3">H 44% &middot; D 29% &middot; A 27%</div></td>
+        <td class="num">3&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-17</td>
+        <td>vs <a class="tm" href="../teams/LAFC.html" title="LAFC"><i style="background:#000000"></i>LAFC</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 58%<span class="pbar"><b style="width:58.0%"></b></span><div class="p3">H 58% &middot; D 25% &middot; A 17%</div></td>
+        <td class="num">2&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-23</td>
+        <td>vs <a class="tm" href="../teams/NYC.html" title="New York City FC"><i style="background:#9fd2ff"></i>NYC</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 63%<span class="pbar"><b style="width:62.6%"></b></span><div class="p3">H 63% &middot; D 23% &middot; A 14%</div></td>
+        <td class="num">1&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-17</td>
+        <td>vs <a class="tm" href="../teams/ATL.html" title="Atlanta United FC"><i style="background:#9d2235"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 76%<span class="pbar"><b style="width:75.6%"></b></span><div class="p3">H 76% &middot; D 16% &middot; A 8%</div></td>
+        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-22</td>
+        <td>vs <a class="tm" href="../teams/MTL.html" title="CF Montréal"><i style="background:#003da6"></i>MTL</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 74%<span class="pbar"><b style="width:73.8%"></b></span><div class="p3">H 74% &middot; D 17% &middot; A 9%</div></td>
+        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-25</td>
+        <td>at <a class="tm" href="../teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a></td>
+        <td><a class="tm" href="../teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a> 38%<span class="pbar"><b style="width:38.4%"></b></span><div class="p3">H 38% &middot; D 30% &middot; A 32%</div></td>
+        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-01</td>
+        <td>at <a class="tm" href="../teams/DC.html" title="D.C. United"><i style="background:#000000"></i>DC</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 37%<span class="pbar"><b style="width:36.5%"></b></span><div class="p3">H 34% &middot; D 30% &middot; A 37%</div></td>
+        <td class="num">2&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-15</td>
+        <td>vs <a class="tm" href="../teams/MIA.html" title="Inter Miami CF"><i style="background:#231f20"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 46%<span class="pbar"><b style="width:46.4%"></b></span><div class="p3">H 46% &middot; D 29% &middot; A 25%</div></td>
+        <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-19</td>
+        <td>at <a class="tm" href="../teams/RBNY.html" title="Red Bull New York"><i style="background:#ba0c2f"></i>RBNY</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 36%<span class="pbar"><b style="width:36.1%"></b></span><div class="p3">H 34% &middot; D 30% &middot; A 36%</div></td>
+        <td class="num">1&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-22</td>
+        <td>vs <a class="tm" href="../teams/CLB.html" title="Columbus Crew"><i style="background:#000000"></i>CLB</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 70%<span class="pbar"><b style="width:69.7%"></b></span><div class="p3">H 70% &middot; D 20% &middot; A 11%</div></td>
+        <td class="num">2&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-29</td>
+        <td>vs <a class="tm" href="../teams/CIN.html" title="FC Cincinnati"><i style="background:#003087"></i>CIN</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 64%<span class="pbar"><b style="width:63.7%"></b></span><div class="p3">H 64% &middot; D 22% &middot; A 14%</div></td>
+        <td class="num">0&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-04</td>
+        <td>at <a class="tm" href="../teams/NYC.html" title="New York City FC"><i style="background:#9fd2ff"></i>NYC</a></td>
+        <td><a class="tm" href="../teams/NYC.html" title="New York City FC"><i style="background:#9fd2ff"></i>NYC</a> 39%<span class="pbar"><b style="width:38.8%"></b></span><div class="p3">H 39% &middot; D 30% &middot; A 31%</div></td>
+        <td class="num">0&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-09</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto FC"><i style="background:#aa182c"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 39%<span class="pbar"><b style="width:39.2%"></b></span><div class="p3">H 31% &middot; D 30% &middot; A 39%</div></td>
+        <td class="num">1&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-12</td>
+        <td>at <a class="tm" href="../teams/MIA.html" title="Inter Miami CF"><i style="background:#231f20"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Inter Miami CF"><i style="background:#231f20"></i>MIA</a> 54%<span class="pbar"><b style="width:53.6%"></b></span><div class="p3">H 54% &middot; D 27% &middot; A 20%</div></td>
+        <td class="num">2&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-19</td>
+        <td>vs <a class="tm" href="../teams/CHI.html" title="Chicago Fire FC"><i style="background:#7ccdef"></i>CHI</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 64%<span class="pbar"><b style="width:63.9%"></b></span><div class="p3">H 64% &middot; D 22% &middot; A 14%</div></td>
+        <td class="num">0&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-26</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto FC"><i style="background:#aa182c"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 74%<span class="pbar"><b style="width:74.5%"></b></span><div class="p3">H 74% &middot; D 17% &middot; A 9%</div></td>
+        <td class="num">0&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-10-10</td>
+        <td>at <a class="tm" href="../teams/ATX.html" title="Austin FC"><i style="background:#00b140"></i>ATX</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 39%<span class="pbar"><b style="width:38.9%"></b></span><div class="p3">H 31% &middot; D 30% &middot; A 39%</div></td>
+        <td class="num">4&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-10-14</td>
+        <td>vs <a class="tm" href="../teams/SKC.html" title="Sporting Kansas City"><i style="background:#a7c6ed"></i>SKC</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 83%<span class="pbar"><b style="width:82.6%"></b></span><div class="p3">H 83% &middot; D 12% &middot; A 5%</div></td>
+        <td class="num">0&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-10-17</td>
+        <td>at <a class="tm" href="../teams/SJ.html" title="San Jose Earthquakes"><i style="background:#003da6"></i>SJ</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 35%<span class="pbar"><b style="width:35.2%"></b></span><div class="p3">H 35% &middot; D 30% &middot; A 35%</div></td>
+        <td class="num">1&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-10-24</td>
+        <td>at <a class="tm" href="../teams/MTL.html" title="CF Montréal"><i style="background:#003da6"></i>MTL</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 53%<span class="pbar"><b style="width:52.8%"></b></span><div class="p3">H 20% &middot; D 27% &middot; A 53%</div></td>
+        <td class="num">2&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-10-28</td>
+        <td>vs <a class="tm" href="../teams/PHI.html" title="Philadelphia Union"><i style="background:#051f31"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 64%<span class="pbar"><b style="width:64.0%"></b></span><div class="p3">H 64% &middot; D 22% &middot; A 14%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-01</td>
+        <td>vs <a class="tm" href="../teams/RBNY.html" title="Red Bull New York"><i style="background:#ba0c2f"></i>RBNY</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 78%<span class="pbar"><b style="width:77.9%"></b></span><div class="p3">H 78% &middot; D 15% &middot; A 7%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-07</td>
+        <td>at <a class="tm" href="../teams/CIN.html" title="FC Cincinnati"><i style="background:#003087"></i>CIN</a></td>
+        <td><a class="tm" href="../teams/NSH.html" title="Nashville SC"><i style="background:#ece83a"></i>NSH</a> 36%<span class="pbar"><b style="width:36.5%"></b></span><div class="p3">H 34% &middot; D 30% &middot; A 36%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>2026 leaders</h2></div>
+  <div class="roster">
+    <div><h4>Goals</h4>
+<a href="../players.html#q=Sam%20Surridge">Sam Surridge <span class="t">18</span></a><a href="../players.html#q=Hany%20Mukhtar">Hany Mukhtar <span class="t">16</span></a><a href="../players.html#q=Warren%20Madrigal">Warren Madrigal <span class="t">6</span></a>    </div>
+    <div><h4>Assists</h4>
+<a href="../players.html#q=Cristian%20Espinoza">Cristian Espinoza <span class="t">11</span></a><a href="../players.html#q=Andy%20Najar">Andy Najar <span class="t">6</span></a><a href="../players.html#q=Hany%20Mukhtar">Hany Mukhtar <span class="t">6</span></a>    </div>
+    <div><h4>Expected goals</h4>
+<a href="../players.html#q=Sam%20Surridge">Sam Surridge <span class="t">17.4</span></a><a href="../players.html#q=Hany%20Mukhtar">Hany Mukhtar <span class="t">13.2</span></a><a href="../players.html#q=Warren%20Madrigal">Warren Madrigal <span class="t">4.0</span></a>    </div>
+    <div><h4>Expected assists</h4>
+<a href="../players.html#q=Cristian%20Espinoza">Cristian Espinoza <span class="t">8.0</span></a><a href="../players.html#q=Hany%20Mukhtar">Hany Mukhtar <span class="t">5.2</span></a><a href="../players.html#q=Andy%20Najar">Andy Najar <span class="t">3.7</span></a>    </div>
+    <div><h4>xG+xA per 90</h4>
+<a href="../players.html#q=Sam%20Surridge">Sam Surridge <span class="t">0.79</span></a><a href="../players.html#q=Elias%20Saad">Elias Saad <span class="t">0.62</span></a><a href="../players.html#q=Hany%20Mukhtar">Hany Mukhtar <span class="t">0.58</span></a>    </div>
+  </div>
+</section>
+</div>
+
+<section class="panel section">
+  <div class="panel-head"><h2>Season by season</h2></div>
+  <div class="overflow-x">
+  <table class="dtable">
+    <thead><tr><th>Season</th><th></th><th class="num">W-D-L</th><th class="num">Pts</th><th class="num">GD</th><th>Postseason</th><th class="num">Final Elo</th></tr></thead>
+    <tbody>
+      <tr><td>2026</td><td class="t">NSH</td><td class="num">21-7-3</td><td class="num">70</td>        <td class="num">+43</td>
+        <td></td>
+        <td class="num">1641</td></tr>
+      <tr><td>2025</td><td class="t">NSH</td><td class="num">16-6-12</td><td class="num">54</td>        <td class="num">+13</td>
+        <td>Out: East round one</td>
+        <td class="num">1514</td></tr>
+      <tr><td>2024</td><td class="t">NSH</td><td class="num">9-9-16</td><td class="num">36</td>        <td class="num">-16</td>
+        <td></td>
+        <td class="num">1455</td></tr>
+      <tr><td>2023</td><td class="t">NSH</td><td class="num">13-10-11</td><td class="num">49</td>        <td class="num">+7</td>
+        <td>Out: East round one</td>
+        <td class="num">1514</td></tr>
+      <tr><td>2022</td><td class="t">NSH</td><td class="num">13-11-10</td><td class="num">50</td>        <td class="num">+11</td>
+        <td>Out: West first round</td>
+        <td class="num">1542</td></tr>
+      <tr><td>2021</td><td class="t">NSH</td><td class="num">12-18-4</td><td class="num">54</td>        <td class="num">+22</td>
+        <td>Out: East semifinals</td>
+        <td class="num">1564</td></tr>
+      <tr><td>2020</td><td class="t">NSH</td><td class="num">8-8-7</td><td class="num">32</td>        <td class="num">+2</td>
+        <td>Out: East semifinals</td>
+        <td class="num">1468</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+</main>
+<footer><div class="in">
+  Data: ESPN and <a href="https://www.americansocceranalysis.com">American Soccer Analysis</a>, through 2026-10-26.
+  Ratings, predictions and odds are this site&rsquo;s own model, not the league&rsquo;s or a sportsbook&rsquo;s. Times are US Eastern.
+  Generated by Facetwork workflow <code>sports.publish.UpdateAll</code> &middot; <a href="https://github.com/rlemke/fwh_sports/blob/main/src/sports/ffl/sports_site.ffl">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_sports">source repo</a>
+</div></footer>
+</body>
+</html>

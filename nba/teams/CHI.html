@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chicago Bulls — NBA 2026–27</title>
+<meta name="description" content="NBA game predictions, playoff odds, team and player history from an Elo model, scored against naive baselines.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#f1f3f6; --surface-3:#e4e8ee; --border:#dde2e8; --border-strong:#b9c1cc;
+  --text:#14181f; --text-2:#3c4552; --muted:#677283; --accent:#1f6fd1;
+  --series-1:#2a78d6; --series-2:#eb6834; --good:#006300; --bad:#c22c2c;
+  --r-sm:5px; --r-md:8px; --r-lg:10px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1217; --surface:#161a21; --surface-2:#1c212a; --surface-3:#2a313c; --border:#2a313b; --border-strong:#46505e;
+    --text:#e8ebf0; --text-2:#c2c8d2; --muted:#8c96a5; --accent:#5aa2f5;
+    --series-1:#3987e5; --series-2:#d95926; --good:#3fbf3f; --bad:#e25a5a;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 var(--sans)}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .in,main,footer .in{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top .in{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;min-height:52px}
+header.top .brand{font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+header.top nav{display:flex;gap:.2rem;flex-wrap:wrap}
+header.top nav a{color:var(--text-2);text-decoration:none;padding:.35rem .6rem;border-radius:var(--r-sm);font-weight:500}
+header.top nav a:hover,header.top nav a.cur{background:var(--surface-2);color:var(--text)}
+main{padding-top:1.1rem;padding-bottom:1.5rem}
+h1.page{font-size:22px;margin:0 0 .9rem;letter-spacing:-.02em}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.7rem .95rem;border-bottom:1px solid var(--border)}
+.panel-head h2{margin:0;font-size:15px}
+table.dtable{width:100%;border-collapse:collapse}
+.dtable th{font:600 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.dtable td{padding:.45rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+.dtable tr:last-child td{border-bottom:0}
+.btn{font:500 13px var(--sans);background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:.35rem .6rem}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:12px;padding:1rem 0 2rem}
+footer a{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:1.1rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.9rem;margin-bottom:1.1rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:.85rem .95rem}
+.kpi .lbl{font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .val{font-size:24px;font-weight:600;letter-spacing:-.02em;margin-top:.35rem;line-height:1.1}
+.kpi .sub{font-size:11.5px;color:var(--muted);margin-top:.25rem;line-height:1.4}
+.section{margin-bottom:1.1rem}
+.tm{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--text);font-weight:600;white-space:nowrap}
+.tm i{width:4px;height:16px;border-radius:2px;display:inline-block;flex:none}
+.tm:hover{color:var(--accent)}
+.t{font-size:11.5px;color:var(--muted)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.good{color:var(--good)} .bad{color:var(--bad)}
+.pbar{display:inline-block;width:64px;height:7px;border-radius:4px;background:var(--surface-3);vertical-align:middle;margin-left:.4rem;overflow:hidden}
+.pbar>b{display:block;height:100%;background:var(--series-1)}
+.note{font-size:12px;color:var(--text-2);line-height:1.55;padding:.8rem .95rem;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--r-md);margin-top:1rem}
+.note b{color:var(--text)}
+.weeks{display:flex;gap:.3rem;flex-wrap:wrap}
+.weeks button{font:600 11px/1 var(--mono);padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.weeks button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.bracket{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:.6rem;padding:.9rem;overflow-x:auto}
+.bracket .col h4{margin:0 0 .5rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.slot{border:1px solid var(--border);border-radius:var(--r-sm);padding:.4rem .5rem;margin-bottom:.4rem;background:var(--surface-2);font-size:12.5px}
+.slot .seed{font:600 10.5px/1 var(--mono);color:var(--muted);margin-right:.35rem}
+.slot .p{float:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart svg{width:100%;height:auto;display:block}
+.chart polyline{fill:none;stroke:var(--series-1);stroke-width:1.6}
+.chart .axis{stroke:var(--border);stroke-width:1}
+.chart text{fill:var(--muted);font:10px var(--mono)}
+.overflow-x{overflow-x:auto}
+.champ{font-weight:600;color:var(--good)}
+.roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.2rem 1.2rem;padding:.8rem .95rem}
+.roster h4{margin:.6rem 0 .2rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.roster a{display:block;font-size:12.5px;padding:.1rem 0;text-decoration:none;color:var(--text)}
+.roster a:hover{color:var(--accent)}
+.search{display:flex;gap:.5rem;padding:.8rem .9rem}
+.search input{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);padding:.5rem .65rem;font:14px var(--sans)}
+.lnav{display:flex;gap:.15rem;flex-wrap:wrap;margin-left:auto}
+.lnav a{font:600 11px/1 var(--mono);color:var(--muted);text-decoration:none;padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid transparent}
+.lnav a:hover{color:var(--text);border-color:var(--border)}
+.lnav a.cur{color:var(--text);border-color:var(--border-strong)}
+.tabs{display:flex;gap:.3rem}
+.tabs button{font:600 11px/1 var(--mono);padding:.35rem .55rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.tabs button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.p3{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.3rem .8rem;padding:.8rem .95rem}
+@media (max-width:640px){ .bracket{grid-template-columns:repeat(4,minmax(110px,1fr))} .kpi .val{font-size:20px} }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="../index.html">NBA predictions</a>
+  <nav>
+    <a href="../index.html">This season</a>
+    <a href="../players.html">Players</a>
+    <a href="../model.html">How good is the model?</a>
+  </nav>
+  <nav class="lnav" aria-label="Other leagues">
+<a href="../../nba/index.html" class="cur">NBA</a><a href="../../wnba/index.html">WNBA</a><a href="../../mlb/index.html">MLB</a><a href="../../mls/index.html">MLS</a><a href="../../nwsl/index.html">NWSL</a>    <a href="../../nfl/index.html">NFL</a>
+  </nav>
+</div></header>
+<main>
+<h1 class="page"><span class="tm" style="font-size:22px"><i style="background:#ce1141;height:22px;width:6px"></i>Chicago Bulls</span></h1>
+
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl">2026–27 record</div>
+    <div class="val">1-2</div>
+    <div class="sub">Eastern Conference &middot; Central</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Elo rating</div>
+    <div class="val">1387</div>
+    <div class="sub">#25 in the league</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Playoffs</div>
+    <div class="val">16%</div>
+    <div class="sub">Projected 30.3 wins</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">NBA championship</div>
+    <div class="val">0.4%</div>
+    <div class="sub">1 seed &lt;1%</div>
+  </div>
+</section>
+
+<section class="panel section chart">
+  <div class="panel-head"><h2>Rating history</h2><span class="t">After every game since 2002–03; range 1278&ndash;1718</span></div>
+  <svg viewBox="0 0 760 186" role="img" aria-label="Elo rating over time">
+    <line class="axis" x1="6" x2="754" y1="164" y2="164"/>
+    <polyline points="6.0,79.6 7.1,81.6 8.2,95.3 9.3,96.6 10.4,103.6 11.5,109.0 12.6,121.9 13.7,116.6 14.9,106.9 16.0,106.9 17.1,108.7 18.2,107.9 19.3,108.4 20.4,113.5 21.5,106.2 22.6,107.4 23.7,112.7 24.8,118.0 25.9,119.7 27.0,122.0 28.1,129.2 29.2,131.1 30.3,129.4 31.4,122.0 32.6,126.1 33.7,131.4 34.8,124.7 35.9,116.9 37.0,115.5 38.1,123.3 39.2,118.3 40.3,124.4 41.4,127.5 42.5,124.3 43.6,130.4 44.7,121.8 45.8,131.6 46.9,127.7 48.0,127.5 49.2,130.3 50.3,131.7 51.4,138.8 52.5,139.6 53.6,144.5 54.7,136.5 55.8,131.2 56.9,137.9 58.0,132.9 59.1,139.1 60.2,142.6 61.3,137.6 62.4,142.7 63.5,138.9 64.6,141.9 65.8,149.3 66.9,130.0 68.0,136.7 69.1,141.4 70.2,140.7 71.3,141.1 72.4,134.8 73.5,122.3 74.6,111.3 75.7,110.8 76.8,106.6 77.9,99.3 79.0,89.9 80.1,83.9 81.2,76.6 82.3,84.8 83.5,78.7 84.6,71.0 85.7,70.4 86.8,83.2 87.9,74.2 89.0,84.0 90.1,84.0 91.2,73.4 92.3,67.2 93.4,67.1 94.5,64.2 95.6,64.0 96.7,62.9 97.8,69.6 98.9,75.9 100.1,79.1 101.2,83.6 102.3,78.2 103.4,76.4 104.5,80.5 105.6,80.0 106.7,81.1 107.8,88.4 108.9,97.3 110.0,104.5 111.1,87.2 112.2,93.1 113.3,87.4 114.4,78.0 115.5,82.5 116.7,85.4 117.8,78.8 118.9,81.7 120.0,79.5 121.1,81.8 122.2,81.7 123.3,89.5 124.4,86.3 125.5,85.6 126.6,88.9 127.7,83.0 128.8,65.8 129.9,64.7 131.0,72.5 132.1,65.0 133.2,63.6 134.4,69.9 135.5,78.8 136.6,70.5 137.7,62.1 138.8,65.2 139.9,60.1 141.0,60.6 142.1,57.6 143.2,59.9 144.3,62.1 145.4,57.1 146.5,62.0 147.6,55.2 148.7,55.6 149.8,63.0 151.0,63.1 152.1,54.1 153.2,58.0 154.3,61.1 155.4,50.7 156.5,60.5 157.6,56.8 158.7,56.0 159.8,47.7 160.9,37.0 162.0,37.8 163.1,36.4 164.2,38.8 165.3,54.6 166.4,69.4 167.6,80.1 168.7,80.6 169.8,84.9 170.9,80.9 172.0,76.6 173.1,84.6 174.2,88.8 175.3,84.8 176.4,86.2 177.5,88.1 178.6,88.6 179.7,90.3 180.8,97.6 181.9,103.7 183.0,95.5 184.1,99.4 185.3,97.8 186.4,99.6 187.5,95.6 188.6,92.1 189.7,93.1 190.8,100.1 191.9,103.3 193.0,107.0 194.1,111.2 195.2,107.3 196.3,96.5 197.4,92.7 198.5,95.9 199.6,99.4 200.7,94.4 201.9,95.1 203.0,94.8 204.1,98.7 205.2,94.4 206.3,101.4 207.4,100.9 208.5,103.7 209.6,112.1 210.7,109.7 211.8,119.8 212.9,100.6 214.0,93.5 215.1,89.1 216.2,78.3 217.3,89.1 218.4,85.7 219.6,91.0 220.7,78.3 221.8,77.3 222.9,74.9 224.0,73.7 225.1,66.8 226.2,71.4 227.3,74.2 228.4,73.9 229.5,78.4 230.6,75.9 231.7,73.5 232.8,81.0 233.9,84.2 235.0,101.7 236.2,107.5 237.3,103.8 238.4,106.0 239.5,94.9 240.6,102.8 241.7,87.7 242.8,95.2 243.9,79.7 245.0,78.1 246.1,80.5 247.2,79.3 248.3,70.9 249.4,71.1 250.5,88.0 251.6,97.3 252.8,102.5 253.9,94.9 255.0,98.5 256.1,94.3 257.2,99.5 258.3,84.1 259.4,83.7 260.5,88.4 261.6,87.9 262.7,81.7 263.8,79.6 264.9,71.1 266.0,76.5 267.1,73.8 268.2,66.8 269.3,61.8 270.5,58.1 271.6,53.6 272.7,53.9 273.8,51.2 274.9,48.1 276.0,45.2 277.1,40.2 278.2,40.2 279.3,37.1 280.4,37.2 281.5,30.2 282.6,26.1 283.7,20.2 284.8,17.1 285.9,14.8 287.1,20.5 288.2,17.8 289.3,13.5 290.4,8.2 291.5,6.0 292.6,16.4 293.7,18.4 294.8,9.1 295.9,19.3 297.0,44.2 298.1,32.5 299.2,24.0 300.3,26.8 301.4,22.4 302.5,21.4 303.7,25.4 304.8,24.9 305.9,23.3 307.0,16.3 308.1,17.3 309.2,26.5 310.3,19.7 311.4,14.0 312.5,17.0 313.6,22.5 314.7,13.8 315.8,19.0 316.9,26.4 318.0,23.6 319.1,26.5 320.2,25.0 321.4,33.4 322.5,37.6 323.6,47.9 324.7,55.6 325.8,55.4 326.9,65.1 328.0,60.6 329.1,60.2 330.2,58.5 331.3,56.9 332.4,55.8 333.5,74.0 334.6,65.5 335.7,75.7 336.8,65.8 338.0,64.8 339.1,66.4 340.2,56.1 341.3,60.6 342.4,62.0 343.5,66.5 344.6,66.8 345.7,68.9 346.8,76.4 347.9,80.7 349.0,75.1 350.1,74.1 351.2,83.9 352.3,84.7 353.4,83.3 354.6,73.3 355.7,74.7 356.8,72.3 357.9,79.7 359.0,82.6 360.1,69.9 361.2,66.7 362.3,76.6 363.4,76.8 364.5,82.9 365.6,93.0 366.7,98.5 367.8,96.8 368.9,93.6 370.0,86.2 371.1,90.0 372.3,88.0 373.4,86.9 374.5,85.8 375.6,89.2 376.7,79.2 377.8,73.7 378.9,60.5 380.0,59.8 381.1,63.6 382.2,60.2 383.3,61.6 384.4,63.6 385.5,58.0 386.6,44.9 387.7,50.5 388.9,55.5 390.0,60.1 391.1,62.4 392.2,64.4 393.3,64.9 394.4,65.4 395.5,64.1 396.6,57.9 397.7,53.8 398.8,50.0 399.9,39.2 401.0,35.2 402.1,43.5 403.2,57.9 404.3,66.9 405.4,70.4 406.6,66.8 407.7,68.5 408.8,58.4 409.9,57.8 411.0,61.4 412.1,63.1 413.2,67.3 414.3,73.1 415.4,67.7 416.5,65.4 417.6,65.3 418.7,64.8 419.8,54.3 420.9,48.5 422.0,44.1 423.2,41.0 424.3,51.7 425.4,57.7 426.5,63.6 427.6,66.0 428.7,62.9 429.8,60.7 430.9,67.0 432.0,65.9 433.1,65.6 434.2,69.5 435.3,67.9 436.4,61.4 437.5,70.9 438.6,76.4 439.8,77.6 440.9,69.7 442.0,72.7 443.1,83.5 444.2,88.4 445.3,88.7 446.4,98.9 447.5,94.0 448.6,101.0 449.7,94.4 450.8,109.2 451.9,103.7 453.0,106.7 454.1,101.9 455.2,87.8 456.3,90.3 457.5,89.9 458.6,72.9 459.7,66.4 460.8,70.9 461.9,78.2 463.0,75.9 464.1,94.1 465.2,94.5 466.3,93.1 467.4,99.2 468.5,91.4 469.6,94.8 470.7,95.1 471.8,93.5 472.9,83.5 474.1,83.2 475.2,92.8 476.3,78.6 477.4,85.7 478.5,97.3 479.6,99.2 480.7,96.8 481.8,90.7 482.9,82.6 484.0,84.6 485.1,73.2 486.2,77.2 487.3,87.9 488.4,90.6 489.5,92.2 490.7,103.7 491.8,107.6 492.9,116.9 494.0,124.9 495.1,130.8 496.2,124.0 497.3,106.2 498.4,102.5 499.5,97.5 500.6,97.7 501.7,103.6 502.8,101.6 503.9,94.0 505.0,101.5 506.1,110.4 507.2,114.8 508.4,117.7 509.5,125.8 510.6,124.6 511.7,125.6 512.8,130.2 513.9,143.0 515.0,140.0 516.1,130.2 517.2,148.8 518.3,131.4 519.4,125.5 520.5,130.1 521.6,131.2 522.7,134.8 523.8,138.6 525.0,144.2 526.1,147.2 527.2,150.6 528.3,150.9 529.4,149.4 530.5,138.7 531.6,148.1 532.7,154.4 533.8,157.1 534.9,159.3 536.0,164.0 537.1,155.0 538.2,146.9 539.3,133.4 540.4,128.1 541.6,130.2 542.7,140.0 543.8,137.4 544.9,139.0 546.0,147.5 547.1,153.8 548.2,125.6 549.3,133.3 550.4,134.1 551.5,124.9 552.6,130.0 553.7,124.6 554.8,132.9 555.9,127.3 557.0,122.3 558.1,124.2 559.3,117.0 560.4,116.6 561.5,121.7 562.6,120.5 563.7,118.3 564.8,123.7 565.9,118.9 567.0,125.6 568.1,134.5 569.2,135.5 570.3,137.5 571.4,138.4 572.5,133.8 573.6,128.0 574.7,120.6 575.9,122.4 577.0,102.8 578.1,110.9 579.2,112.9 580.3,103.0 581.4,100.2 582.5,91.1 583.6,95.6 584.7,102.1 585.8,95.7 586.9,95.8 588.0,108.2 589.1,105.0 590.2,94.0 591.3,105.0 592.4,100.9 593.6,102.5 594.7,102.3 595.8,97.8 596.9,90.5 598.0,86.4 599.1,77.4 600.2,73.4 601.3,73.1 602.4,69.1 603.5,59.2 604.6,67.9 605.7,69.1 606.8,60.0 607.9,68.9 609.0,64.2 610.2,55.4 611.3,52.3 612.4,63.9 613.5,77.9 614.6,83.7 615.7,83.4 616.8,81.4 617.9,83.7 619.0,74.2 620.1,69.4 621.2,76.0 622.3,79.4 623.4,83.3 624.5,84.1 625.6,85.7 626.8,86.0 627.9,102.0 629.0,94.8 630.1,109.4 631.2,105.7 632.3,96.5 633.4,89.2 634.5,86.6 635.6,98.5 636.7,89.3 637.8,88.9 638.9,91.0 640.0,88.0 641.1,93.4 642.2,97.7 643.3,94.1 644.5,83.0 645.6,83.5 646.7,82.6 647.8,87.6 648.9,82.1 650.0,81.1 651.1,89.9 652.2,85.8 653.3,81.7 654.4,79.9 655.5,77.9 656.6,76.0 657.7,67.9 658.8,61.1 659.9,69.8 661.1,68.4 662.2,86.3 663.3,87.3 664.4,88.3 665.5,91.5 666.6,97.8 667.7,103.9 668.8,99.2 669.9,95.5 671.0,93.4 672.1,82.8 673.2,93.9 674.3,91.6 675.4,86.0 676.5,91.8 677.7,84.1 678.8,90.8 679.9,89.1 681.0,82.8 682.1,80.9 683.2,90.2 684.3,80.9 685.4,90.0 686.5,91.7 687.6,99.2 688.7,88.0 689.8,93.0 690.9,91.5 692.0,92.0 693.1,89.7 694.2,88.7 695.4,101.7 696.5,95.6 697.6,101.5 698.7,106.1 699.8,105.2 700.9,98.2 702.0,99.1 703.1,101.4 704.2,98.2 705.3,97.6 706.4,100.0 707.5,113.8 708.6,113.1 709.7,114.8 710.8,106.4 712.0,125.3 713.1,132.2 714.2,119.0 715.3,119.9 716.4,107.6 717.5,105.7 718.6,77.2 719.7,79.4 720.8,72.9 721.9,71.6 723.0,76.9 724.1,67.9 725.2,67.1 726.3,75.2 727.4,76.0 728.6,85.4 729.7,96.8 730.8,111.7 731.9,122.5 733.0,105.9 734.1,106.0 735.2,106.9 736.3,115.6 737.4,111.3 738.5,100.6 739.6,97.6 740.7,96.8 741.8,109.3 742.9,118.3 744.0,125.3 745.1,126.8 746.3,129.7 747.4,126.8 748.5,129.8 749.6,128.2 750.7,138.9 751.8,134.8 752.9,140.9 754.0,124.7"/>
+<text x="66.5" y="182" text-anchor="middle">2004–05</text><text x="228.4" y="182" text-anchor="middle">2009–10</text><text x="390.0" y="182" text-anchor="middle">2014–15</text><text x="547.8" y="182" text-anchor="middle">2019–20</text><text x="692.4" y="182" text-anchor="middle">2024–25</text>  </svg>
+</section>
+
+<div class="grid2 section">
+<section class="panel">
+  <div class="panel-head"><h2>2026–27 games</h2></div>
+  <div class="overflow-x" style="max-height:640px;overflow-y:auto">
+  <table class="dtable">
+    <thead><tr><th>Date</th><th>Opponent</th><th>Model</th><th class="num">Result</th></tr></thead>
+    <tbody>
+      <tr><td class="t">2026-10-21</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Raptors"><i style="background:#d91244"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Raptors"><i style="background:#d91244"></i>TOR</a> 79%<span class="pbar"><b style="width:79.2%"></b></span></td>
+        <td class="num">92&ndash;135<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-10-23</td>
+        <td>at <a class="tm" href="../teams/MIL.html" title="Milwaukee Bucks"><i style="background:#00471b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/MIL.html" title="Milwaukee Bucks"><i style="background:#00471b"></i>MIL</a> 62%<span class="pbar"><b style="width:62.5%"></b></span></td>
+        <td class="num">132&ndash;125<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-10-24</td>
+        <td>vs <a class="tm" href="../teams/WSH.html" title="Washington Wizards"><i style="background:#e31837"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 73%<span class="pbar"><b style="width:72.8%"></b></span></td>
+        <td class="num">124&ndash;120<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-10-26</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a> 85%<span class="pbar"><b style="width:84.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-10-28</td>
+        <td>vs <a class="tm" href="../teams/NY.html" title="New York Knicks"><i style="background:#1d428a"></i>NY</a></td>
+        <td><a class="tm" href="../teams/NY.html" title="New York Knicks"><i style="background:#1d428a"></i>NY</a> 75%<span class="pbar"><b style="width:74.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-10-30</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a> 85%<span class="pbar"><b style="width:84.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-02</td>
+        <td>at <a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a> 80%<span class="pbar"><b style="width:80.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-04</td>
+        <td>at <a class="tm" href="../teams/NY.html" title="New York Knicks"><i style="background:#1d428a"></i>NY</a></td>
+        <td><a class="tm" href="../teams/NY.html" title="New York Knicks"><i style="background:#1d428a"></i>NY</a> 89%<span class="pbar"><b style="width:89.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-08</td>
+        <td>vs <a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a> 60%<span class="pbar"><b style="width:60.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-11</td>
+        <td>vs <a class="tm" href="../teams/SA.html" title="San Antonio Spurs"><i style="background:#000000"></i>SA</a></td>
+        <td><a class="tm" href="../teams/SA.html" title="San Antonio Spurs"><i style="background:#000000"></i>SA</a> 75%<span class="pbar"><b style="width:74.7%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-13</td>
+        <td>vs <a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a> 64%<span class="pbar"><b style="width:64.3%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-14</td>
+        <td>at <a class="tm" href="../teams/MIN.html" title="Minnesota Timberwolves"><i style="background:#266092"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/MIN.html" title="Minnesota Timberwolves"><i style="background:#266092"></i>MIN</a> 85%<span class="pbar"><b style="width:85.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-16</td>
+        <td>at <a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a> 82%<span class="pbar"><b style="width:82.3%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-18</td>
+        <td>at <a class="tm" href="../teams/BKN.html" title="Brooklyn Nets"><i style="background:#000000"></i>BKN</a></td>
+        <td><a class="tm" href="../teams/BKN.html" title="Brooklyn Nets"><i style="background:#000000"></i>BKN</a> 52%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-20</td>
+        <td>vs <a class="tm" href="../teams/WSH.html" title="Washington Wizards"><i style="background:#e31837"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 70%<span class="pbar"><b style="width:70.3%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-22</td>
+        <td>vs <a class="tm" href="../teams/DEN.html" title="Denver Nuggets"><i style="background:#0e2240"></i>DEN</a></td>
+        <td><a class="tm" href="../teams/DEN.html" title="Denver Nuggets"><i style="background:#0e2240"></i>DEN</a> 65%<span class="pbar"><b style="width:65.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-23</td>
+        <td>vs <a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a> 63%<span class="pbar"><b style="width:62.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-25</td>
+        <td>at <a class="tm" href="../teams/CHA.html" title="Charlotte Hornets"><i style="background:#008ca8"></i>CHA</a></td>
+        <td><a class="tm" href="../teams/CHA.html" title="Charlotte Hornets"><i style="background:#008ca8"></i>CHA</a> 81%<span class="pbar"><b style="width:80.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-11-28</td>
+        <td>vs <a class="tm" href="../teams/IND.html" title="Indiana Pacers"><i style="background:#0c2340"></i>IND</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 60%<span class="pbar"><b style="width:59.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-01</td>
+        <td>vs <a class="tm" href="../teams/NY.html" title="New York Knicks"><i style="background:#1d428a"></i>NY</a></td>
+        <td><a class="tm" href="../teams/NY.html" title="New York Knicks"><i style="background:#1d428a"></i>NY</a> 75%<span class="pbar"><b style="width:74.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-03</td>
+        <td>vs <a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a> 63%<span class="pbar"><b style="width:62.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-13</td>
+        <td>vs <a class="tm" href="../teams/HOU.html" title="Houston Rockets"><i style="background:#ce0e2d"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/HOU.html" title="Houston Rockets"><i style="background:#ce0e2d"></i>HOU</a> 66%<span class="pbar"><b style="width:66.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-14</td>
+        <td>vs <a class="tm" href="../teams/MIA.html" title="Miami Heat"><i style="background:#98002e"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Miami Heat"><i style="background:#98002e"></i>MIA</a> 51%<span class="pbar"><b style="width:51.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-16</td>
+        <td>vs <a class="tm" href="../teams/UTAH.html" title="Utah Jazz"><i style="background:#4e008e"></i>UTAH</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 68%<span class="pbar"><b style="width:68.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-18</td>
+        <td>at <a class="tm" href="../teams/SA.html" title="San Antonio Spurs"><i style="background:#000000"></i>SA</a></td>
+        <td><a class="tm" href="../teams/SA.html" title="San Antonio Spurs"><i style="background:#000000"></i>SA</a> 89%<span class="pbar"><b style="width:89.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-19</td>
+        <td>at <a class="tm" href="../teams/DAL.html" title="Dallas Mavericks"><i style="background:#0064b1"></i>DAL</a></td>
+        <td><a class="tm" href="../teams/DAL.html" title="Dallas Mavericks"><i style="background:#0064b1"></i>DAL</a> 66%<span class="pbar"><b style="width:65.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-21</td>
+        <td>at <a class="tm" href="../teams/MIA.html" title="Miami Heat"><i style="background:#98002e"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Miami Heat"><i style="background:#98002e"></i>MIA</a> 74%<span class="pbar"><b style="width:74.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-23</td>
+        <td>at <a class="tm" href="../teams/MIA.html" title="Miami Heat"><i style="background:#98002e"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Miami Heat"><i style="background:#98002e"></i>MIA</a> 74%<span class="pbar"><b style="width:74.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-26</td>
+        <td>vs <a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a> 72%<span class="pbar"><b style="width:71.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-29</td>
+        <td>at <a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a> 83%<span class="pbar"><b style="width:83.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2026-12-30</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a> 67%<span class="pbar"><b style="width:67.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-02</td>
+        <td>vs <a class="tm" href="../teams/LAL.html" title="Los Angeles Lakers"><i style="background:#552583"></i>LAL</a></td>
+        <td><a class="tm" href="../teams/LAL.html" title="Los Angeles Lakers"><i style="background:#552583"></i>LAL</a> 65%<span class="pbar"><b style="width:64.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-04</td>
+        <td>at <a class="tm" href="../teams/IND.html" title="Indiana Pacers"><i style="background:#0c2340"></i>IND</a></td>
+        <td><a class="tm" href="../teams/IND.html" title="Indiana Pacers"><i style="background:#0c2340"></i>IND</a> 65%<span class="pbar"><b style="width:64.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-05</td>
+        <td>vs <a class="tm" href="../teams/MIL.html" title="Milwaukee Bucks"><i style="background:#00471b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 64%<span class="pbar"><b style="width:64.2%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-07</td>
+        <td>at <a class="tm" href="../teams/SAC.html" title="Sacramento Kings"><i style="background:#5a2d81"></i>SAC</a></td>
+        <td><a class="tm" href="../teams/SAC.html" title="Sacramento Kings"><i style="background:#5a2d81"></i>SAC</a> 58%<span class="pbar"><b style="width:58.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-09</td>
+        <td>at <a class="tm" href="../teams/GS.html" title="Golden State Warriors"><i style="background:#fdb927"></i>GS</a></td>
+        <td><a class="tm" href="../teams/GS.html" title="Golden State Warriors"><i style="background:#fdb927"></i>GS</a> 69%<span class="pbar"><b style="width:68.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-10</td>
+        <td>at <a class="tm" href="../teams/PHX.html" title="Phoenix Suns"><i style="background:#29127a"></i>PHX</a></td>
+        <td><a class="tm" href="../teams/PHX.html" title="Phoenix Suns"><i style="background:#29127a"></i>PHX</a> 77%<span class="pbar"><b style="width:77.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-12</td>
+        <td>at <a class="tm" href="../teams/UTAH.html" title="Utah Jazz"><i style="background:#4e008e"></i>UTAH</a></td>
+        <td><a class="tm" href="../teams/UTAH.html" title="Utah Jazz"><i style="background:#4e008e"></i>UTAH</a> 56%<span class="pbar"><b style="width:56.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-14</td>
+        <td>vs <a class="tm" href="../teams/MIN.html" title="Minnesota Timberwolves"><i style="background:#266092"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/MIN.html" title="Minnesota Timberwolves"><i style="background:#266092"></i>MIN</a> 68%<span class="pbar"><b style="width:68.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-17</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Raptors"><i style="background:#d91244"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Raptors"><i style="background:#d91244"></i>TOR</a> 60%<span class="pbar"><b style="width:60.2%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-19</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Raptors"><i style="background:#d91244"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Raptors"><i style="background:#d91244"></i>TOR</a> 81%<span class="pbar"><b style="width:80.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-20</td>
+        <td>at <a class="tm" href="../teams/BKN.html" title="Brooklyn Nets"><i style="background:#000000"></i>BKN</a></td>
+        <td><a class="tm" href="../teams/BKN.html" title="Brooklyn Nets"><i style="background:#000000"></i>BKN</a> 52%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-23</td>
+        <td>vs <a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a> 60%<span class="pbar"><b style="width:60.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-25</td>
+        <td>vs <a class="tm" href="../teams/DAL.html" title="Dallas Mavericks"><i style="background:#0064b1"></i>DAL</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 59%<span class="pbar"><b style="width:59.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-26</td>
+        <td>at <a class="tm" href="../teams/IND.html" title="Indiana Pacers"><i style="background:#0c2340"></i>IND</a></td>
+        <td><a class="tm" href="../teams/IND.html" title="Indiana Pacers"><i style="background:#0c2340"></i>IND</a> 65%<span class="pbar"><b style="width:64.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-28</td>
+        <td>at <a class="tm" href="../teams/ORL.html" title="Orlando Magic"><i style="background:#0150b5"></i>ORL</a></td>
+        <td><a class="tm" href="../teams/ORL.html" title="Orlando Magic"><i style="background:#0150b5"></i>ORL</a> 79%<span class="pbar"><b style="width:79.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-01-31</td>
+        <td>at <a class="tm" href="../teams/OKC.html" title="Oklahoma City Thunder"><i style="background:#007ac1"></i>OKC</a></td>
+        <td><a class="tm" href="../teams/OKC.html" title="Oklahoma City Thunder"><i style="background:#007ac1"></i>OKC</a> 91%<span class="pbar"><b style="width:90.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-02</td>
+        <td>at <a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a> 88%<span class="pbar"><b style="width:87.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-04</td>
+        <td>vs <a class="tm" href="../teams/OKC.html" title="Oklahoma City Thunder"><i style="background:#007ac1"></i>OKC</a></td>
+        <td><a class="tm" href="../teams/OKC.html" title="Oklahoma City Thunder"><i style="background:#007ac1"></i>OKC</a> 78%<span class="pbar"><b style="width:77.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-06</td>
+        <td>vs <a class="tm" href="../teams/NO.html" title="New Orleans Pelicans"><i style="background:#0a2240"></i>NO</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 58%<span class="pbar"><b style="width:57.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-08</td>
+        <td>at <a class="tm" href="../teams/WSH.html" title="Washington Wizards"><i style="background:#e31837"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/WSH.html" title="Washington Wizards"><i style="background:#e31837"></i>WSH</a> 54%<span class="pbar"><b style="width:53.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-09</td>
+        <td>vs <a class="tm" href="../teams/GS.html" title="Golden State Warriors"><i style="background:#fdb927"></i>GS</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 56%<span class="pbar"><b style="width:55.7%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-11</td>
+        <td>at <a class="tm" href="../teams/DEN.html" title="Denver Nuggets"><i style="background:#0e2240"></i>DEN</a></td>
+        <td><a class="tm" href="../teams/DEN.html" title="Denver Nuggets"><i style="background:#0e2240"></i>DEN</a> 84%<span class="pbar"><b style="width:83.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-14</td>
+        <td>at <a class="tm" href="../teams/POR.html" title="Portland Trail Blazers"><i style="background:#e03a3e"></i>POR</a></td>
+        <td><a class="tm" href="../teams/POR.html" title="Portland Trail Blazers"><i style="background:#e03a3e"></i>POR</a> 81%<span class="pbar"><b style="width:80.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-16</td>
+        <td>at <a class="tm" href="../teams/LAL.html" title="Los Angeles Lakers"><i style="background:#552583"></i>LAL</a></td>
+        <td><a class="tm" href="../teams/LAL.html" title="Los Angeles Lakers"><i style="background:#552583"></i>LAL</a> 83%<span class="pbar"><b style="width:83.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-17</td>
+        <td>at <a class="tm" href="../teams/LAC.html" title="LA Clippers"><i style="background:#12173f"></i>LAC</a></td>
+        <td><a class="tm" href="../teams/LAC.html" title="LA Clippers"><i style="background:#12173f"></i>LAC</a> 78%<span class="pbar"><b style="width:78.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-25</td>
+        <td>vs <a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a> 64%<span class="pbar"><b style="width:64.3%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-02-27</td>
+        <td>vs <a class="tm" href="../teams/BKN.html" title="Brooklyn Nets"><i style="background:#000000"></i>BKN</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 72%<span class="pbar"><b style="width:72.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-01</td>
+        <td>at <a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a> 88%<span class="pbar"><b style="width:87.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-03</td>
+        <td>at <a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Hawks"><i style="background:#c8102e"></i>ATL</a> 83%<span class="pbar"><b style="width:83.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-06</td>
+        <td>vs <a class="tm" href="../teams/CHA.html" title="Charlotte Hornets"><i style="background:#008ca8"></i>CHA</a></td>
+        <td><a class="tm" href="../teams/CHA.html" title="Charlotte Hornets"><i style="background:#008ca8"></i>CHA</a> 61%<span class="pbar"><b style="width:60.7%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-07</td>
+        <td>vs <a class="tm" href="../teams/POR.html" title="Portland Trail Blazers"><i style="background:#e03a3e"></i>POR</a></td>
+        <td><a class="tm" href="../teams/POR.html" title="Portland Trail Blazers"><i style="background:#e03a3e"></i>POR</a> 60%<span class="pbar"><b style="width:60.2%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-09</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Celtics"><i style="background:#008348"></i>BOS</a> 67%<span class="pbar"><b style="width:67.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-11</td>
+        <td>vs <a class="tm" href="../teams/PHX.html" title="Phoenix Suns"><i style="background:#29127a"></i>PHX</a></td>
+        <td><a class="tm" href="../teams/PHX.html" title="Phoenix Suns"><i style="background:#29127a"></i>PHX</a> 55%<span class="pbar"><b style="width:55.0%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-13</td>
+        <td>vs <a class="tm" href="../teams/MEM.html" title="Memphis Grizzlies"><i style="background:#5d76a9"></i>MEM</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 62%<span class="pbar"><b style="width:61.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-15</td>
+        <td>vs <a class="tm" href="../teams/ORL.html" title="Orlando Magic"><i style="background:#0150b5"></i>ORL</a></td>
+        <td><a class="tm" href="../teams/ORL.html" title="Orlando Magic"><i style="background:#0150b5"></i>ORL</a> 59%<span class="pbar"><b style="width:58.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-17</td>
+        <td>at <a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/PHI.html" title="Philadelphia 76ers"><i style="background:#1d428a"></i>PHI</a> 80%<span class="pbar"><b style="width:80.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-20</td>
+        <td>at <a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Cavaliers"><i style="background:#860038"></i>CLE</a> 82%<span class="pbar"><b style="width:82.3%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-22</td>
+        <td>vs <a class="tm" href="../teams/SAC.html" title="Sacramento Kings"><i style="background:#5a2d81"></i>SAC</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 66%<span class="pbar"><b style="width:66.1%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-24</td>
+        <td>vs <a class="tm" href="../teams/ORL.html" title="Orlando Magic"><i style="background:#0150b5"></i>ORL</a></td>
+        <td><a class="tm" href="../teams/ORL.html" title="Orlando Magic"><i style="background:#0150b5"></i>ORL</a> 59%<span class="pbar"><b style="width:58.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-25</td>
+        <td>at <a class="tm" href="../teams/MEM.html" title="Memphis Grizzlies"><i style="background:#5d76a9"></i>MEM</a></td>
+        <td><a class="tm" href="../teams/MEM.html" title="Memphis Grizzlies"><i style="background:#5d76a9"></i>MEM</a> 63%<span class="pbar"><b style="width:62.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-27</td>
+        <td>vs <a class="tm" href="../teams/LAC.html" title="LA Clippers"><i style="background:#12173f"></i>LAC</a></td>
+        <td><a class="tm" href="../teams/LAC.html" title="LA Clippers"><i style="background:#12173f"></i>LAC</a> 57%<span class="pbar"><b style="width:56.5%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-29</td>
+        <td>vs <a class="tm" href="../teams/IND.html" title="Indiana Pacers"><i style="background:#0c2340"></i>IND</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 60%<span class="pbar"><b style="width:59.8%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-03-31</td>
+        <td>at <a class="tm" href="../teams/WSH.html" title="Washington Wizards"><i style="background:#e31837"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/WSH.html" title="Washington Wizards"><i style="background:#e31837"></i>WSH</a> 54%<span class="pbar"><b style="width:53.6%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-04-02</td>
+        <td>vs <a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Pistons"><i style="background:#1d428a"></i>DET</a> 72%<span class="pbar"><b style="width:71.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-04-04</td>
+        <td>at <a class="tm" href="../teams/HOU.html" title="Houston Rockets"><i style="background:#ce0e2d"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/HOU.html" title="Houston Rockets"><i style="background:#ce0e2d"></i>HOU</a> 84%<span class="pbar"><b style="width:84.2%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-04-06</td>
+        <td>at <a class="tm" href="../teams/MIL.html" title="Milwaukee Bucks"><i style="background:#00471b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/MIL.html" title="Milwaukee Bucks"><i style="background:#00471b"></i>MIL</a> 60%<span class="pbar"><b style="width:60.4%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-04-07</td>
+        <td>vs <a class="tm" href="../teams/CHA.html" title="Charlotte Hornets"><i style="background:#008ca8"></i>CHA</a></td>
+        <td><a class="tm" href="../teams/CHA.html" title="Charlotte Hornets"><i style="background:#008ca8"></i>CHA</a> 61%<span class="pbar"><b style="width:60.7%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-04-09</td>
+        <td>vs <a class="tm" href="../teams/MIL.html" title="Milwaukee Bucks"><i style="background:#00471b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/CHI.html" title="Chicago Bulls"><i style="background:#ce1141"></i>CHI</a> 64%<span class="pbar"><b style="width:64.2%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+      <tr><td class="t">2027-04-11</td>
+        <td>at <a class="tm" href="../teams/NO.html" title="New Orleans Pelicans"><i style="background:#0a2240"></i>NO</a></td>
+        <td><a class="tm" href="../teams/NO.html" title="New Orleans Pelicans"><i style="background:#0a2240"></i>NO</a> 67%<span class="pbar"><b style="width:66.9%"></b></span></td>
+        <td class="num"><span class="t">&mdash;</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>2026–27 leaders</h2></div>
+  <div class="roster">
+    <div><h4>Points per game</h4>
+<a href="../players.html#q=Caleb%20Wilson">Caleb Wilson <span class="t">22.3</span></a><a href="../players.html#q=Norman%20Powell">Norman Powell <span class="t">19.3</span></a><a href="../players.html#q=Matas%20Buzelis">Matas Buzelis <span class="t">15.0</span></a>    </div>
+    <div><h4>Rebounds per game</h4>
+<a href="../players.html#q=Caleb%20Wilson">Caleb Wilson <span class="t">8.0</span></a><a href="../players.html#q=Jalen%20Smith">Jalen Smith <span class="t">8.0</span></a><a href="../players.html#q=Josh%20Giddey">Josh Giddey <span class="t">6.3</span></a>    </div>
+    <div><h4>Assists per game</h4>
+<a href="../players.html#q=Josh%20Giddey">Josh Giddey <span class="t">8.3</span></a><a href="../players.html#q=Tre%20Jones">Tre Jones <span class="t">3.7</span></a><a href="../players.html#q=Buddy%20Hield">Buddy Hield <span class="t">2.0</span></a>    </div>
+    <div><h4>Steals per game</h4>
+<a href="../players.html#q=Caleb%20Wilson">Caleb Wilson <span class="t">2.0</span></a><a href="../players.html#q=Norman%20Powell">Norman Powell <span class="t">2.0</span></a><a href="../players.html#q=Noa%20Essengue">Noa Essengue <span class="t">1.5</span></a>    </div>
+    <div><h4>Blocks per game</h4>
+<a href="../players.html#q=Caleb%20Wilson">Caleb Wilson <span class="t">1.3</span></a><a href="../players.html#q=Matas%20Buzelis">Matas Buzelis <span class="t">1.0</span></a><a href="../players.html#q=Noa%20Essengue">Noa Essengue <span class="t">0.5</span></a>    </div>
+    <div><h4>3-pointers made</h4>
+<a href="../players.html#q=Norman%20Powell">Norman Powell <span class="t">7.0</span></a><a href="../players.html#q=Buddy%20Hield">Buddy Hield <span class="t">4.0</span></a><a href="../players.html#q=Caleb%20Wilson">Caleb Wilson <span class="t">4.0</span></a>    </div>
+  </div>
+</section>
+</div>
+
+<section class="panel section">
+  <div class="panel-head"><h2>Season by season</h2></div>
+  <div class="overflow-x">
+  <table class="dtable">
+    <thead><tr><th>Season</th><th></th><th class="num">Record</th><th class="num">Margin</th><th>Postseason</th><th class="num">Final Elo</th></tr></thead>
+    <tbody>
+      <tr><td>2026–27</td><td class="t">CHI</td><td class="num">1-2</td>        <td class="num">-40</td>
+        <td></td>
+        <td class="num">1387</td></tr>
+      <tr><td>2025–26</td><td class="t">CHI</td><td class="num">31-51</td>        <td class="num">-427</td>
+        <td></td>
+        <td class="num">1342</td></tr>
+      <tr><td>2024–25</td><td class="t">CHI</td><td class="num">39-43</td>        <td class="num">-128</td>
+        <td>Out: NBA Play-In - East - 9th Place vs 10th Place</td>
+        <td class="num">1520</td></tr>
+      <tr><td>2023–24</td><td class="t">CHI</td><td class="num">39-43</td>        <td class="num">-118</td>
+        <td>Out: NBA Play-In - East - 8th Seed Game</td>
+        <td class="num">1478</td></tr>
+      <tr><td>2022–23</td><td class="t">CHI</td><td class="num">40-42</td>        <td class="num">+106</td>
+        <td>Out: NBA Play-In - East - 8th Seed Game</td>
+        <td class="num">1544</td></tr>
+      <tr><td>2021–22</td><td class="t">CHI</td><td class="num">46-36</td>        <td class="num">-32</td>
+        <td>Out: East 1st Round</td>
+        <td class="num">1430</td></tr>
+      <tr><td>2020–21</td><td class="t">CHI</td><td class="num">31-41</td>        <td class="num">-64</td>
+        <td></td>
+        <td class="num">1494</td></tr>
+      <tr><td>2019–20</td><td class="t">CHI</td><td class="num">22-43</td>        <td class="num">-200</td>
+        <td></td>
+        <td class="num">1349</td></tr>
+      <tr><td>2018–19</td><td class="t">CHI</td><td class="num">22-60</td>        <td class="num">-690</td>
+        <td></td>
+        <td class="num">1303</td></tr>
+      <tr><td>2017–18</td><td class="t">CHI</td><td class="num">27-55</td>        <td class="num">-577</td>
+        <td></td>
+        <td class="num">1320</td></tr>
+      <tr><td>2016–17</td><td class="t">CHI</td><td class="num">41-41</td>        <td class="num">+35</td>
+        <td>Out: EASTERN CONFERENCE 1ST ROUND</td>
+        <td class="num">1496</td></tr>
+      <tr><td>2015–16</td><td class="t">CHI</td><td class="num">42-40</td>        <td class="num">-121</td>
+        <td></td>
+        <td class="num">1453</td></tr>
+      <tr><td>2014–15</td><td class="t">CHI</td><td class="num">50-32</td>        <td class="num">+256</td>
+        <td>Out: EASTERN CONFERENCE SEMIFINALS</td>
+        <td class="num">1590</td></tr>
+      <tr><td>2013–14</td><td class="t">CHI</td><td class="num">48-34</td>        <td class="num">+152</td>
+        <td>Out: EASTERN CONFERENCE 1ST ROUND</td>
+        <td class="num">1562</td></tr>
+      <tr><td>2012–13</td><td class="t">CHI</td><td class="num">45-37</td>        <td class="num">+26</td>
+        <td>Out: EASTERN CONFERENCE SEMIFINALS</td>
+        <td class="num">1522</td></tr>
+      <tr><td>2011–12</td><td class="t">CHI</td><td class="num">50-16</td>        <td class="num">+540</td>
+        <td>Out: EASTERN CONFERENCE 1st ROUND</td>
+        <td class="num">1626</td></tr>
+      <tr><td>2010–11</td><td class="t">CHI</td><td class="num">62-20</td>        <td class="num">+600</td>
+        <td>Out: EASTERN CONFERENCE FINALS</td>
+        <td class="num">1674</td></tr>
+      <tr><td>2009–10</td><td class="t">CHI</td><td class="num">41-41</td>        <td class="num">-134</td>
+        <td>Out: EASTERN CONFERENCE 1st ROUND</td>
+        <td class="num">1488</td></tr>
+      <tr><td>2008–09</td><td class="t">CHI</td><td class="num">41-41</td>        <td class="num">-23</td>
+        <td>Out: EASTERN CONFERENCE 1st ROUND</td>
+        <td class="num">1529</td></tr>
+      <tr><td>2007–08</td><td class="t">CHI</td><td class="num">33-49</td>        <td class="num">-253</td>
+        <td></td>
+        <td class="num">1435</td></tr>
+      <tr><td>2006–07</td><td class="t">CHI</td><td class="num">49-33</td>        <td class="num">+411</td>
+        <td>Out: PLAYOFFS</td>
+        <td class="num">1634</td></tr>
+      <tr><td>2005–06</td><td class="t">CHI</td><td class="num">41-41</td>        <td class="num">+52</td>
+        <td>Out: PLAYOFFS</td>
+        <td class="num">1532</td></tr>
+      <tr><td>2004–05</td><td class="t">CHI</td><td class="num">47-35</td>        <td class="num">+87</td>
+        <td>Out: PLAYOFFS</td>
+        <td class="num">1528</td></tr>
+      <tr><td>2003–04</td><td class="t">CHI</td><td class="num">23-59</td>        <td class="num">-521</td>
+        <td></td>
+        <td class="num">1318</td></tr>
+      <tr><td>2002–03</td><td class="t">CHI</td><td class="num">30-52</td>        <td class="num">-425</td>
+        <td></td>
+        <td class="num">1409</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+</main>
+<footer><div class="in">
+  Data: <a href="https://github.com/sportsdataverse">sportsdataverse</a> (ESPN), through 2026-10-25.
+  Ratings, predictions and odds are this site&rsquo;s own model, not the league&rsquo;s or a sportsbook&rsquo;s. Times are US Eastern.
+  Generated by Facetwork workflow <code>sports.publish.UpdateAll</code> &middot; <a href="https://github.com/rlemke/fwh_sports/blob/main/src/sports/ffl/sports_site.ffl">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_sports">source repo</a>
+</div></footer>
+</body>
+</html>

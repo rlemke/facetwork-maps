@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baltimore Orioles — MLB 2026</title>
+<meta name="description" content="MLB game predictions, playoff odds, team and player history from an Elo model, scored against naive baselines.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#f1f3f6; --surface-3:#e4e8ee; --border:#dde2e8; --border-strong:#b9c1cc;
+  --text:#14181f; --text-2:#3c4552; --muted:#677283; --accent:#1f6fd1;
+  --series-1:#2a78d6; --series-2:#eb6834; --good:#006300; --bad:#c22c2c;
+  --r-sm:5px; --r-md:8px; --r-lg:10px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1217; --surface:#161a21; --surface-2:#1c212a; --surface-3:#2a313c; --border:#2a313b; --border-strong:#46505e;
+    --text:#e8ebf0; --text-2:#c2c8d2; --muted:#8c96a5; --accent:#5aa2f5;
+    --series-1:#3987e5; --series-2:#d95926; --good:#3fbf3f; --bad:#e25a5a;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 var(--sans)}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .in,main,footer .in{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top .in{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;min-height:52px}
+header.top .brand{font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+header.top nav{display:flex;gap:.2rem;flex-wrap:wrap}
+header.top nav a{color:var(--text-2);text-decoration:none;padding:.35rem .6rem;border-radius:var(--r-sm);font-weight:500}
+header.top nav a:hover,header.top nav a.cur{background:var(--surface-2);color:var(--text)}
+main{padding-top:1.1rem;padding-bottom:1.5rem}
+h1.page{font-size:22px;margin:0 0 .9rem;letter-spacing:-.02em}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.7rem .95rem;border-bottom:1px solid var(--border)}
+.panel-head h2{margin:0;font-size:15px}
+table.dtable{width:100%;border-collapse:collapse}
+.dtable th{font:600 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.dtable td{padding:.45rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+.dtable tr:last-child td{border-bottom:0}
+.btn{font:500 13px var(--sans);background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:.35rem .6rem}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:12px;padding:1rem 0 2rem}
+footer a{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:1.1rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.9rem;margin-bottom:1.1rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:.85rem .95rem}
+.kpi .lbl{font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .val{font-size:24px;font-weight:600;letter-spacing:-.02em;margin-top:.35rem;line-height:1.1}
+.kpi .sub{font-size:11.5px;color:var(--muted);margin-top:.25rem;line-height:1.4}
+.section{margin-bottom:1.1rem}
+.tm{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--text);font-weight:600;white-space:nowrap}
+.tm i{width:4px;height:16px;border-radius:2px;display:inline-block;flex:none}
+.tm:hover{color:var(--accent)}
+.t{font-size:11.5px;color:var(--muted)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.good{color:var(--good)} .bad{color:var(--bad)}
+.pbar{display:inline-block;width:64px;height:7px;border-radius:4px;background:var(--surface-3);vertical-align:middle;margin-left:.4rem;overflow:hidden}
+.pbar>b{display:block;height:100%;background:var(--series-1)}
+.note{font-size:12px;color:var(--text-2);line-height:1.55;padding:.8rem .95rem;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--r-md);margin-top:1rem}
+.note b{color:var(--text)}
+.weeks{display:flex;gap:.3rem;flex-wrap:wrap}
+.weeks button{font:600 11px/1 var(--mono);padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.weeks button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.bracket{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:.6rem;padding:.9rem;overflow-x:auto}
+.bracket .col h4{margin:0 0 .5rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.slot{border:1px solid var(--border);border-radius:var(--r-sm);padding:.4rem .5rem;margin-bottom:.4rem;background:var(--surface-2);font-size:12.5px}
+.slot .seed{font:600 10.5px/1 var(--mono);color:var(--muted);margin-right:.35rem}
+.slot .p{float:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart svg{width:100%;height:auto;display:block}
+.chart polyline{fill:none;stroke:var(--series-1);stroke-width:1.6}
+.chart .axis{stroke:var(--border);stroke-width:1}
+.chart text{fill:var(--muted);font:10px var(--mono)}
+.overflow-x{overflow-x:auto}
+.champ{font-weight:600;color:var(--good)}
+.roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.2rem 1.2rem;padding:.8rem .95rem}
+.roster h4{margin:.6rem 0 .2rem;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.roster a{display:block;font-size:12.5px;padding:.1rem 0;text-decoration:none;color:var(--text)}
+.roster a:hover{color:var(--accent)}
+.search{display:flex;gap:.5rem;padding:.8rem .9rem}
+.search input{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);padding:.5rem .65rem;font:14px var(--sans)}
+.lnav{display:flex;gap:.15rem;flex-wrap:wrap;margin-left:auto}
+.lnav a{font:600 11px/1 var(--mono);color:var(--muted);text-decoration:none;padding:.3rem .45rem;border-radius:var(--r-sm);border:1px solid transparent}
+.lnav a:hover{color:var(--text);border-color:var(--border)}
+.lnav a.cur{color:var(--text);border-color:var(--border-strong)}
+.tabs{display:flex;gap:.3rem}
+.tabs button{font:600 11px/1 var(--mono);padding:.35rem .55rem;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text-2);cursor:pointer}
+.tabs button.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.p3{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.3rem .8rem;padding:.8rem .95rem}
+@media (max-width:640px){ .bracket{grid-template-columns:repeat(4,minmax(110px,1fr))} .kpi .val{font-size:20px} }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="../index.html">MLB predictions</a>
+  <nav>
+    <a href="../index.html">This season</a>
+    <a href="../players.html">Players</a>
+    <a href="../model.html">How good is the model?</a>
+  </nav>
+  <nav class="lnav" aria-label="Other leagues">
+<a href="../../nba/index.html">NBA</a><a href="../../wnba/index.html">WNBA</a><a href="../../mlb/index.html" class="cur">MLB</a><a href="../../mls/index.html">MLS</a><a href="../../nwsl/index.html">NWSL</a>    <a href="../../nfl/index.html">NFL</a>
+  </nav>
+</div></header>
+<main>
+<h1 class="page"><span class="tm" style="font-size:22px"><i style="background:#df4601;height:22px;width:6px"></i>Baltimore Orioles</span></h1>
+
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl">2026 record</div>
+    <div class="val">79-82</div>
+    <div class="sub">American League &middot; AL East</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Elo rating</div>
+    <div class="val">1505</div>
+    <div class="sub">#15 in the league</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Postseason</div>
+    <div class="val">0%</div>
+    <div class="sub">Projected 79.0 wins</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">World Series</div>
+    <div class="val">0.0%</div>
+    <div class="sub">Division title 0%</div>
+  </div>
+</section>
+
+<section class="panel section chart">
+  <div class="panel-head"><h2>Rating history</h2><span class="t">After every game since 2000; range 1400&ndash;1570</span></div>
+  <svg viewBox="0 0 760 186" role="img" aria-label="Elo rating over time">
+    <line class="axis" x1="6" x2="754" y1="164" y2="164"/>
+    <polyline points="6.0,68.4 7.2,61.6 8.4,54.8 9.7,58.3 10.9,64.8 12.1,76.8 13.3,80.6 14.6,74.9 15.8,81.4 17.0,73.5 18.2,86.5 19.4,81.8 20.7,87.0 21.9,91.3 23.1,91.4 24.3,90.8 25.6,93.8 26.8,96.0 28.0,97.2 29.2,101.6 30.4,97.0 31.7,102.9 32.9,107.2 34.1,92.9 35.3,88.4 36.6,93.0 37.8,89.8 39.0,93.9 40.2,95.8 41.4,91.3 42.7,87.7 43.9,82.3 45.1,88.6 46.3,87.8 47.6,89.5 48.8,86.4 50.0,89.9 51.2,99.0 52.4,102.5 53.7,110.1 54.9,102.1 56.1,102.2 57.3,114.3 58.6,118.3 59.8,114.9 61.0,107.7 62.2,113.2 63.4,107.7 64.7,105.6 65.9,103.3 67.1,98.8 68.3,95.9 69.6,100.2 70.8,98.8 72.0,95.9 73.2,95.5 74.4,92.1 75.7,88.6 76.9,85.9 78.1,82.6 79.3,82.5 80.6,87.5 81.8,81.6 83.0,80.9 84.2,82.9 85.4,93.2 86.7,104.1 87.9,107.4 89.1,108.7 90.3,120.5 91.6,111.2 92.8,114.7 94.0,109.4 95.2,101.7 96.4,110.2 97.7,113.3 98.9,113.3 100.1,97.5 101.3,99.3 102.6,102.3 103.8,99.6 105.0,102.4 106.2,93.8 107.4,88.5 108.7,84.1 109.9,83.8 111.1,79.4 112.3,92.1 113.6,88.4 114.8,92.3 116.0,91.2 117.2,94.8 118.4,98.2 119.7,93.9 120.9,84.5 122.1,82.5 123.3,82.1 124.6,82.5 125.8,81.6 127.0,88.1 128.2,84.6 129.4,93.7 130.7,101.8 131.9,97.0 133.1,89.6 134.3,99.3 135.6,89.9 136.8,89.6 138.0,82.9 139.2,72.6 140.4,85.0 141.7,91.0 142.9,74.6 144.1,78.0 145.3,68.2 146.6,61.6 147.8,65.3 149.0,61.9 150.2,62.0 151.4,45.9 152.7,46.9 153.9,42.5 155.1,44.7 156.3,45.5 157.6,40.5 158.8,42.8 160.0,45.7 161.2,55.7 162.4,58.4 163.7,56.5 164.9,65.8 166.1,79.5 167.3,74.6 168.6,72.9 169.8,82.0 171.0,81.0 172.2,81.6 173.4,83.6 174.7,93.5 175.9,81.1 177.1,81.0 178.3,84.3 179.6,84.6 180.8,83.2 182.0,91.2 183.2,90.5 184.4,93.5 185.7,90.2 186.9,90.5 188.1,90.5 189.3,91.2 190.6,90.3 191.8,95.8 193.0,95.6 194.2,94.7 195.4,98.8 196.7,100.1 197.9,93.9 199.1,91.9 200.3,94.1 201.6,101.0 202.8,94.7 204.0,97.2 205.2,88.2 206.4,87.0 207.7,85.1 208.9,90.3 210.1,86.2 211.3,88.5 212.6,87.3 213.8,77.1 215.0,80.3 216.2,95.0 217.4,85.9 218.7,86.7 219.9,83.9 221.1,77.5 222.3,71.8 223.6,78.4 224.8,72.8 226.0,80.2 227.2,93.0 228.4,101.2 229.7,100.2 230.9,98.7 232.1,101.1 233.3,89.2 234.6,90.1 235.8,91.1 237.0,90.4 238.2,95.2 239.4,87.2 240.7,90.0 241.9,93.8 243.1,86.1 244.3,84.0 245.6,81.9 246.8,76.1 248.0,80.8 249.2,80.8 250.4,85.7 251.7,81.0 252.9,80.9 254.1,72.5 255.3,76.7 256.6,83.2 257.8,91.4 259.0,91.8 260.2,100.6 261.4,91.1 262.7,96.4 263.9,95.2 265.1,98.7 266.3,95.5 267.6,101.1 268.8,91.4 270.0,97.8 271.2,104.6 272.4,94.1 273.7,98.7 274.9,102.9 276.1,98.5 277.3,96.5 278.6,100.6 279.8,101.2 281.0,107.0 282.2,105.2 283.4,101.7 284.7,105.7 285.9,99.3 287.1,110.5 288.3,112.3 289.6,101.2 290.8,112.6 292.0,114.0 293.2,112.3 294.4,114.5 295.7,114.2 296.9,116.7 298.1,125.8 299.3,132.1 300.6,135.8 301.8,134.9 303.0,135.8 304.2,129.0 305.4,134.7 306.7,143.5 307.9,139.3 309.1,130.5 310.3,129.8 311.6,124.7 312.8,120.3 314.0,109.8 315.2,104.8 316.4,101.7 317.7,82.8 318.9,87.2 320.1,91.4 321.3,88.9 322.6,96.1 323.8,88.3 325.0,93.1 326.2,95.7 327.4,92.1 328.7,95.1 329.9,96.7 331.1,102.2 332.3,113.2 333.6,113.2 334.8,112.9 336.0,119.1 337.2,121.1 338.4,121.8 339.7,105.7 340.9,111.7 342.1,110.7 343.3,105.7 344.6,100.1 345.8,85.9 347.0,85.3 348.2,85.8 349.4,76.1 350.7,69.8 351.9,68.5 353.1,67.9 354.3,75.2 355.6,75.0 356.8,65.1 358.0,72.4 359.2,84.5 360.4,87.2 361.7,87.3 362.9,94.3 364.1,85.4 365.3,82.6 366.6,79.8 367.8,75.3 369.0,63.0 370.2,59.4 371.4,51.6 372.7,49.3 373.9,48.1 375.1,48.4 376.3,49.4 377.6,45.0 378.8,38.8 380.0,41.3 381.2,37.8 382.4,47.9 383.7,46.7 384.9,45.1 386.1,46.0 387.3,38.8 388.6,44.7 389.8,42.1 391.0,41.1 392.2,35.2 393.4,46.8 394.7,41.7 395.9,43.5 397.1,40.0 398.3,40.9 399.6,40.7 400.8,41.4 402.0,47.0 403.2,51.9 404.4,50.9 405.7,49.7 406.9,49.5 408.1,51.4 409.3,54.3 410.6,52.4 411.8,56.2 413.0,52.8 414.2,49.6 415.4,52.6 416.7,47.5 417.9,45.4 419.1,42.3 420.3,38.7 421.6,34.9 422.8,31.7 424.0,29.3 425.2,28.6 426.4,21.7 427.7,21.3 428.9,13.3 430.1,12.3 431.3,10.1 432.6,24.8 433.8,29.6 435.0,32.3 436.2,29.8 437.4,33.4 438.7,34.0 439.9,38.3 441.1,43.6 442.3,41.5 443.6,32.2 444.8,29.9 446.0,28.4 447.2,35.9 448.4,36.6 449.7,35.1 450.9,35.3 452.1,35.3 453.3,34.8 454.6,40.5 455.8,47.5 457.0,50.3 458.2,48.9 459.4,52.7 460.7,46.0 461.9,40.3 463.1,42.1 464.3,41.4 465.6,48.1 466.8,36.3 468.0,41.8 469.2,47.3 470.4,43.0 471.7,39.8 472.9,41.7 474.1,28.7 475.3,35.1 476.6,37.4 477.8,34.4 479.0,40.0 480.2,40.4 481.4,43.5 482.7,43.9 483.9,51.2 485.1,45.7 486.3,40.7 487.6,49.1 488.8,43.7 490.0,47.5 491.2,44.4 492.4,41.8 493.7,44.2 494.9,36.0 496.1,38.0 497.3,48.5 498.6,49.0 499.8,59.0 501.0,61.8 502.2,66.5 503.4,69.9 504.7,73.1 505.9,70.4 507.1,70.5 508.3,64.2 509.6,57.7 510.8,61.8 512.0,50.9 513.2,53.8 514.4,61.2 515.7,66.8 516.9,75.7 518.1,83.9 519.3,83.7 520.6,90.1 521.8,99.6 523.0,104.3 524.2,101.3 525.4,103.5 526.7,105.6 527.9,110.5 529.1,120.3 530.3,117.0 531.6,123.4 532.8,128.3 534.0,133.8 535.2,134.1 536.4,125.1 537.7,127.9 538.9,131.2 540.1,142.4 541.3,140.6 542.6,146.0 543.8,150.7 545.0,145.5 546.2,121.6 547.4,122.3 548.7,123.1 549.9,132.4 551.1,133.5 552.3,135.6 553.6,136.3 554.8,141.5 556.0,148.3 557.2,144.8 558.4,157.0 559.7,164.0 560.9,151.6 562.1,156.5 563.3,145.8 564.6,142.0 565.8,146.6 567.0,152.3 568.2,154.2 569.4,144.7 570.7,150.6 571.9,148.7 573.1,152.3 574.3,122.5 575.6,119.1 576.8,112.1 578.0,110.2 579.2,116.0 580.4,118.7 581.7,110.2 582.9,109.1 584.1,111.6 585.3,95.8 586.6,102.4 587.8,100.7 589.0,99.7 590.2,99.1 591.4,101.2 592.7,112.7 593.9,120.7 595.1,113.2 596.3,121.2 597.6,129.5 598.8,121.5 600.0,130.6 601.2,123.3 602.4,120.2 603.7,127.8 604.9,140.9 606.1,150.3 607.3,145.8 608.6,141.5 609.8,149.9 611.0,151.7 612.2,150.1 613.4,133.4 614.7,134.5 615.9,134.0 617.1,132.9 618.3,127.2 619.6,132.2 620.8,126.5 622.0,123.8 623.2,124.8 624.4,118.8 625.7,109.5 626.9,107.7 628.1,98.3 629.3,95.2 630.6,91.1 631.8,82.9 633.0,77.6 634.2,78.1 635.4,70.8 636.7,74.5 637.9,78.7 639.1,76.4 640.3,80.3 641.6,79.2 642.8,77.2 644.0,72.9 645.2,66.5 646.4,63.3 647.7,58.8 648.9,58.3 650.1,56.1 651.3,57.1 652.6,52.0 653.8,53.9 655.0,61.2 656.2,56.0 657.4,50.5 658.7,45.5 659.9,42.1 661.1,36.7 662.3,37.4 663.6,30.1 664.8,28.9 666.0,20.3 667.2,22.9 668.4,20.8 669.7,26.2 670.9,37.4 672.1,34.7 673.3,32.3 674.6,31.3 675.8,22.6 677.0,26.2 678.2,27.2 679.4,21.5 680.7,15.6 681.9,9.5 683.1,6.0 684.3,6.8 685.6,12.9 686.8,24.4 688.0,32.0 689.2,32.5 690.4,25.5 691.7,30.6 692.9,33.0 694.1,32.3 695.3,41.4 696.6,48.6 697.8,45.6 699.0,45.7 700.2,52.1 701.4,52.9 702.7,60.2 703.9,65.1 705.1,76.9 706.3,87.9 707.6,87.4 708.8,83.6 710.0,80.9 711.2,79.1 712.4,79.9 713.7,77.9 714.9,73.3 716.1,83.4 717.3,72.1 718.6,75.2 719.8,74.0 721.0,72.6 722.2,75.6 723.4,72.5 724.7,73.5 725.9,74.6 727.1,78.1 728.3,82.4 729.6,74.8 730.8,78.7 732.0,76.7 733.2,83.7 734.4,84.5 735.7,89.8 736.9,84.6 738.1,75.9 739.3,76.4 740.6,73.7 741.8,79.2 743.0,80.0 744.2,68.4 745.4,66.6 746.7,70.5 747.9,74.6 749.1,74.6 750.3,69.2 751.6,70.2 752.8,72.6 754.0,72.5"/>
+<text x="6.0" y="182" text-anchor="middle">2000</text><text x="147.4" y="182" text-anchor="middle">2005</text><text x="288.5" y="182" text-anchor="middle">2010</text><text x="432.1" y="182" text-anchor="middle">2015</text><text x="573.5" y="182" text-anchor="middle">2020</text><text x="697.8" y="182" text-anchor="middle">2025</text>  </svg>
+</section>
+
+<div class="grid2 section">
+<section class="panel">
+  <div class="panel-head"><h2>2026 games</h2></div>
+  <div class="overflow-x" style="max-height:640px;overflow-y:auto">
+  <table class="dtable">
+    <thead><tr><th>Date</th><th>Opponent</th><th>Model</th><th class="num">Result</th></tr></thead>
+    <tbody>
+      <tr><td class="t">2026-03-26</td>
+        <td>vs <a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 57%<span class="pbar"><b style="width:56.9%"></b></span></td>
+        <td class="num">1&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-03-28</td>
+        <td>vs <a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 57%<span class="pbar"><b style="width:57.1%"></b></span></td>
+        <td class="num">4&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-03-29</td>
+        <td>vs <a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 56%<span class="pbar"><b style="width:56.5%"></b></span></td>
+        <td class="num">6&ndash;8<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-03-30</td>
+        <td>vs <a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.0%"></b></span></td>
+        <td class="num">5&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-03-31</td>
+        <td>vs <a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 50%<span class="pbar"><b style="width:50.4%"></b></span></td>
+        <td class="num">8&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-01</td>
+        <td>vs <a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a></td>
+        <td><a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a> 50%<span class="pbar"><b style="width:50.2%"></b></span></td>
+        <td class="num">3&ndash;8<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-03</td>
+        <td>at <a class="tm" href="../teams/PIT.html" title="Pittsburgh Pirates"><i style="background:#000000"></i>PIT</a></td>
+        <td><a class="tm" href="../teams/PIT.html" title="Pittsburgh Pirates"><i style="background:#000000"></i>PIT</a> 54%<span class="pbar"><b style="width:54.1%"></b></span></td>
+        <td class="num">4&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-04</td>
+        <td>at <a class="tm" href="../teams/PIT.html" title="Pittsburgh Pirates"><i style="background:#000000"></i>PIT</a></td>
+        <td><a class="tm" href="../teams/PIT.html" title="Pittsburgh Pirates"><i style="background:#000000"></i>PIT</a> 54%<span class="pbar"><b style="width:54.4%"></b></span></td>
+        <td class="num">2&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-05</td>
+        <td>at <a class="tm" href="../teams/PIT.html" title="Pittsburgh Pirates"><i style="background:#000000"></i>PIT</a></td>
+        <td><a class="tm" href="../teams/PIT.html" title="Pittsburgh Pirates"><i style="background:#000000"></i>PIT</a> 55%<span class="pbar"><b style="width:54.6%"></b></span></td>
+        <td class="num">2&ndash;8<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-06</td>
+        <td>at <a class="tm" href="../teams/CWS.html" title="Chicago White Sox"><i style="background:#000000"></i>CWS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.6%"></b></span></td>
+        <td class="num">2&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-07</td>
+        <td>at <a class="tm" href="../teams/CWS.html" title="Chicago White Sox"><i style="background:#000000"></i>CWS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.9%"></b></span></td>
+        <td class="num">4&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-08</td>
+        <td>at <a class="tm" href="../teams/CWS.html" title="Chicago White Sox"><i style="background:#000000"></i>CWS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.3%"></b></span></td>
+        <td class="num">5&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-10</td>
+        <td>vs <a class="tm" href="../teams/SF.html" title="San Francisco Giants"><i style="background:#000000"></i>SF</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.2%"></b></span></td>
+        <td class="num">6&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-11</td>
+        <td>vs <a class="tm" href="../teams/SF.html" title="San Francisco Giants"><i style="background:#000000"></i>SF</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:52.5%"></b></span></td>
+        <td class="num">2&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-12</td>
+        <td>vs <a class="tm" href="../teams/SF.html" title="San Francisco Giants"><i style="background:#000000"></i>SF</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.2%"></b></span></td>
+        <td class="num">2&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-13</td>
+        <td>vs <a class="tm" href="../teams/AZ.html" title="Arizona Diamondbacks"><i style="background:#aa182c"></i>AZ</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.4%"></b></span></td>
+        <td class="num">7&ndash;9<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-14</td>
+        <td>vs <a class="tm" href="../teams/AZ.html" title="Arizona Diamondbacks"><i style="background:#aa182c"></i>AZ</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:51.9%"></b></span></td>
+        <td class="num">4&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-15</td>
+        <td>vs <a class="tm" href="../teams/AZ.html" title="Arizona Diamondbacks"><i style="background:#aa182c"></i>AZ</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num">8&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-16</td>
+        <td>at <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a> 58%<span class="pbar"><b style="width:57.8%"></b></span></td>
+        <td class="num">2&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-17</td>
+        <td>at <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a> 58%<span class="pbar"><b style="width:58.2%"></b></span></td>
+        <td class="num">6&ndash;4<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-18</td>
+        <td>at <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a> 58%<span class="pbar"><b style="width:57.6%"></b></span></td>
+        <td class="num">2&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-19</td>
+        <td>at <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a> 58%<span class="pbar"><b style="width:58.0%"></b></span></td>
+        <td class="num">4&ndash;8<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-20</td>
+        <td>at <a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a></td>
+        <td><a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a> 55%<span class="pbar"><b style="width:54.9%"></b></span></td>
+        <td class="num">7&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-21</td>
+        <td>at <a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a></td>
+        <td><a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a> 54%<span class="pbar"><b style="width:54.4%"></b></span></td>
+        <td class="num">5&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-22</td>
+        <td>at <a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a></td>
+        <td><a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a> 55%<span class="pbar"><b style="width:54.6%"></b></span></td>
+        <td class="num">8&ndash;6<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-24</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.2%"></b></span></td>
+        <td class="num">3&ndash;10<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-25</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:52.0%"></b></span></td>
+        <td class="num">17&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-26</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.8%"></b></span></td>
+        <td class="num">5&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-04-28</td>
+        <td>vs <a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 54%<span class="pbar"><b style="width:53.6%"></b></span></td>
+        <td class="num">3&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-30</td>
+        <td>vs <a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 54%<span class="pbar"><b style="width:54.1%"></b></span></td>
+        <td class="num">3&ndash;10<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-04-30</td>
+        <td>vs <a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 55%<span class="pbar"><b style="width:54.9%"></b></span></td>
+        <td class="num">11&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-01</td>
+        <td>at <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 64%<span class="pbar"><b style="width:63.6%"></b></span></td>
+        <td class="num">2&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-02</td>
+        <td>at <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 64%<span class="pbar"><b style="width:64.1%"></b></span></td>
+        <td class="num">4&ndash;9<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-03</td>
+        <td>at <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 65%<span class="pbar"><b style="width:64.6%"></b></span></td>
+        <td class="num">3&ndash;11<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-04</td>
+        <td>at <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 65%<span class="pbar"><b style="width:65.2%"></b></span></td>
+        <td class="num">1&ndash;12<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-05</td>
+        <td>at <a class="tm" href="../teams/MIA.html" title="Miami Marlins"><i style="background:#00a3e0"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Miami Marlins"><i style="background:#00a3e0"></i>MIA</a> 55%<span class="pbar"><b style="width:54.8%"></b></span></td>
+        <td class="num">9&ndash;7<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-06</td>
+        <td>at <a class="tm" href="../teams/MIA.html" title="Miami Marlins"><i style="background:#00a3e0"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Miami Marlins"><i style="background:#00a3e0"></i>MIA</a> 54%<span class="pbar"><b style="width:54.3%"></b></span></td>
+        <td class="num">7&ndash;4<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-07</td>
+        <td>at <a class="tm" href="../teams/MIA.html" title="Miami Marlins"><i style="background:#00a3e0"></i>MIA</a></td>
+        <td><a class="tm" href="../teams/MIA.html" title="Miami Marlins"><i style="background:#00a3e0"></i>MIA</a> 54%<span class="pbar"><b style="width:53.7%"></b></span></td>
+        <td class="num">3&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-08</td>
+        <td>vs <a class="tm" href="../teams/ATH.html" title="Athletics"><i style="background:#003831"></i>ATH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.3%"></b></span></td>
+        <td class="num">4&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-09</td>
+        <td>vs <a class="tm" href="../teams/ATH.html" title="Athletics"><i style="background:#003831"></i>ATH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.0%"></b></span></td>
+        <td class="num">6&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-10</td>
+        <td>vs <a class="tm" href="../teams/ATH.html" title="Athletics"><i style="background:#003831"></i>ATH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:52.3%"></b></span></td>
+        <td class="num">1&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-11</td>
+        <td>vs <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 57%<span class="pbar"><b style="width:57.0%"></b></span></td>
+        <td class="num">2&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-12</td>
+        <td>vs <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 57%<span class="pbar"><b style="width:56.7%"></b></span></td>
+        <td class="num">6&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-13</td>
+        <td>vs <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 57%<span class="pbar"><b style="width:57.2%"></b></span></td>
+        <td class="num">0&ndash;7<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-15</td>
+        <td>at <a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a> 51%<span class="pbar"><b style="width:50.8%"></b></span></td>
+        <td class="num">2&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-16</td>
+        <td>at <a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a> 51%<span class="pbar"><b style="width:51.1%"></b></span></td>
+        <td class="num">3&ndash;13<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-17</td>
+        <td>at <a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a> 52%<span class="pbar"><b style="width:52.1%"></b></span></td>
+        <td class="num">7&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-18</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 60%<span class="pbar"><b style="width:60.0%"></b></span></td>
+        <td class="num">6&ndash;16<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-19</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 61%<span class="pbar"><b style="width:60.8%"></b></span></td>
+        <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-20</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 61%<span class="pbar"><b style="width:61.2%"></b></span></td>
+        <td class="num">3&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-22</td>
+        <td>vs <a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:52.5%"></b></span></td>
+        <td class="num">4&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-24</td>
+        <td>vs <a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.0%"></b></span></td>
+        <td class="num">3&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-24</td>
+        <td>vs <a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.5%"></b></span></td>
+        <td class="num">4&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-25</td>
+        <td>vs <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 53%<span class="pbar"><b style="width:53.0%"></b></span></td>
+        <td class="num">7&ndash;9<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-26</td>
+        <td>vs <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 53%<span class="pbar"><b style="width:52.5%"></b></span></td>
+        <td class="num">1&ndash;6<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-27</td>
+        <td>vs <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 52%<span class="pbar"><b style="width:51.7%"></b></span></td>
+        <td class="num">2&ndash;11<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-28</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 51%<span class="pbar"><b style="width:50.9%"></b></span></td>
+        <td class="num">2&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-29</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 51%<span class="pbar"><b style="width:51.2%"></b></span></td>
+        <td class="num">6&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-05-30</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 51%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num">5&ndash;6<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-05-31</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 51%<span class="pbar"><b style="width:51.1%"></b></span></td>
+        <td class="num">5&ndash;9<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-02</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 59%<span class="pbar"><b style="width:58.5%"></b></span></td>
+        <td class="num">4&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-03</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 58%<span class="pbar"><b style="width:58.0%"></b></span></td>
+        <td class="num">1&ndash;8<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-04</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 59%<span class="pbar"><b style="width:58.7%"></b></span></td>
+        <td class="num">8&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-05</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 59%<span class="pbar"><b style="width:58.6%"></b></span></td>
+        <td class="num">13&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-06</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 57%<span class="pbar"><b style="width:57.4%"></b></span></td>
+        <td class="num">4&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-07</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 58%<span class="pbar"><b style="width:57.8%"></b></span></td>
+        <td class="num">4&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-08</td>
+        <td>vs <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 51%<span class="pbar"><b style="width:50.9%"></b></span></td>
+        <td class="num">6&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-09</td>
+        <td>vs <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 52%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num">6&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-10</td>
+        <td>vs <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 52%<span class="pbar"><b style="width:51.8%"></b></span></td>
+        <td class="num">2&ndash;7<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-11</td>
+        <td>vs <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 51%<span class="pbar"><b style="width:51.0%"></b></span></td>
+        <td class="num">5&ndash;7<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-12</td>
+        <td>vs <a class="tm" href="../teams/SD.html" title="San Diego Padres"><i style="background:#2f241d"></i>SD</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num">3&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-13</td>
+        <td>vs <a class="tm" href="../teams/SD.html" title="San Diego Padres"><i style="background:#2f241d"></i>SD</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:52.2%"></b></span></td>
+        <td class="num">9&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-14</td>
+        <td>vs <a class="tm" href="../teams/SD.html" title="San Diego Padres"><i style="background:#2f241d"></i>SD</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.3%"></b></span></td>
+        <td class="num">5&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-16</td>
+        <td>at <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 59%<span class="pbar"><b style="width:59.0%"></b></span></td>
+        <td class="num">1&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-17</td>
+        <td>at <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 59%<span class="pbar"><b style="width:59.3%"></b></span></td>
+        <td class="num">5&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-18</td>
+        <td>at <a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a></td>
+        <td><a class="tm" href="../teams/SEA.html" title="Seattle Mariners"><i style="background:#005c5c"></i>SEA</a> 59%<span class="pbar"><b style="width:58.8%"></b></span></td>
+        <td class="num">0&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-19</td>
+        <td>at <a class="tm" href="../teams/LAD.html" title="Los Angeles Dodgers"><i style="background:#005a9c"></i>LAD</a></td>
+        <td><a class="tm" href="../teams/LAD.html" title="Los Angeles Dodgers"><i style="background:#005a9c"></i>LAD</a> 67%<span class="pbar"><b style="width:66.6%"></b></span></td>
+        <td class="num">5&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-20</td>
+        <td>at <a class="tm" href="../teams/LAD.html" title="Los Angeles Dodgers"><i style="background:#005a9c"></i>LAD</a></td>
+        <td><a class="tm" href="../teams/LAD.html" title="Los Angeles Dodgers"><i style="background:#005a9c"></i>LAD</a> 67%<span class="pbar"><b style="width:66.8%"></b></span></td>
+        <td class="num">3&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-21</td>
+        <td>at <a class="tm" href="../teams/LAD.html" title="Los Angeles Dodgers"><i style="background:#005a9c"></i>LAD</a></td>
+        <td><a class="tm" href="../teams/LAD.html" title="Los Angeles Dodgers"><i style="background:#005a9c"></i>LAD</a> 66%<span class="pbar"><b style="width:66.4%"></b></span></td>
+        <td class="num">12&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-22</td>
+        <td>at <a class="tm" href="../teams/LAA.html" title="Los Angeles Angels"><i style="background:#ba0021"></i>LAA</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 50%<span class="pbar"><b style="width:50.5%"></b></span></td>
+        <td class="num">6&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-23</td>
+        <td>at <a class="tm" href="../teams/LAA.html" title="Los Angeles Angels"><i style="background:#ba0021"></i>LAA</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.2%"></b></span></td>
+        <td class="num">1&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-24</td>
+        <td>at <a class="tm" href="../teams/LAA.html" title="Los Angeles Angels"><i style="background:#ba0021"></i>LAA</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.5%"></b></span></td>
+        <td class="num">6&ndash;7<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-26</td>
+        <td>vs <a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 57%<span class="pbar"><b style="width:57.0%"></b></span></td>
+        <td class="num">1&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-06-27</td>
+        <td>vs <a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 57%<span class="pbar"><b style="width:57.4%"></b></span></td>
+        <td class="num">4&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-28</td>
+        <td>vs <a class="tm" href="../teams/WSH.html" title="Washington Nationals"><i style="background:#ab0003"></i>WSH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 57%<span class="pbar"><b style="width:57.0%"></b></span></td>
+        <td class="num">6&ndash;4<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-29</td>
+        <td>vs <a class="tm" href="../teams/CWS.html" title="Chicago White Sox"><i style="background:#000000"></i>CWS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 56%<span class="pbar"><b style="width:55.6%"></b></span></td>
+        <td class="num">8&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-06-30</td>
+        <td>vs <a class="tm" href="../teams/CWS.html" title="Chicago White Sox"><i style="background:#000000"></i>CWS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 55%<span class="pbar"><b style="width:54.7%"></b></span></td>
+        <td class="num">9&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-01</td>
+        <td>vs <a class="tm" href="../teams/CWS.html" title="Chicago White Sox"><i style="background:#000000"></i>CWS</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 54%<span class="pbar"><b style="width:53.7%"></b></span></td>
+        <td class="num">1&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-03</td>
+        <td>at <a class="tm" href="../teams/CIN.html" title="Cincinnati Reds"><i style="background:#c6011f"></i>CIN</a></td>
+        <td><a class="tm" href="../teams/CIN.html" title="Cincinnati Reds"><i style="background:#c6011f"></i>CIN</a> 54%<span class="pbar"><b style="width:54.0%"></b></span></td>
+        <td class="num">3&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-04</td>
+        <td>at <a class="tm" href="../teams/CIN.html" title="Cincinnati Reds"><i style="background:#c6011f"></i>CIN</a></td>
+        <td><a class="tm" href="../teams/CIN.html" title="Cincinnati Reds"><i style="background:#c6011f"></i>CIN</a> 53%<span class="pbar"><b style="width:53.4%"></b></span></td>
+        <td class="num">8&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-05</td>
+        <td>at <a class="tm" href="../teams/CIN.html" title="Cincinnati Reds"><i style="background:#c6011f"></i>CIN</a></td>
+        <td><a class="tm" href="../teams/CIN.html" title="Cincinnati Reds"><i style="background:#c6011f"></i>CIN</a> 53%<span class="pbar"><b style="width:52.7%"></b></span></td>
+        <td class="num">2&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-07</td>
+        <td>vs <a class="tm" href="../teams/CHC.html" title="Chicago Cubs"><i style="background:#0e3386"></i>CHC</a></td>
+        <td><a class="tm" href="../teams/CHC.html" title="Chicago Cubs"><i style="background:#0e3386"></i>CHC</a> 52%<span class="pbar"><b style="width:51.6%"></b></span></td>
+        <td class="num">5&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-08</td>
+        <td>vs <a class="tm" href="../teams/CHC.html" title="Chicago Cubs"><i style="background:#0e3386"></i>CHC</a></td>
+        <td><a class="tm" href="../teams/CHC.html" title="Chicago Cubs"><i style="background:#0e3386"></i>CHC</a> 52%<span class="pbar"><b style="width:52.2%"></b></span></td>
+        <td class="num">9&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-09</td>
+        <td>vs <a class="tm" href="../teams/CHC.html" title="Chicago Cubs"><i style="background:#0e3386"></i>CHC</a></td>
+        <td><a class="tm" href="../teams/CHC.html" title="Chicago Cubs"><i style="background:#0e3386"></i>CHC</a> 53%<span class="pbar"><b style="width:52.7%"></b></span></td>
+        <td class="num">2&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-10</td>
+        <td>vs <a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 56%<span class="pbar"><b style="width:56.1%"></b></span></td>
+        <td class="num">3&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-11</td>
+        <td>vs <a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 56%<span class="pbar"><b style="width:56.5%"></b></span></td>
+        <td class="num">1&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-12</td>
+        <td>vs <a class="tm" href="../teams/KC.html" title="Kansas City Royals"><i style="background:#004687"></i>KC</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 57%<span class="pbar"><b style="width:57.1%"></b></span></td>
+        <td class="num">2&ndash;8<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-17</td>
+        <td>at <a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a> 54%<span class="pbar"><b style="width:54.0%"></b></span></td>
+        <td class="num">3&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-18</td>
+        <td>at <a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a> 54%<span class="pbar"><b style="width:53.7%"></b></span></td>
+        <td class="num">4&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-19</td>
+        <td>at <a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a></td>
+        <td><a class="tm" href="../teams/HOU.html" title="Houston Astros"><i style="background:#002d62"></i>HOU</a> 53%<span class="pbar"><b style="width:53.2%"></b></span></td>
+        <td class="num">5&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-20</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 59%<span class="pbar"><b style="width:59.5%"></b></span></td>
+        <td class="num">5&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-22</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 60%<span class="pbar"><b style="width:59.7%"></b></span></td>
+        <td class="num">3&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-22</td>
+        <td>at <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 60%<span class="pbar"><b style="width:60.1%"></b></span></td>
+        <td class="num">5&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-24</td>
+        <td>vs <a class="tm" href="../teams/ATL.html" title="Atlanta Braves"><i style="background:#0c2340"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Braves"><i style="background:#0c2340"></i>ATL</a> 50%<span class="pbar"><b style="width:50.5%"></b></span></td>
+        <td class="num">7&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-25</td>
+        <td>vs <a class="tm" href="../teams/ATL.html" title="Atlanta Braves"><i style="background:#0c2340"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Braves"><i style="background:#0c2340"></i>ATL</a> 51%<span class="pbar"><b style="width:50.8%"></b></span></td>
+        <td class="num">2&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-26</td>
+        <td>vs <a class="tm" href="../teams/ATL.html" title="Atlanta Braves"><i style="background:#0c2340"></i>ATL</a></td>
+        <td><a class="tm" href="../teams/ATL.html" title="Atlanta Braves"><i style="background:#0c2340"></i>ATL</a> 50%<span class="pbar"><b style="width:50.5%"></b></span></td>
+        <td class="num">3&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-27</td>
+        <td>at <a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a> 56%<span class="pbar"><b style="width:55.9%"></b></span></td>
+        <td class="num">8&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-28</td>
+        <td>at <a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a> 55%<span class="pbar"><b style="width:55.2%"></b></span></td>
+        <td class="num">0&ndash;14<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-07-29</td>
+        <td>at <a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a></td>
+        <td><a class="tm" href="../teams/DET.html" title="Detroit Tigers"><i style="background:#0a2240"></i>DET</a> 56%<span class="pbar"><b style="width:56.2%"></b></span></td>
+        <td class="num">10&ndash;9<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-07-31</td>
+        <td>vs <a class="tm" href="../teams/PHI.html" title="Philadelphia Phillies"><i style="background:#e81828"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:51.2%"></b></span></td>
+        <td class="num">4&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-01</td>
+        <td>vs <a class="tm" href="../teams/PHI.html" title="Philadelphia Phillies"><i style="background:#e81828"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:51.7%"></b></span></td>
+        <td class="num">5&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-02</td>
+        <td>vs <a class="tm" href="../teams/PHI.html" title="Philadelphia Phillies"><i style="background:#e81828"></i>PHI</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.9%"></b></span></td>
+        <td class="num">8&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-04</td>
+        <td>vs <a class="tm" href="../teams/LAA.html" title="Los Angeles Angels"><i style="background:#ba0021"></i>LAA</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 61%<span class="pbar"><b style="width:61.2%"></b></span></td>
+        <td class="num">1&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-05</td>
+        <td>vs <a class="tm" href="../teams/LAA.html" title="Los Angeles Angels"><i style="background:#ba0021"></i>LAA</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 62%<span class="pbar"><b style="width:61.5%"></b></span></td>
+        <td class="num">2&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-06</td>
+        <td>vs <a class="tm" href="../teams/LAA.html" title="Los Angeles Angels"><i style="background:#ba0021"></i>LAA</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 62%<span class="pbar"><b style="width:61.9%"></b></span></td>
+        <td class="num">4&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-07</td>
+        <td>at <a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a></td>
+        <td><a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a> 54%<span class="pbar"><b style="width:54.3%"></b></span></td>
+        <td class="num">1&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-08</td>
+        <td>at <a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a></td>
+        <td><a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a> 55%<span class="pbar"><b style="width:54.5%"></b></span></td>
+        <td class="num">1&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-09</td>
+        <td>at <a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a></td>
+        <td><a class="tm" href="../teams/TEX.html" title="Texas Rangers"><i style="background:#003278"></i>TEX</a> 55%<span class="pbar"><b style="width:55.2%"></b></span></td>
+        <td class="num">10&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-10</td>
+        <td>at <a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a> 53%<span class="pbar"><b style="width:52.5%"></b></span></td>
+        <td class="num">5&ndash;9<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-11</td>
+        <td>at <a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a> 53%<span class="pbar"><b style="width:53.2%"></b></span></td>
+        <td class="num">5&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-12</td>
+        <td>at <a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a></td>
+        <td><a class="tm" href="../teams/MIN.html" title="Minnesota Twins"><i style="background:#031f40"></i>MIN</a> 53%<span class="pbar"><b style="width:52.5%"></b></span></td>
+        <td class="num">5&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-14</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 60%<span class="pbar"><b style="width:60.0%"></b></span></td>
+        <td class="num">6&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-15</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 60%<span class="pbar"><b style="width:59.6%"></b></span></td>
+        <td class="num">4&ndash;3<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-16</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 59%<span class="pbar"><b style="width:59.3%"></b></span></td>
+        <td class="num">10&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-17</td>
+        <td>at <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a> 58%<span class="pbar"><b style="width:58.1%"></b></span></td>
+        <td class="num">6&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-18</td>
+        <td>vs <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 51%<span class="pbar"><b style="width:51.3%"></b></span></td>
+        <td class="num">3&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-19</td>
+        <td>vs <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 52%<span class="pbar"><b style="width:51.8%"></b></span></td>
+        <td class="num">5&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-20</td>
+        <td>vs <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 52%<span class="pbar"><b style="width:52.3%"></b></span></td>
+        <td class="num">6&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-21</td>
+        <td>vs <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 50%<span class="pbar"><b style="width:50.1%"></b></span></td>
+        <td class="num">3&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-22</td>
+        <td>vs <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.5%"></b></span></td>
+        <td class="num">2&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-23</td>
+        <td>vs <a class="tm" href="../teams/TB.html" title="Tampa Bay Rays"><i style="background:#092c5c"></i>TB</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 51%<span class="pbar"><b style="width:50.8%"></b></span></td>
+        <td class="num">3&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-25</td>
+        <td>at <a class="tm" href="../teams/STL.html" title="St. Louis Cardinals"><i style="background:#be0a14"></i>STL</a></td>
+        <td><a class="tm" href="../teams/STL.html" title="St. Louis Cardinals"><i style="background:#be0a14"></i>STL</a> 55%<span class="pbar"><b style="width:54.6%"></b></span></td>
+        <td class="num">13&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-26</td>
+        <td>at <a class="tm" href="../teams/STL.html" title="St. Louis Cardinals"><i style="background:#be0a14"></i>STL</a></td>
+        <td><a class="tm" href="../teams/STL.html" title="St. Louis Cardinals"><i style="background:#be0a14"></i>STL</a> 53%<span class="pbar"><b style="width:53.4%"></b></span></td>
+        <td class="num">8&ndash;7<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-08-27</td>
+        <td>at <a class="tm" href="../teams/STL.html" title="St. Louis Cardinals"><i style="background:#be0a14"></i>STL</a></td>
+        <td><a class="tm" href="../teams/STL.html" title="St. Louis Cardinals"><i style="background:#be0a14"></i>STL</a> 53%<span class="pbar"><b style="width:53.1%"></b></span></td>
+        <td class="num">5&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-28</td>
+        <td>at <a class="tm" href="../teams/ATH.html" title="Athletics"><i style="background:#003831"></i>ATH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 55%<span class="pbar"><b style="width:54.9%"></b></span></td>
+        <td class="num">4&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-29</td>
+        <td>at <a class="tm" href="../teams/ATH.html" title="Athletics"><i style="background:#003831"></i>ATH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 55%<span class="pbar"><b style="width:55.2%"></b></span></td>
+        <td class="num">5&ndash;3<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-30</td>
+        <td>at <a class="tm" href="../teams/ATH.html" title="Athletics"><i style="background:#003831"></i>ATH</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 56%<span class="pbar"><b style="width:55.6%"></b></span></td>
+        <td class="num">8&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-08-31</td>
+        <td>at <a class="tm" href="../teams/COL.html" title="Colorado Rockies"><i style="background:#33006f"></i>COL</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 58%<span class="pbar"><b style="width:58.5%"></b></span></td>
+        <td class="num">2&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-01</td>
+        <td>at <a class="tm" href="../teams/COL.html" title="Colorado Rockies"><i style="background:#33006f"></i>COL</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 59%<span class="pbar"><b style="width:58.7%"></b></span></td>
+        <td class="num">2&ndash;4<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-02</td>
+        <td>at <a class="tm" href="../teams/COL.html" title="Colorado Rockies"><i style="background:#33006f"></i>COL</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 58%<span class="pbar"><b style="width:58.2%"></b></span></td>
+        <td class="num">5&ndash;6<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-03</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 52%<span class="pbar"><b style="width:51.5%"></b></span></td>
+        <td class="num">6&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-04</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 52%<span class="pbar"><b style="width:51.8%"></b></span></td>
+        <td class="num">1&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-05</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 52%<span class="pbar"><b style="width:52.1%"></b></span></td>
+        <td class="num">5&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-06</td>
+        <td>vs <a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a></td>
+        <td><a class="tm" href="../teams/BOS.html" title="Boston Red Sox"><i style="background:#0d2b56"></i>BOS</a> 53%<span class="pbar"><b style="width:52.9%"></b></span></td>
+        <td class="num">3&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-07</td>
+        <td>vs <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.5%"></b></span></td>
+        <td class="num">4&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-08</td>
+        <td>vs <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 54%<span class="pbar"><b style="width:53.9%"></b></span></td>
+        <td class="num">9&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-09</td>
+        <td>vs <a class="tm" href="../teams/CLE.html" title="Cleveland Guardians"><i style="background:#002b5c"></i>CLE</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:53.2%"></b></span></td>
+        <td class="num">5&ndash;9<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-11</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 57%<span class="pbar"><b style="width:57.0%"></b></span></td>
+        <td class="num">7&ndash;4<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-12</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 56%<span class="pbar"><b style="width:56.3%"></b></span></td>
+        <td class="num">3&ndash;7<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-13</td>
+        <td>at <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a> 57%<span class="pbar"><b style="width:56.9%"></b></span></td>
+        <td class="num">1&ndash;8<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-14</td>
+        <td>at <a class="tm" href="../teams/NYM.html" title="New York Mets"><i style="background:#002d72"></i>NYM</a></td>
+        <td><a class="tm" href="../teams/NYM.html" title="New York Mets"><i style="background:#002d72"></i>NYM</a> 56%<span class="pbar"><b style="width:55.9%"></b></span></td>
+        <td class="num">2&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-15</td>
+        <td>at <a class="tm" href="../teams/NYM.html" title="New York Mets"><i style="background:#002d72"></i>NYM</a></td>
+        <td><a class="tm" href="../teams/NYM.html" title="New York Mets"><i style="background:#002d72"></i>NYM</a> 56%<span class="pbar"><b style="width:55.5%"></b></span></td>
+        <td class="num">7&ndash;5<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-16</td>
+        <td>at <a class="tm" href="../teams/NYM.html" title="New York Mets"><i style="background:#002d72"></i>NYM</a></td>
+        <td><a class="tm" href="../teams/NYM.html" title="New York Mets"><i style="background:#002d72"></i>NYM</a> 55%<span class="pbar"><b style="width:55.0%"></b></span></td>
+        <td class="num">7&ndash;1<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-18</td>
+        <td>vs <a class="tm" href="../teams/MIL.html" title="Milwaukee Brewers"><i style="background:#13294b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/MIL.html" title="Milwaukee Brewers"><i style="background:#13294b"></i>MIL</a> 56%<span class="pbar"><b style="width:56.4%"></b></span></td>
+        <td class="num">6&ndash;5<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-19</td>
+        <td>vs <a class="tm" href="../teams/MIL.html" title="Milwaukee Brewers"><i style="background:#13294b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/MIL.html" title="Milwaukee Brewers"><i style="background:#13294b"></i>MIL</a> 57%<span class="pbar"><b style="width:56.7%"></b></span></td>
+        <td class="num">1&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-20</td>
+        <td>vs <a class="tm" href="../teams/MIL.html" title="Milwaukee Brewers"><i style="background:#13294b"></i>MIL</a></td>
+        <td><a class="tm" href="../teams/MIL.html" title="Milwaukee Brewers"><i style="background:#13294b"></i>MIL</a> 57%<span class="pbar"><b style="width:56.9%"></b></span></td>
+        <td class="num">3&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-21</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:52.1%"></b></span></td>
+        <td class="num">3&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-23</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 52%<span class="pbar"><b style="width:52.4%"></b></span></td>
+        <td class="num">2&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-23</td>
+        <td>vs <a class="tm" href="../teams/TOR.html" title="Toronto Blue Jays"><i style="background:#134a8e"></i>TOR</a></td>
+        <td><a class="tm" href="../teams/BAL.html" title="Baltimore Orioles"><i style="background:#df4601"></i>BAL</a> 53%<span class="pbar"><b style="width:52.8%"></b></span></td>
+        <td class="num">2&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+      <tr><td class="t">2026-09-25</td>
+        <td>at <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 62%<span class="pbar"><b style="width:61.9%"></b></span></td>
+        <td class="num">10&ndash;2<span class="bad" title="model's most likely result did not happen">&#10007;</span></td></tr>
+      <tr><td class="t">2026-09-25</td>
+        <td>at <a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a></td>
+        <td><a class="tm" href="../teams/NYY.html" title="New York Yankees"><i style="background:#132448"></i>NYY</a> 61%<span class="pbar"><b style="width:60.8%"></b></span></td>
+        <td class="num">3&ndash;6<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>2026 leaders</h2></div>
+  <div class="roster">
+    <div><h4>Home runs</h4>
+<a href="../players.html#q=Pete%20Alonso">Pete Alonso <span class="t">43</span></a><a href="../players.html#q=Coby%20Mayo">Coby Mayo <span class="t">24</span></a><a href="../players.html#q=Gunnar%20Henderson">Gunnar Henderson <span class="t">24</span></a>    </div>
+    <div><h4>OPS</h4>
+<a href="../players.html#q=Pete%20Alonso">Pete Alonso <span class="t">.885</span></a><a href="../players.html#q=Gunnar%20Henderson">Gunnar Henderson <span class="t">.712</span></a>    </div>
+    <div><h4>Stolen bases</h4>
+<a href="../players.html#q=Leody%20Taveras">Leody Taveras <span class="t">11</span></a><a href="../players.html#q=Blaze%20Alexander">Blaze Alexander <span class="t">10</span></a><a href="../players.html#q=Colton%20Cowser">Colton Cowser <span class="t">10</span></a>    </div>
+    <div><h4>ERA</h4>
+<a href="../players.html#q=Brandon%20Young">Brandon Young <span class="t">3.56</span></a><a href="../players.html#q=Trevor%20Rogers">Trevor Rogers <span class="t">4.03</span></a><a href="../players.html#q=Shane%20Baz">Shane Baz <span class="t">4.11</span></a>    </div>
+    <div><h4>Strikeouts</h4>
+<a href="../players.html#q=Trevor%20Rogers">Trevor Rogers <span class="t">157</span></a><a href="../players.html#q=Shane%20Baz">Shane Baz <span class="t">154</span></a><a href="../players.html#q=Kyle%20Bradish">Kyle Bradish <span class="t">142</span></a>    </div>
+    <div><h4>Saves</h4>
+<a href="../players.html#q=Andrew%20Kittredge">Andrew Kittredge <span class="t">11</span></a><a href="../players.html#q=Rico%20Garcia">Rico Garcia <span class="t">10</span></a><a href="../players.html#q=Ryan%20Helsley">Ryan Helsley <span class="t">8</span></a>    </div>
+  </div>
+</section>
+</div>
+
+<section class="panel section">
+  <div class="panel-head"><h2>Season by season</h2></div>
+  <div class="overflow-x">
+  <table class="dtable">
+    <thead><tr><th>Season</th><th></th><th class="num">Record</th><th class="num">Margin</th><th>Postseason</th><th class="num">Final Elo</th></tr></thead>
+    <tbody>
+      <tr><td>2026</td><td class="t">BAL</td><td class="num">79-82</td>        <td class="num">-21</td>
+        <td></td>
+        <td class="num">1505</td></tr>
+      <tr><td>2025</td><td class="t">BAL</td><td class="num">75-87</td>        <td class="num">-111</td>
+        <td></td>
+        <td class="num">1490</td></tr>
+      <tr><td>2024</td><td class="t">BAL</td><td class="num">91-71</td>        <td class="num">+87</td>
+        <td>Out: Wild Card Series</td>
+        <td class="num">1530</td></tr>
+      <tr><td>2023</td><td class="t">BAL</td><td class="num">101-61</td>        <td class="num">+129</td>
+        <td>Out: Division Series</td>
+        <td class="num">1545</td></tr>
+      <tr><td>2022</td><td class="t">BAL</td><td class="num">83-79</td>        <td class="num">-14</td>
+        <td></td>
+        <td class="num">1489</td></tr>
+      <tr><td>2021</td><td class="t">BAL</td><td class="num">52-110</td>        <td class="num">-297</td>
+        <td></td>
+        <td class="num">1411</td></tr>
+      <tr><td>2020</td><td class="t">BAL</td><td class="num">25-35</td>        <td class="num">-20</td>
+        <td></td>
+        <td class="num">1457</td></tr>
+      <tr><td>2019</td><td class="t">BAL</td><td class="num">54-108</td>        <td class="num">-252</td>
+        <td></td>
+        <td class="num">1423</td></tr>
+      <tr><td>2018</td><td class="t">BAL</td><td class="num">47-115</td>        <td class="num">-270</td>
+        <td></td>
+        <td class="num">1421</td></tr>
+      <tr><td>2017</td><td class="t">BAL</td><td class="num">75-87</td>        <td class="num">-98</td>
+        <td></td>
+        <td class="num">1489</td></tr>
+      <tr><td>2016</td><td class="t">BAL</td><td class="num">89-73</td>        <td class="num">+29</td>
+        <td>Out: Wild Card Series</td>
+        <td class="num">1530</td></tr>
+      <tr><td>2015</td><td class="t">BAL</td><td class="num">81-81</td>        <td class="num">+20</td>
+        <td></td>
+        <td class="num">1527</td></tr>
+      <tr><td>2014</td><td class="t">BAL</td><td class="num">96-66</td>        <td class="num">+112</td>
+        <td>Out: League Championship Series</td>
+        <td class="num">1561</td></tr>
+      <tr><td>2013</td><td class="t">BAL</td><td class="num">85-77</td>        <td class="num">+36</td>
+        <td></td>
+        <td class="num">1527</td></tr>
+      <tr><td>2012</td><td class="t">BAL</td><td class="num">93-69</td>        <td class="num">+7</td>
+        <td>Out: Division Series</td>
+        <td class="num">1525</td></tr>
+      <tr><td>2011</td><td class="t">BAL</td><td class="num">69-93</td>        <td class="num">-152</td>
+        <td></td>
+        <td class="num">1470</td></tr>
+      <tr><td>2010</td><td class="t">BAL</td><td class="num">66-96</td>        <td class="num">-172</td>
+        <td></td>
+        <td class="num">1468</td></tr>
+      <tr><td>2009</td><td class="t">BAL</td><td class="num">64-98</td>        <td class="num">-135</td>
+        <td></td>
+        <td class="num">1459</td></tr>
+      <tr><td>2008</td><td class="t">BAL</td><td class="num">68-93</td>        <td class="num">-87</td>
+        <td></td>
+        <td class="num">1465</td></tr>
+      <tr><td>2007</td><td class="t">BAL</td><td class="num">69-93</td>        <td class="num">-112</td>
+        <td></td>
+        <td class="num">1465</td></tr>
+      <tr><td>2006</td><td class="t">BAL</td><td class="num">70-92</td>        <td class="num">-131</td>
+        <td></td>
+        <td class="num">1472</td></tr>
+      <tr><td>2005</td><td class="t">BAL</td><td class="num">74-88</td>        <td class="num">-71</td>
+        <td></td>
+        <td class="num">1482</td></tr>
+      <tr><td>2004</td><td class="t">BAL</td><td class="num">78-84</td>        <td class="num">+12</td>
+        <td></td>
+        <td class="num">1508</td></tr>
+      <tr><td>2003</td><td class="t">BAL</td><td class="num">71-91-1</td>        <td class="num">-77</td>
+        <td></td>
+        <td class="num">1468</td></tr>
+      <tr><td>2002</td><td class="t">BAL</td><td class="num">67-95</td>        <td class="num">-106</td>
+        <td></td>
+        <td class="num">1444</td></tr>
+      <tr><td>2001</td><td class="t">BAL</td><td class="num">63-98-1</td>        <td class="num">-142</td>
+        <td></td>
+        <td class="num">1452</td></tr>
+      <tr><td>2000</td><td class="t">BAL</td><td class="num">74-88</td>        <td class="num">-119</td>
+        <td></td>
+        <td class="num">1476</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+</main>
+<footer><div class="in">
+  Data: <a href="https://statsapi.mlb.com">MLB Stats API</a>, through 2026-10-24.
+  Ratings, predictions and odds are this site&rsquo;s own model, not the league&rsquo;s or a sportsbook&rsquo;s. Times are US Eastern.
+  Generated by Facetwork workflow <code>sports.publish.UpdateAll</code> &middot; <a href="https://github.com/rlemke/fwh_sports/blob/main/src/sports/ffl/sports_site.ffl">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_sports">source repo</a>
+</div></footer>
+</body>
+</html>
