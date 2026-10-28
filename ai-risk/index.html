@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Risk Clock</title>
+<meta name="description" content="The ways AI could harm humanity, and the measured indicators behind each one — compute, capability, autonomy, cyber skill, paid work, investment, reported incidents and expert surveys — with the pace of each, refreshed from open data.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#f1f3f6; --surface-3:#e4e8ee; --border:#dde2e8; --border-strong:#b9c1cc;
+  --text:#14181f; --text-2:#3c4552; --muted:#677283; --accent:#1f6fd1;
+  --s0:#9aa4b2; --s1:#2a78d6; --s2:#eb6834; --s3:#c22c2c; --s4:#7a4fc8; --s5:#1f9e89; --s6:#c99a06; --s7:#5b6573;
+  --good:#006300; --bad:#c22c2c; --warn:#a15c00;
+  --r-sm:5px; --r-md:8px; --r-lg:10px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --serif:Charter,"Iowan Old Style",Georgia,serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1217; --surface:#161a21; --surface-2:#1c212a; --surface-3:#2a313c; --border:#2a313b; --border-strong:#46505e;
+    --text:#e8ebf0; --text-2:#c2c8d2; --muted:#8c96a5; --accent:#5aa2f5;
+    --s0:#5d6776; --s1:#4b93ea; --s2:#f07a45; --s3:#ec5f5f; --s4:#a183e6; --s5:#3cc1aa; --s6:#e2b52c; --s7:#8d96a3;
+    --good:#3fbf3f; --bad:#ec5f5f; --warn:#e2a03a;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--sans)}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .in,main,footer .in{max-width:1120px;margin:0 auto;padding:0 16px}
+header.top .in{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;min-height:52px}
+header.top .brand{font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+header.top nav{display:flex;gap:.2rem;flex-wrap:wrap}
+header.top nav a{color:var(--text-2);text-decoration:none;padding:.35rem .6rem;border-radius:var(--r-sm);font-weight:500}
+header.top nav a:hover,header.top nav a.cur{background:var(--surface-2);color:var(--text)}
+header.top .asof{margin-left:auto;font-size:12px;color:var(--muted)}
+main{padding-top:1.2rem;padding-bottom:1.5rem}
+h1.page{font-size:26px;margin:0 0 .3rem;letter-spacing:-.02em;line-height:1.2}
+.lede{color:var(--text-2);max-width:760px;margin:0 0 1.2rem}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.75rem 1rem;border-bottom:1px solid var(--border)}
+.panel-head h2{margin:0;font-size:16px}
+.pad{padding:.85rem 1rem}
+.section{margin-bottom:1.2rem}
+.t{font-size:12px;color:var(--muted)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.dtable{width:100%;border-collapse:collapse;font-size:13.5px}
+.dtable th{font:600 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.dtable td{padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+.dtable tr:last-child td{border-bottom:0}
+.overflow-x{overflow-x:auto}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:1.2rem}
+.v{display:inline-block;font:600 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.04em;padding:.28rem .45rem;border-radius:var(--r-sm);white-space:nowrap}
+.v-accelerating{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.v-steady{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.v-slowing,.v-reversing{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.v-too{background:var(--surface-2);color:var(--muted)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:1.2rem;align-items:start}
+@media (max-width:760px){.hero{grid-template-columns:1fr}}
+.clockbox{text-align:center}
+.clockbox .big{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:.3rem}
+svg.clock{width:200px;height:200px}
+svg.clock .face{fill:var(--surface-2);stroke:var(--border-strong);stroke-width:2}
+svg.clock .zone{fill:color-mix(in srgb,var(--bad) 18%,transparent)}
+svg.clock .tick{stroke:var(--muted);stroke-width:1}
+svg.clock .tick.major{stroke:var(--text-2);stroke-width:2}
+svg.clock .hand{stroke:var(--bad);stroke-width:3.5;stroke-linecap:round}
+svg.clock .hand.hour{stroke:var(--text);stroke-width:5}
+svg.clock .hub{fill:var(--text)}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{fill:var(--muted);font:10.5px var(--mono)}
+svg.chart .grid{stroke:var(--border);stroke-width:1}
+svg.chart .axis{stroke:var(--border-strong);stroke-width:1}
+svg.chart .ref{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+svg.chart text.reft{fill:var(--text-2)}
+svg.chart .ln{fill:none;stroke-width:2}
+svg.chart .dot{stroke:none}
+svg.chart .s0.ln{stroke:var(--s0)} svg.chart .s0.dot,svg.chart .s0.bar{fill:var(--s0)}
+svg.chart .s1.ln{stroke:var(--s1)} svg.chart .s1.dot,svg.chart .s1.bar{fill:var(--s1)}
+svg.chart .s2.ln{stroke:var(--s2)} svg.chart .s2.dot,svg.chart .s2.bar{fill:var(--s2)}
+svg.chart .s3.ln{stroke:var(--s3)} svg.chart .s3.dot,svg.chart .s3.bar{fill:var(--s3)}
+svg.chart .s4.ln{stroke:var(--s4)} svg.chart .s4.dot,svg.chart .s4.bar{fill:var(--s4)}
+svg.chart .s5.ln{stroke:var(--s5)} svg.chart .s5.dot,svg.chart .s5.bar{fill:var(--s5)}
+svg.chart .s6.ln{stroke:var(--s6)} svg.chart .s6.dot,svg.chart .s6.bar{fill:var(--s6)}
+svg.chart .s7.ln{stroke:var(--s7)} svg.chart .s7.dot,svg.chart .s7.bar{fill:var(--s7)}
+svg.chart .s0.dot{opacity:.55}
+svg.chart .bar.part{opacity:.55}
+svg.chart .fit{stroke:var(--s2);stroke-width:2.2}
+svg.chart .fit.prior{stroke:var(--s4);stroke-width:2.2}
+svg.chart .proj{stroke:var(--s2);stroke-width:1.6;stroke-dasharray:5 4;opacity:.8}
+svg.spark{width:110px;height:28px;display:block}
+svg.spark polyline{fill:none;stroke:var(--s1);stroke-width:1.6}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:12px;color:var(--text-2);padding:.2rem 1rem .8rem}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:.35rem;vertical-align:middle}
+.legend i.sq{height:10px;width:10px}
+.board td.val{font-weight:600}
+.board .q{color:var(--muted);font-size:12px}
+.paper{max-width:760px;margin:0 auto;font:17px/1.65 var(--serif)}
+.paper h2{font:700 22px/1.3 var(--sans);margin:2.2rem 0 .6rem;letter-spacing:-.01em}
+.paper h3{font:700 17px/1.3 var(--sans);margin:1.6rem 0 .4rem}
+.paper p{margin:.6rem 0}
+.paper .fig{margin:1.2rem -1rem;font-family:var(--sans)}
+@media (max-width:760px){.paper .fig{margin:1.2rem 0}}
+.paper .fig .cap{font-size:13px;color:var(--muted);padding:.5rem 1rem .8rem;line-height:1.45}
+.paper .callout{font:14px/1.55 var(--sans);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--s1);border-radius:var(--r-md);padding:.8rem 1rem;margin:1rem 0}
+.paper .reading{font:14px/1.55 var(--sans);background:var(--surface-2);border-radius:var(--r-md);padding:.7rem .9rem;margin:.8rem 0}
+.paper ol.refs{font:13.5px/1.5 var(--sans);padding-left:1.2rem}
+.paper ol.refs li{margin:.35rem 0}
+.paper .abstract{font:16px/1.6 var(--sans);color:var(--text-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.9rem 0;margin:1rem 0 1.4rem}
+.toc{font:14px/1.6 var(--sans);columns:2;column-gap:2rem}
+@media (max-width:600px){.toc{columns:1}}
+.note{font-size:13px;color:var(--text-2);line-height:1.55;padding:.8rem 1rem;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--r-md);margin-top:1rem}
+.note b{color:var(--text)}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:12px;padding:1rem 0 2rem}
+footer a{color:var(--muted)}
+.ind-head{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem 1rem;padding:.8rem 1rem;border-top:1px solid var(--border);font-size:13px}
+.kv .k{font:600 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="index.html">AI Risk Clock</a>
+  <nav>
+    <a href="index.html" class="cur">The clock</a>
+    <a href="paper.html">The paper</a>
+    <a href="data.html">The data</a>
+  </nav>
+  <span class="asof">Data through 30 September 2026</span>
+</div></header>
+<main>
+<section class="hero section">
+  <div>
+    <h1 class="page">How fast are the drivers of AI risk moving?</h1>
+    <p class="lede">
+      Nobody can measure the probability that AI destroys humanity. What can be measured is how quickly the things that would drive such a catastrophe are changing: how powerful AI systems are, how long they work without supervision, how good they are at hacking, how much paid work they can do, how much money is racing in, and how many harms are already being reported.
+      This board tracks 8 of those indicators from open data and asks of each one what you would ask of a clock: <b>is it moving faster or slower than it was?</b>
+    </p>
+    <div class="panel pad" style="font-size:14px">
+      <b>Right now:</b>
+      4 of 8 indicators are <span class="v v-accelerating">accelerating</span> (General capability (Epoch Capabilities Index), Offensive cyber skill (Cybench), Private investment in AI, Cost of a frontier training run),
+      2 are <span class="v v-slowing">slowing</span> (Training compute of frontier models, Expert science knowledge (GPQA Diamond)), and the rest are steady or too new to call.
+      AI researchers surveyed in 2023 put a median 5% chance on an outcome as bad as human extinction.
+      <a href="paper.html">Read the paper</a> for what each indicator means and what it cannot tell you.
+    </div>
+  </div>
+  <div class="panel pad clockbox">
+    <div class="t" style="text-transform:uppercase;letter-spacing:.06em;font-weight:600">Doomsday Clock 2026</div>
+    <svg viewBox="0 0 220 220" role="img" aria-label="Doomsday Clock: 85 seconds to midnight" class="clock"><circle class="face" cx="110.0" cy="110.0" r="102.0"/><path class="zone" d="M110.0,110.0 L8.0,110.0 A102.0,102.0 0 0 1 110.0,8.0 Z"/><line class="tick major" x1="110.0" y1="20.0" x2="110.0" y2="8.0"/><line class="tick" x1="120.1" y1="13.5" x2="120.7" y2="8.6"/><line class="tick" x1="130.2" y1="15.1" x2="131.2" y2="10.2"/><line class="tick" x1="140.0" y1="17.7" x2="141.5" y2="13.0"/><line class="tick" x1="149.5" y1="21.4" x2="151.5" y2="16.8"/><line class="tick major" x1="155.0" y1="32.1" x2="161.0" y2="21.7"/><line class="tick" x1="167.0" y1="31.5" x2="170.0" y2="27.5"/><line class="tick" x1="174.9" y1="37.9" x2="178.3" y2="34.2"/><line class="tick" x1="182.1" y1="45.1" x2="185.8" y2="41.7"/><line class="tick" x1="188.5" y1="53.0" x2="192.5" y2="50.0"/><line class="tick major" x1="187.9" y1="65.0" x2="198.3" y2="59.0"/><line class="tick" x1="198.6" y1="70.5" x2="203.2" y2="68.5"/><line class="tick" x1="202.3" y1="80.0" x2="207.0" y2="78.5"/><line class="tick" x1="204.9" y1="89.8" x2="209.8" y2="88.8"/><line class="tick" x1="206.5" y1="99.9" x2="211.4" y2="99.3"/><line class="tick major" x1="200.0" y1="110.0" x2="212.0" y2="110.0"/><line class="tick" x1="206.5" y1="120.1" x2="211.4" y2="120.7"/><line class="tick" x1="204.9" y1="130.2" x2="209.8" y2="131.2"/><line class="tick" x1="202.3" y1="140.0" x2="207.0" y2="141.5"/><line class="tick" x1="198.6" y1="149.5" x2="203.2" y2="151.5"/><line class="tick major" x1="187.9" y1="155.0" x2="198.3" y2="161.0"/><line class="tick" x1="188.5" y1="167.0" x2="192.5" y2="170.0"/><line class="tick" x1="182.1" y1="174.9" x2="185.8" y2="178.3"/><line class="tick" x1="174.9" y1="182.1" x2="178.3" y2="185.8"/><line class="tick" x1="167.0" y1="188.5" x2="170.0" y2="192.5"/><line class="tick major" x1="155.0" y1="187.9" x2="161.0" y2="198.3"/><line class="tick" x1="149.5" y1="198.6" x2="151.5" y2="203.2"/><line class="tick" x1="140.0" y1="202.3" x2="141.5" y2="207.0"/><line class="tick" x1="130.2" y1="204.9" x2="131.2" y2="209.8"/><line class="tick" x1="120.1" y1="206.5" x2="120.7" y2="211.4"/><line class="tick major" x1="110.0" y1="200.0" x2="110.0" y2="212.0"/><line class="tick" x1="99.9" y1="206.5" x2="99.3" y2="211.4"/><line class="tick" x1="89.8" y1="204.9" x2="88.8" y2="209.8"/><line class="tick" x1="80.0" y1="202.3" x2="78.5" y2="207.0"/><line class="tick" x1="70.5" y1="198.6" x2="68.5" y2="203.2"/><line class="tick major" x1="65.0" y1="187.9" x2="59.0" y2="198.3"/><line class="tick" x1="53.0" y1="188.5" x2="50.0" y2="192.5"/><line class="tick" x1="45.1" y1="182.1" x2="41.7" y2="185.8"/><line class="tick" x1="37.9" y1="174.9" x2="34.2" y2="178.3"/><line class="tick" x1="31.5" y1="167.0" x2="27.5" y2="170.0"/><line class="tick major" x1="32.1" y1="155.0" x2="21.7" y2="161.0"/><line class="tick" x1="21.4" y1="149.5" x2="16.8" y2="151.5"/><line class="tick" x1="17.7" y1="140.0" x2="13.0" y2="141.5"/><line class="tick" x1="15.1" y1="130.2" x2="10.2" y2="131.2"/><line class="tick" x1="13.5" y1="120.1" x2="8.6" y2="120.7"/><line class="tick major" x1="20.0" y1="110.0" x2="8.0" y2="110.0"/><line class="tick" x1="13.5" y1="99.9" x2="8.6" y2="99.3"/><line class="tick" x1="15.1" y1="89.8" x2="10.2" y2="88.8"/><line class="tick" x1="17.7" y1="80.0" x2="13.0" y2="78.5"/><line class="tick" x1="21.4" y1="70.5" x2="16.8" y2="68.5"/><line class="tick major" x1="32.1" y1="65.0" x2="21.7" y2="59.0"/><line class="tick" x1="31.5" y1="53.0" x2="27.5" y2="50.0"/><line class="tick" x1="37.9" y1="45.1" x2="34.2" y2="41.7"/><line class="tick" x1="45.1" y1="37.9" x2="41.7" y2="34.2"/><line class="tick" x1="53.0" y1="31.5" x2="50.0" y2="27.5"/><line class="tick major" x1="65.0" y1="32.1" x2="59.0" y2="21.7"/><line class="tick" x1="70.5" y1="21.4" x2="68.5" y2="16.8"/><line class="tick" x1="80.0" y1="17.7" x2="78.5" y2="13.0"/><line class="tick" x1="89.8" y1="15.1" x2="88.8" y2="10.2"/><line class="tick" x1="99.9" y1="13.5" x2="99.3" y2="8.6"/><line class="hand" x1="110.0" y1="110.0" x2="97.3" y2="24.9"/><line class="hand hour" x1="110.0" y1="110.0" x2="109.3" y2="53.9"/><circle class="hub" cx="110.0" cy="110.0" r="4"/></svg>
+    <div class="big">85 seconds</div>
+    <div class="t">to midnight — the closest it has ever been. Set by the Bulletin of the Atomic Scientists, whose reasons now include advancing technologies such as AI. <a href="data.html#clock">History</a></div>
+  </div>
+</section>
+
+<section class="panel section">
+  <div class="panel-head"><h2>The pace board</h2><span class="t">Pace now vs the window before it. Accelerating = at least 25% faster; slowing = at least 20% slower.</span></div>
+  <div class="overflow-x">
+  <table class="dtable board">
+    <thead><tr><th>Indicator</th><th>Risk pathway</th><th class="num">Latest best</th><th>Pace now</th><th>Pace before</th><th>Trend</th><th></th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a href="data.html#compute">Training compute of frontier models</a><div class="q">How much computation goes into training the largest AI models?</div></td>
+        <td class="t">Raw capability</td>
+        <td class="num val">9.4×10²⁶ FLOP<div class="t">Sep 2026</div></td>
+        <td>doubling every 5.3 months, 4.9× a year<div class="t">last 3 yrs</div></td>
+        <td class="t">doubling every 3.8 months, 9.0× a year</td>
+        <td><span class="v v-slowing">slowing</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 3.4,22.3 15.6,21.6 22.2,21.4 38.5,14.6 55.2,11.7 82.7,5.3 83.3,5.0 91.6,4.1 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#eci">General capability (Epoch Capabilities Index)</a><div class="q">How capable is the best AI model across dozens of benchmarks?</div></td>
+        <td class="t">Raw capability</td>
+        <td class="num val">169<div class="t">Sep 2026</div></td>
+        <td>+15.7 ECI points a year<div class="t">last 2 yrs</div></td>
+        <td class="t">+10.5 ECI points a year</td>
+        <td><span class="v v-accelerating">accelerating</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 3.6,21.0 31.8,20.7 34.9,20.5 38.4,20.4 41.4,19.6 44.8,19.2 52.2,16.6 60.8,14.0 70.0,13.0 71.4,11.8 76.3,11.5 81.5,10.3 86.9,10.1 90.6,9.0 92.7,7.5 97.6,7.2 100.1,6.1 104.5,4.6 108.7,4.4 112.7,4.2 116.1,3.0 116.3,2.0 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#metr">Autonomy: length of task an AI agent can finish</a><div class="q">How long a task (measured in skilled-human time) can an AI agent complete on its own, half the time?</div></td>
+        <td class="t">Loss of control</td>
+        <td class="num val">17 h<div class="t">Apr 2026</div></td>
+        <td>doubling every 3.4 months, 11× a year<div class="t">last 2 yrs</div></td>
+        <td class="t">—</td>
+        <td><span class="v v-too">too little data</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 34.9,28.0 42.6,27.0 46.1,25.4 50.1,24.3 58.7,21.4 62.9,21.4 68.7,18.2 75.8,16.1 81.1,12.7 92.8,10.1 103.5,9.6 104.1,8.3 105.9,7.4 111.7,3.8 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#cybench">Offensive cyber skill (Cybench)</a><div class="q">What share of professional capture-the-flag hacking challenges can an AI solve with no hints?</div></td>
+        <td class="t">Misuse: cyberattacks</td>
+        <td class="num val">93%<div class="t">Feb 2026</div></td>
+        <td>+82.9 points a year<div class="t">last 1 yr</div></td>
+        <td class="t">+14.7 points a year</td>
+        <td><span class="v v-accelerating">accelerating</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 4.2,27.2 22.2,25.0 58.4,23.4 76.3,18.7 84.0,17.2 97.2,12.0 106.2,5.3 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#gpqa">Expert science knowledge (GPQA Diamond)</a><div class="q">How well does AI answer graduate-level biology, chemistry and physics questions written to defeat web search?</div></td>
+        <td class="t">Misuse: biological and chemical weapons</td>
+        <td class="num val">96%<div class="t">Sep 2026</div></td>
+        <td>+10.6 points a year<div class="t">last 2 yrs</div></td>
+        <td class="t">+16.3 points a year</td>
+        <td><span class="v v-slowing">slowing</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 23.2,25.2 33.5,23.1 40.1,22.4 43.5,20.2 51.0,16.6 59.6,10.4 63.6,10.3 65.8,9.7 68.4,7.4 74.8,7.0 75.9,6.8 77.9,6.0 89.2,5.8 89.7,3.6 98.0,2.8 99.3,2.8 113.7,2.7 115.5,2.4 115.6,2.3 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#rli">Paid work an AI can do (Remote Labor Index)</a><div class="q">What share of real freelance projects does an AI agent deliver at a quality a client would accept?</div></td>
+        <td class="t">Economic disempowerment</td>
+        <td class="num val">21%<div class="t">Sep 2026</div></td>
+        <td>doubling every 3.5 months, 11× a year<div class="t">last 1 yr</div></td>
+        <td class="t">—</td>
+        <td><span class="v v-too">too little data</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 17.4,22.4 30.4,20.6 44.1,15.9 62.0,15.1 80.8,11.8 89.4,9.5 92.3,4.2 112.9,3.4 113.4,2.2 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#investment">Private investment in AI</a><div class="q">How much private money flows into AI companies each year?</div></td>
+        <td class="t">Race dynamics</td>
+        <td class="num val">$290 billion<div class="t">Jul 2025</div></td>
+        <td>doubling every 15 months, 1.8× a year<div class="t">last 3 yrs</div></td>
+        <td class="t">doubling every 4.6 years, 1.2× a year</td>
+        <td><span class="v v-accelerating">accelerating</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#cost">Cost of a frontier training run</a><div class="q">How much does one frontier training run cost?</div></td>
+        <td class="t">Race dynamics</td>
+        <td class="num val">$388 million<div class="t">Jul 2025</div></td>
+        <td>doubling every 4.5 months, 6.4× a year<div class="t">last 3 yrs</div></td>
+        <td class="t">doubling every 10 months, 2.2× a year</td>
+        <td><span class="v v-accelerating">accelerating</span></td>
+        <td><svg viewBox="0 0 120 30" class="spark" aria-hidden="true"><polyline points="2.0,28.0 37.0,15.9 84.4,13.8 104.4,5.4 105.4,2.3 118.0,2.0"/></svg></td>
+      </tr>
+      <tr>
+        <td><a href="data.html#incidents">Reported AI incidents</a><div class="q">How many harms from AI are being reported, and of what kind?</div></td>
+        <td class="t">Harms already happening</td>
+        <td class="num val">463<div class="t">in 2025</div></td>
+        <td>+62% a year<div class="t">2022–2025</div></td>
+        <td class="t">288 so far in 2026 vs 373 by this date last year (reports lag)</td>
+        <td><span class="v v-too">see note</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="grid2 section">
+<section class="panel">
+  <div class="panel-head"><h2>When the trend lines cross the next milestones</h2></div>
+  <div class="pad t" style="padding-bottom:0">The recent pace, continued. Trends bend — power, chips, data and money all limit them — so read these as "where the current speed points", never as predictions.</div>
+  <table class="dtable">
+    <thead><tr><th>Indicator</th><th>Milestone</th><th class="num">Trend line reaches it</th></tr></thead>
+    <tbody>
+      <tr><td>Training compute of frontier models</td><td>10²⁷ FLOP</td>
+        <td class="num">Dec 2026</td></tr>
+      <tr><td></td><td>10²⁸ FLOP</td>
+        <td class="num">May 2028</td></tr>
+      <tr><td></td><td>10²⁹ FLOP</td>
+        <td class="num">Nov 2029</td></tr>
+      <tr><td>Autonomy: length of task an AI agent can finish</td><td>a work week (40 h)</td>
+        <td class="num">Sep 2026<div class="t">passed on the line; not yet measured</div></td></tr>
+      <tr><td></td><td>a work month (167 h)</td>
+        <td class="num">Apr 2027</td></tr>
+      <tr><td></td><td>a work year (2,000 h)</td>
+        <td class="num">Apr 2028</td></tr>
+      <tr><td>Cost of a frontier training run</td><td>$1 billion</td>
+        <td class="num">Apr 2026<div class="t">passed on the line; not yet measured</div></td></tr>
+      <tr><td></td><td>$10 billion</td>
+        <td class="num">Jul 2027</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="panel">
+  <div class="panel-head"><h2>Harms already being reported</h2><span class="t">AI Incident Database, by MIT risk domain</span></div>
+  <svg viewBox="0 0 720 300" role="img" aria-label="Reported AI incidents per year by risk domain" class="chart"><line class="grid" x1="64" x2="704" y1="270.0" y2="270.0"/><text x="58" y="273.5" text-anchor="end">0</text><line class="grid" x1="64" x2="704" y1="218.8" y2="218.8"/><text x="58" y="222.3" text-anchor="end">100</text><line class="grid" x1="64" x2="704" y1="167.6" y2="167.6"/><text x="58" y="171.1" text-anchor="end">200</text><line class="grid" x1="64" x2="704" y1="116.4" y2="116.4"/><text x="58" y="119.9" text-anchor="end">300</text><line class="grid" x1="64" x2="704" y1="65.2" y2="65.2"/><text x="58" y="68.7" text-anchor="end">400</text><line class="grid" x1="64" x2="704" y1="14.0" y2="14.0"/><text x="58" y="17.5" text-anchor="end">500</text><rect class="s1 bar" x="69.9" y="268.5" width="37.4" height="1.5"><title>2014: Discrimination &amp; toxicity 3</title></rect><rect class="s2 bar" x="69.9" y="268.0" width="37.4" height="0.5"><title>2014: Privacy &amp; security 1</title></rect><rect class="s4 bar" x="69.9" y="267.4" width="37.4" height="0.5"><title>2014: Malicious use 1</title></rect><rect class="s6 bar" x="69.9" y="266.9" width="37.4" height="0.5"><title>2014: Socioeconomic &amp; environmental 1</title></rect><rect class="s7 bar" x="69.9" y="263.3" width="37.4" height="3.6"><title>2014: AI system safety &amp; failures 7</title></rect><text x="88.6" y="286" text-anchor="middle">’14</text><rect class="s1 bar" x="119.1" y="266.4" width="37.4" height="3.6"><title>2015: Discrimination &amp; toxicity 7</title></rect><rect class="s2 bar" x="119.1" y="264.9" width="37.4" height="1.5"><title>2015: Privacy &amp; security 3</title></rect><rect class="s4 bar" x="119.1" y="263.9" width="37.4" height="1.0"><title>2015: Malicious use 2</title></rect><rect class="s5 bar" x="119.1" y="263.3" width="37.4" height="0.5"><title>2015: Human–computer interaction 1</title></rect><rect class="s6 bar" x="119.1" y="262.8" width="37.4" height="0.5"><title>2015: Socioeconomic &amp; environmental 1</title></rect><rect class="s7 bar" x="119.1" y="257.7" width="37.4" height="5.1"><title>2015: AI system safety &amp; failures 10</title></rect><text x="137.8" y="286" text-anchor="middle">’15</text><rect class="s1 bar" x="168.4" y="261.8" width="37.4" height="8.2"><title>2016: Discrimination &amp; toxicity 16</title></rect><rect class="s2 bar" x="168.4" y="261.3" width="37.4" height="0.5"><title>2016: Privacy &amp; security 1</title></rect><rect class="s3 bar" x="168.4" y="260.8" width="37.4" height="0.5"><title>2016: Misinformation 1</title></rect><rect class="s4 bar" x="168.4" y="259.2" width="37.4" height="1.5"><title>2016: Malicious use 3</title></rect><rect class="s6 bar" x="168.4" y="258.2" width="37.4" height="1.0"><title>2016: Socioeconomic &amp; environmental 2</title></rect><rect class="s7 bar" x="168.4" y="249.0" width="37.4" height="9.2"><title>2016: AI system safety &amp; failures 18</title></rect><text x="187.1" y="286" text-anchor="middle">’16</text><rect class="s1 bar" x="217.6" y="261.8" width="37.4" height="8.2"><title>2017: Discrimination &amp; toxicity 16</title></rect><rect class="s2 bar" x="217.6" y="257.2" width="37.4" height="4.6"><title>2017: Privacy &amp; security 9</title></rect><rect class="s3 bar" x="217.6" y="256.2" width="37.4" height="1.0"><title>2017: Misinformation 2</title></rect><rect class="s4 bar" x="217.6" y="254.1" width="37.4" height="2.0"><title>2017: Malicious use 4</title></rect><rect class="s6 bar" x="217.6" y="253.6" width="37.4" height="0.5"><title>2017: Socioeconomic &amp; environmental 1</title></rect><rect class="s7 bar" x="217.6" y="243.9" width="37.4" height="9.7"><title>2017: AI system safety &amp; failures 19</title></rect><rect class="s0 bar" x="217.6" y="243.4" width="37.4" height="0.5"><title>2017: Not yet classified 1</title></rect><text x="236.3" y="286" text-anchor="middle">’17</text><rect class="s1 bar" x="266.8" y="262.8" width="37.4" height="7.2"><title>2018: Discrimination &amp; toxicity 14</title></rect><rect class="s2 bar" x="266.8" y="260.3" width="37.4" height="2.6"><title>2018: Privacy &amp; security 5</title></rect><rect class="s4 bar" x="266.8" y="259.8" width="37.4" height="0.5"><title>2018: Malicious use 1</title></rect><rect class="s5 bar" x="266.8" y="259.2" width="37.4" height="0.5"><title>2018: Human–computer interaction 1</title></rect><rect class="s6 bar" x="266.8" y="258.2" width="37.4" height="1.0"><title>2018: Socioeconomic &amp; environmental 2</title></rect><rect class="s7 bar" x="266.8" y="247.0" width="37.4" height="11.3"><title>2018: AI system safety &amp; failures 22</title></rect><rect class="s0 bar" x="266.8" y="246.4" width="37.4" height="0.5"><title>2018: Not yet classified 1</title></rect><text x="285.5" y="286" text-anchor="middle">’18</text><rect class="s1 bar" x="316.1" y="261.8" width="37.4" height="8.2"><title>2019: Discrimination &amp; toxicity 16</title></rect><rect class="s2 bar" x="316.1" y="258.7" width="37.4" height="3.1"><title>2019: Privacy &amp; security 6</title></rect><rect class="s3 bar" x="316.1" y="257.7" width="37.4" height="1.0"><title>2019: Misinformation 2</title></rect><rect class="s4 bar" x="316.1" y="255.2" width="37.4" height="2.6"><title>2019: Malicious use 5</title></rect><rect class="s5 bar" x="316.1" y="254.6" width="37.4" height="0.5"><title>2019: Human–computer interaction 1</title></rect><rect class="s7 bar" x="316.1" y="247.5" width="37.4" height="7.2"><title>2019: AI system safety &amp; failures 14</title></rect><rect class="s0 bar" x="316.1" y="247.0" width="37.4" height="0.5"><title>2019: Not yet classified 1</title></rect><text x="334.8" y="286" text-anchor="middle">’19</text><rect class="s1 bar" x="365.3" y="253.6" width="37.4" height="16.4"><title>2020: Discrimination &amp; toxicity 32</title></rect><rect class="s2 bar" x="365.3" y="251.1" width="37.4" height="2.6"><title>2020: Privacy &amp; security 5</title></rect><rect class="s3 bar" x="365.3" y="248.5" width="37.4" height="2.6"><title>2020: Misinformation 5</title></rect><rect class="s4 bar" x="365.3" y="240.3" width="37.4" height="8.2"><title>2020: Malicious use 16</title></rect><rect class="s6 bar" x="365.3" y="239.8" width="37.4" height="0.5"><title>2020: Socioeconomic &amp; environmental 1</title></rect><rect class="s7 bar" x="365.3" y="223.9" width="37.4" height="15.9"><title>2020: AI system safety &amp; failures 31</title></rect><rect class="s0 bar" x="365.3" y="223.4" width="37.4" height="0.5"><title>2020: Not yet classified 1</title></rect><text x="384.0" y="286" text-anchor="middle">’20</text><rect class="s1 bar" x="414.5" y="260.8" width="37.4" height="9.2"><title>2021: Discrimination &amp; toxicity 18</title></rect><rect class="s2 bar" x="414.5" y="258.2" width="37.4" height="2.6"><title>2021: Privacy &amp; security 5</title></rect><rect class="s3 bar" x="414.5" y="256.2" width="37.4" height="2.0"><title>2021: Misinformation 4</title></rect><rect class="s4 bar" x="414.5" y="252.6" width="37.4" height="3.6"><title>2021: Malicious use 7</title></rect><rect class="s5 bar" x="414.5" y="249.5" width="37.4" height="3.1"><title>2021: Human–computer interaction 6</title></rect><rect class="s6 bar" x="414.5" y="248.5" width="37.4" height="1.0"><title>2021: Socioeconomic &amp; environmental 2</title></rect><rect class="s7 bar" x="414.5" y="229.6" width="37.4" height="18.9"><title>2021: AI system safety &amp; failures 37</title></rect><rect class="s0 bar" x="414.5" y="229.0" width="37.4" height="0.5"><title>2021: Not yet classified 1</title></rect><text x="433.2" y="286" text-anchor="middle">’21</text><rect class="s1 bar" x="463.8" y="257.2" width="37.4" height="12.8"><title>2022: Discrimination &amp; toxicity 25</title></rect><rect class="s2 bar" x="463.8" y="252.1" width="37.4" height="5.1"><title>2022: Privacy &amp; security 10</title></rect><rect class="s3 bar" x="463.8" y="246.4" width="37.4" height="5.6"><title>2022: Misinformation 11</title></rect><rect class="s4 bar" x="463.8" y="236.2" width="37.4" height="10.2"><title>2022: Malicious use 20</title></rect><rect class="s5 bar" x="463.8" y="233.6" width="37.4" height="2.6"><title>2022: Human–computer interaction 5</title></rect><rect class="s6 bar" x="463.8" y="232.6" width="37.4" height="1.0"><title>2022: Socioeconomic &amp; environmental 2</title></rect><rect class="s7 bar" x="463.8" y="216.2" width="37.4" height="16.4"><title>2022: AI system safety &amp; failures 32</title></rect><rect class="s0 bar" x="463.8" y="214.2" width="37.4" height="2.0"><title>2022: Not yet classified 4</title></rect><text x="482.5" y="286" text-anchor="middle">’22</text><rect class="s1 bar" x="513.0" y="257.7" width="37.4" height="12.3"><title>2023: Discrimination &amp; toxicity 24</title></rect><rect class="s2 bar" x="513.0" y="251.6" width="37.4" height="6.1"><title>2023: Privacy &amp; security 12</title></rect><rect class="s3 bar" x="513.0" y="233.6" width="37.4" height="17.9"><title>2023: Misinformation 35</title></rect><rect class="s4 bar" x="513.0" y="200.4" width="37.4" height="33.3"><title>2023: Malicious use 65</title></rect><rect class="s5 bar" x="513.0" y="197.8" width="37.4" height="2.6"><title>2023: Human–computer interaction 5</title></rect><rect class="s6 bar" x="513.0" y="197.3" width="37.4" height="0.5"><title>2023: Socioeconomic &amp; environmental 1</title></rect><rect class="s7 bar" x="513.0" y="183.5" width="37.4" height="13.8"><title>2023: AI system safety &amp; failures 27</title></rect><rect class="s0 bar" x="513.0" y="178.4" width="37.4" height="5.1"><title>2023: Not yet classified 10</title></rect><text x="531.7" y="286" text-anchor="middle">’23</text><rect class="s1 bar" x="562.2" y="254.6" width="37.4" height="15.4"><title>2024: Discrimination &amp; toxicity 30</title></rect><rect class="s2 bar" x="562.2" y="245.9" width="37.4" height="8.7"><title>2024: Privacy &amp; security 17</title></rect><rect class="s3 bar" x="562.2" y="219.8" width="37.4" height="26.1"><title>2024: Misinformation 51</title></rect><rect class="s4 bar" x="562.2" y="140.5" width="37.4" height="79.4"><title>2024: Malicious use 155</title></rect><rect class="s5 bar" x="562.2" y="138.4" width="37.4" height="2.0"><title>2024: Human–computer interaction 4</title></rect><rect class="s6 bar" x="562.2" y="136.9" width="37.4" height="1.5"><title>2024: Socioeconomic &amp; environmental 3</title></rect><rect class="s7 bar" x="562.2" y="120.0" width="37.4" height="16.9"><title>2024: AI system safety &amp; failures 33</title></rect><rect class="s0 bar" x="562.2" y="110.3" width="37.4" height="9.7"><title>2024: Not yet classified 19</title></rect><text x="580.9" y="286" text-anchor="middle">’24</text><rect class="s1 bar" x="611.4" y="257.2" width="37.4" height="12.8"><title>2025: Discrimination &amp; toxicity 25</title></rect><rect class="s2 bar" x="611.4" y="244.9" width="37.4" height="12.3"><title>2025: Privacy &amp; security 24</title></rect><rect class="s3 bar" x="611.4" y="211.1" width="37.4" height="33.8"><title>2025: Misinformation 66</title></rect><rect class="s4 bar" x="611.4" y="89.8" width="37.4" height="121.3"><title>2025: Malicious use 237</title></rect><rect class="s5 bar" x="611.4" y="80.6" width="37.4" height="9.2"><title>2025: Human–computer interaction 18</title></rect><rect class="s6 bar" x="611.4" y="79.0" width="37.4" height="1.5"><title>2025: Socioeconomic &amp; environmental 3</title></rect><rect class="s7 bar" x="611.4" y="60.1" width="37.4" height="18.9"><title>2025: AI system safety &amp; failures 37</title></rect><rect class="s0 bar" x="611.4" y="32.9" width="37.4" height="27.1"><title>2025: Not yet classified 53</title></rect><text x="630.2" y="286" text-anchor="middle">’25</text><rect class="s1 bar part" x="660.7" y="267.4" width="37.4" height="2.6"><title>2026: Discrimination &amp; toxicity 5</title></rect><rect class="s2 bar part" x="660.7" y="261.8" width="37.4" height="5.6"><title>2026: Privacy &amp; security 11</title></rect><rect class="s3 bar part" x="660.7" y="252.6" width="37.4" height="9.2"><title>2026: Misinformation 18</title></rect><rect class="s4 bar part" x="660.7" y="227.5" width="37.4" height="25.1"><title>2026: Malicious use 49</title></rect><rect class="s5 bar part" x="660.7" y="227.0" width="37.4" height="0.5"><title>2026: Human–computer interaction 1</title></rect><rect class="s6 bar part" x="660.7" y="225.5" width="37.4" height="1.5"><title>2026: Socioeconomic &amp; environmental 3</title></rect><rect class="s7 bar part" x="660.7" y="218.8" width="37.4" height="6.7"><title>2026: AI system safety &amp; failures 13</title></rect><rect class="s0 bar part" x="660.7" y="122.5" width="37.4" height="96.3"><title>2026: Not yet classified 188</title></rect><text x="679.4" y="286" text-anchor="middle">’26</text><line class="axis" x1="64" x2="704" y1="270" y2="270"/></svg>
+  <div class="legend"><span><i class="sq" style="background:var(--s1)"></i>Discrimination &amp; toxicity</span><span><i class="sq" style="background:var(--s2)"></i>Privacy &amp; security</span><span><i class="sq" style="background:var(--s3)"></i>Misinformation</span><span><i class="sq" style="background:var(--s4)"></i>Malicious use</span><span><i class="sq" style="background:var(--s5)"></i>Human–computer interaction</span><span><i class="sq" style="background:var(--s6)"></i>Socioeconomic &amp; environmental</span><span><i class="sq" style="background:var(--s7)"></i>AI system safety &amp; failures</span><span><i class="sq" style="background:var(--s0)"></i>not yet classified</span></div>
+  <div class="pad t" style="padding-top:0">2026 is partial (faded). Counts are reports, not a measured rate of harm: they rise with attention as well as with harm.</div>
+</section>
+</div>
+
+<section class="panel section">
+  <div class="panel-head"><h2>The six pathways</h2><span class="t">How AI could harm humanity, and which indicators bear on each</span></div>
+  <div class="grid2 pad">
+    <div><b>Raw capability</b><div class="t" style="margin:.15rem 0 .35rem">How powerful the systems are — the engine under every other pathway.</div>
+<div style="font-size:13px"><a href="data.html#compute">Training compute of frontier models</a> — 9.4×10²⁶ FLOP <span class="v v-slowing">slowing</span></div><div style="font-size:13px"><a href="data.html#eci">General capability (Epoch Capabilities Index)</a> — 169 <span class="v v-accelerating">accelerating</span></div>    </div>
+    <div><b>Loss of control</b><div class="t" style="margin:.15rem 0 .35rem">AI acting on its own for longer, with less human oversight.</div>
+<div style="font-size:13px"><a href="data.html#metr">Autonomy: length of task an AI agent can finish</a> — 17 h <span class="v v-too">too little data</span></div>    </div>
+    <div><b>Misuse: cyberattacks</b><div class="t" style="margin:.15rem 0 .35rem">AI used to find and exploit weaknesses in computer systems.</div>
+<div style="font-size:13px"><a href="data.html#cybench">Offensive cyber skill (Cybench)</a> — 93% <span class="v v-accelerating">accelerating</span></div>    </div>
+    <div><b>Misuse: biological and chemical weapons</b><div class="t" style="margin:.15rem 0 .35rem">AI lowering the expertise needed to cause mass casualties.</div>
+<div style="font-size:13px"><a href="data.html#gpqa">Expert science knowledge (GPQA Diamond)</a> — 96% <span class="v v-slowing">slowing</span></div>    </div>
+    <div><b>Economic disempowerment</b><div class="t" style="margin:.15rem 0 .35rem">Human work, and the leverage it gives people, being displaced.</div>
+<div style="font-size:13px"><a href="data.html#rli">Paid work an AI can do (Remote Labor Index)</a> — 21% <span class="v v-too">too little data</span></div>    </div>
+    <div><b>Race dynamics</b><div class="t" style="margin:.15rem 0 .35rem">Competitive pressure to build faster than safety can keep up.</div>
+<div style="font-size:13px"><a href="data.html#investment">Private investment in AI</a> — $290 billion <span class="v v-accelerating">accelerating</span></div><div style="font-size:13px"><a href="data.html#cost">Cost of a frontier training run</a> — $388 million <span class="v v-accelerating">accelerating</span></div>    </div>
+  </div>
+</section>
+
+<div class="note"><b>How to read this.</b> Every number is recomputed from the sources on each refresh. "Latest best" is the best model measured so far; "pace" is a straight-line fit (on a log scale for things that grow by multiplying) over the last window, compared with the window before. A board full of red does not mean doom is near, and a green one does not mean safety: it says how fast the inputs to the risk are moving. Safety research, regulation and safeguards are not on the board because no open dataset tracks them over time — <a href="paper.html#missing">the paper says what is missing</a>.</div>
+</main>
+<footer><div class="in">
+  Built from open data — Epoch AI, METR (via Epoch AI), Our World in Data / Stanford AI Index, the AI Incident Database with the MIT AI Risk Repository taxonomy, the Bulletin of the Atomic Scientists (via Wikipedia) and AI Impacts.
+  Recomputed on every refresh; the text of the paper is filled in from the same numbers. Nothing here is a forecast of doom: see <a href="paper.html#no-number">why there is no single number</a>.
+  Source: <a href="https://github.com/rlemke/fwh_airisk">fwh_airisk</a>.
+</div></footer>
+</body>
+</html>
