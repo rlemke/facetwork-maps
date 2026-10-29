@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method &amp; guides — The Low-Carb Kitchen</title>
+<meta name="description" content="151 low-carb recipes, 105 of them desserts, each dairy-free or with a dairy-free version; nutrition computed from USDA FoodData Central; every dish mapped to where its kind comes from.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="index.html#recipes" >Recipes</a>
+    <a href="index.html#origins">Origins map</a>
+    <a href="book.html" >The whole book</a>
+    <a href="about.html" class="on">Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<h1>Method &amp; guides</h1>
+<p class="lede">How the numbers are worked out, how to choose a sweetener, how the dairy-free versions work, and what this book cannot promise.</p>
+
+<h2>What has and has not been checked</h2>
+<p>The recipes follow established low-carb ratios: almond flour does not absorb like wheat flour, coconut flour absorbs about four times as much liquid, and eggs, psyllium, xanthan or gelatin supply the structure that gluten and sugar would. <strong>None has been made in a test kitchen.</strong> Expect to adjust baking times to your oven and the texture of the dairy-free versions to the brands you buy. What <em>has</em> been checked by the build itself: every ingredient is a known food with known nutrition, every amount converts to grams, every dairy ingredient has a dairy-free swap, and every dessert's carbs are computed rather than claimed.</p>
+
+<h2 id="nutrition">How the nutrition is computed</h2>
+<p>Each ingredient is matched to one food in the <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> <em>SR Legacy</em> release (public domain), read straight from USDA's download at build time. Cups and spoons are converted to grams with each ingredient's own weight: a cup of almond flour weighs about 96 g, a cup of cream cheese about 232 g. The recipe's total is divided by its servings.</p>
+<p><strong>Net carbs</strong> = total carbohydrate − fibre − sugar alcohols and allulose. That is the usual low-carb convention, not a regulatory one, so every recipe also shows the sugar-alcohol grams separately; if you count them, add them back. Low-carb sweeteners, coconut flour, psyllium and the dairy-free products are not in SR Legacy, so they use typical US label values, which vary by brand; each recipe lists which of its ingredients those are.</p>
+<p>The figures are computed, but they are not lab measurements. Expect differences of 10–20% from brand to brand, and more for fruit.</p>
+
+<h2 id="sweeteners">Choosing a sweetener</h2>
+<div class="scroll"><table>
+<thead><tr><th>Sweetener</th><th>Sweetness vs sugar</th><th>Good for</th><th>Watch out for</th></tr></thead>
+<tbody>
+<tr><td>Erythritol</td><td>about 70%</td><td>baking, cookies, cakes; the default in this book</td><td>a cooling aftertaste, and it recrystallises when cold (gritty cheesecake, crunchy ice cream). A 2023 observational study linked high blood erythritol to cardiovascular events; it does not show cause, but if that worries you use allulose.</td></tr>
+<tr><td>Allulose</td><td>about 70%</td><td>ice cream, caramel, sauces, anything that should stay soft</td><td>it browns faster than sugar, so bake 10–15 °C lower or tent with foil. Large amounts can upset digestion.</td></tr>
+<tr><td>Monk fruit blend (1:1)</td><td>about 100% (usually erythritol plus monk fruit extract)</td><td>swapping cup for cup with erythritol</td><td>it behaves like erythritol, because it mostly is.</td></tr>
+<tr><td>Liquid stevia</td><td>hundreds of times</td><td>drinks, puddings, topping up sweetness</td><td>bitter if overdone; it adds no bulk, so it cannot replace sugar in a cake on its own.</td></tr>
+<tr><td>Maltitol (avoid)</td><td>about 90%</td><td>—</td><td>it raises blood glucose far more than the others and is not used anywhere in this book.</td></tr>
+</tbody></table></div>
+<p>Powdered (confectioners') erythritol dissolves better in frostings and no-bake fillings; grind granulated erythritol in a blender if you have none.</p>
+
+<h2 id="dairy-free">How the dairy-free versions work</h2>
+<p>54 recipes contain no dairy at all. The other 97 list a swap for every dairy ingredient, and their dairy-free nutrition is computed from the swapped ingredients, not assumed to be the same. The swaps used across the book:</p>
+<div class="scroll"><table>
+<thead><tr><th>Instead of</th><th>Use</th><th class="num">Recipes</th></tr></thead>
+<tbody><tr><td>unsalted butter</td><td>dairy-free butter (stick, plant-based)</td><td class="num">50</td></tr><tr><td>heavy whipping cream</td><td>coconut cream (canned, unsweetened)</td><td class="num">41</td></tr><tr><td>unsalted butter</td><td>coconut oil</td><td class="num">18</td></tr><tr><td>full-fat cream cheese</td><td>dairy-free cream cheese (cashew or almond based)</td><td class="num">12</td></tr><tr><td>sour cream</td><td>unsweetened coconut yogurt</td><td class="num">8</td></tr><tr><td>whole milk</td><td>unsweetened almond milk</td><td class="num">5</td></tr><tr><td>heavy whipping cream</td><td>full-fat coconut milk (canned)</td><td class="num">3</td></tr><tr><td>whole milk</td><td>full-fat coconut milk (canned)</td><td class="num">3</td></tr><tr><td>plain whole-milk Greek yogurt</td><td>unsweetened coconut yogurt</td><td class="num">2</td></tr><tr><td>unsalted butter</td><td>olive oil</td><td class="num">1</td></tr><tr><td>mascarpone</td><td>dairy-free cream cheese (cashew or almond based)</td><td class="num">1</td></tr><tr><td>grated parmesan</td><td>almond flour (blanched, finely ground)</td><td class="num">1</td></tr><tr><td>whole-milk ricotta</td><td>dairy-free cream cheese (cashew or almond based)</td><td class="num">1</td></tr></tbody>
+</table></div>
+<p>Dairy-free is not the same as vegan: many recipes use eggs. Check chocolate labels, because some dark and sugar-free chocolate contains milk. Dairy-free cream cheeses are usually made from cashews or almonds, so the dairy-free version of a recipe can contain nuts when the original did not; each recipe lists what both versions contain.</p>
+
+<h2 id="origins">How dishes are placed on the map</h2>
+<p>Each recipe is pinned to where its <em>kind</em> of dish took shape — a city where one is documented, otherwise a region — with the period it dates from. Food history is full of competing claims: where a dish is disputed (pavlova, tiramisu, brownies, crème brûlée), the recipe page says so rather than picking a winner. Low-carb inventions such as fat bombs and cloud bread are placed where they first appeared and are marked as modern.</p>
+
+<h2 id="ingredients">Every ingredient and its source</h2>
+<p class="small">Per 100 g. “FDC” is the food's FoodData Central ID and its exact USDA name, searchable at <a href="https://fdc.nal.usda.gov/">fdc.nal.usda.gov</a>; “label” means typical US product-label values.</p>
+<div class="scroll"><table>
+<thead><tr><th>Ingredient</th><th>Source</th><th class="num">kcal</th><th class="num">Fat</th><th class="num">Protein</th><th class="num">Carbs</th><th class="num">Fibre</th><th class="num">Polyol</th><th class="num">Net</th><th class="num">Recipes</th></tr></thead>
+<tbody>
+<tr><td>Dutch-process cocoa powder</td>
+<td>FDC 169594<br><span class="small">Cocoa, dry powder, unsweetened, processed with alkali</span></td>
+<td class="num">220</td><td class="num">13.1</td><td class="num">18.1</td><td class="num">58.3</td><td class="num">29.8</td><td class="num">0.0</td><td class="num">28.5</td><td class="num">2</td></tr>
+<tr><td>agar powder</td>
+<td>FDC 170090<br><span class="small">Seaweed, agar, dried</span></td>
+<td class="num">306</td><td class="num">0.3</td><td class="num">6.2</td><td class="num">80.9</td><td class="num">7.7</td><td class="num">0.0</td><td class="num">73.2</td><td class="num">1</td></tr>
+<tr><td>allulose</td>
+<td>label</td>
+<td class="num">40</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">51</td></tr>
+<tr><td>almond butter, unsalted</td>
+<td>FDC 168588<br><span class="small">Nuts, almond butter, plain, without salt added</span></td>
+<td class="num">614</td><td class="num">55.5</td><td class="num">21.0</td><td class="num">18.8</td><td class="num">10.3</td><td class="num">0.0</td><td class="num">8.5</td><td class="num">3</td></tr>
+<tr><td>almond extract</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">9</td></tr>
+<tr><td>almond flour (blanched, finely ground)</td>
+<td>FDC 170568<br><span class="small">Nuts, almonds, blanched</span></td>
+<td class="num">590</td><td class="num">52.5</td><td class="num">21.4</td><td class="num">18.7</td><td class="num">9.9</td><td class="num">0.0</td><td class="num">8.8</td><td class="num">82</td></tr>
+<tr><td>almonds</td>
+<td>FDC 170567<br><span class="small">Nuts, almonds</span></td>
+<td class="num">579</td><td class="num">49.9</td><td class="num">21.1</td><td class="num">21.6</td><td class="num">12.5</td><td class="num">0.0</td><td class="num">9.1</td><td class="num">14</td></tr>
+<tr><td>anise seed</td>
+<td>FDC 171316<br><span class="small">Spices, anise seed</span></td>
+<td class="num">337</td><td class="num">15.9</td><td class="num">17.6</td><td class="num">50.0</td><td class="num">14.6</td><td class="num">0.0</td><td class="num">35.4</td><td class="num">2</td></tr>
+<tr><td>apple</td>
+<td>FDC 171688<br><span class="small">Apples, raw, with skin (Includes foods for USDA&#39;s Food Distribution Program)</span></td>
+<td class="num">52</td><td class="num">0.2</td><td class="num">0.3</td><td class="num">13.8</td><td class="num">2.4</td><td class="num">0.0</td><td class="num">11.4</td><td class="num">1</td></tr>
+<tr><td>baking powder</td>
+<td>FDC 172804<br><span class="small">Leavening agents, baking powder, double-acting, straight phosphate</span></td>
+<td class="num">51</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">24.1</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">23.9</td><td class="num">39</td></tr>
+<tr><td>baking soda</td>
+<td>FDC 175040<br><span class="small">Leavening agents, baking soda</span></td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">10</td></tr>
+<tr><td>blackberries</td>
+<td>FDC 173946<br><span class="small">Blackberries, raw</span></td>
+<td class="num">43</td><td class="num">0.5</td><td class="num">1.4</td><td class="num">9.6</td><td class="num">5.3</td><td class="num">0.0</td><td class="num">4.3</td><td class="num">3</td></tr>
+<tr><td>blueberries</td>
+<td>FDC 171711<br><span class="small">Blueberries, raw</span></td>
+<td class="num">57</td><td class="num">0.3</td><td class="num">0.7</td><td class="num">14.5</td><td class="num">2.4</td><td class="num">0.0</td><td class="num">12.1</td><td class="num">4</td></tr>
+<tr><td>cauliflower</td>
+<td>FDC 169986<br><span class="small">Cauliflower, raw</span></td>
+<td class="num">25</td><td class="num">0.3</td><td class="num">1.9</td><td class="num">5.0</td><td class="num">2.0</td><td class="num">0.0</td><td class="num">3.0</td><td class="num">1</td></tr>
+<tr><td>chia seeds</td>
+<td>FDC 170554<br><span class="small">Seeds, chia seeds, dried</span></td>
+<td class="num">486</td><td class="num">30.7</td><td class="num">16.5</td><td class="num">42.1</td><td class="num">34.4</td><td class="num">0.0</td><td class="num">7.7</td><td class="num">10</td></tr>
+<tr><td>cocoa butter</td>
+<td>FDC 171421<br><span class="small">Oil, cocoa butter</span></td>
+<td class="num">884</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1</td></tr>
+<tr><td>coconut cream (canned, unsweetened)</td>
+<td>label</td>
+<td class="num">330</td><td class="num">35.0</td><td class="num">3.3</td><td class="num">6.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">6.7</td><td class="num">41</td></tr>
+<tr><td>coconut flour</td>
+<td>label</td>
+<td class="num">400</td><td class="num">13.3</td><td class="num">20.0</td><td class="num">60.0</td><td class="num">33.3</td><td class="num">0.0</td><td class="num">26.7</td><td class="num">37</td></tr>
+<tr><td>coconut oil</td>
+<td>FDC 171412<br><span class="small">Oil, coconut</span></td>
+<td class="num">892</td><td class="num">99.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">26</td></tr>
+<tr><td>cream of tartar</td>
+<td>FDC 175041<br><span class="small">Leavening agents, cream of tartar</span></td>
+<td class="num">258</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">61.5</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">61.3</td><td class="num">10</td></tr>
+<tr><td>dairy-free butter (stick, plant-based)</td>
+<td>label</td>
+<td class="num">714</td><td class="num">79.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">50</td></tr>
+<tr><td>dairy-free cream cheese (cashew or almond based)</td>
+<td>label</td>
+<td class="num">290</td><td class="num">25.0</td><td class="num">5.0</td><td class="num">10.0</td><td class="num">1.0</td><td class="num">0.0</td><td class="num">9.0</td><td class="num">14</td></tr>
+<tr><td>dark chocolate, 85% cacao</td>
+<td>FDC 170273<br><span class="small">Chocolate, dark, 70-85% cacao solids</span></td>
+<td class="num">598</td><td class="num">42.6</td><td class="num">7.8</td><td class="num">45.9</td><td class="num">10.9</td><td class="num">0.0</td><td class="num">35.0</td><td class="num">6</td></tr>
+<tr><td>fine salt</td>
+<td>FDC 173468<br><span class="small">Salt, table</span></td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">148</td></tr>
+<tr><td>fresh basil leaves</td>
+<td>FDC 172232<br><span class="small">Basil, fresh</span></td>
+<td class="num">23</td><td class="num">0.6</td><td class="num">3.1</td><td class="num">2.6</td><td class="num">1.6</td><td class="num">0.0</td><td class="num">1.0</td><td class="num">2</td></tr>
+<tr><td>fresh lemon juice</td>
+<td>FDC 167747<br><span class="small">Lemon juice, raw</span></td>
+<td class="num">22</td><td class="num">0.2</td><td class="num">0.3</td><td class="num">6.9</td><td class="num">0.3</td><td class="num">0.0</td><td class="num">6.6</td><td class="num">36</td></tr>
+<tr><td>fresh lime juice</td>
+<td>FDC 168156<br><span class="small">Lime juice, raw</span></td>
+<td class="num">25</td><td class="num">0.1</td><td class="num">0.4</td><td class="num">8.4</td><td class="num">0.4</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">3</td></tr>
+<tr><td>fresh mint leaves</td>
+<td>FDC 173475<br><span class="small">Spearmint, fresh</span></td>
+<td class="num">44</td><td class="num">0.7</td><td class="num">3.3</td><td class="num">8.4</td><td class="num">6.8</td><td class="num">0.0</td><td class="num">1.6</td><td class="num">3</td></tr>
+<tr><td>fresh orange juice</td>
+<td>FDC 169098<br><span class="small">Orange juice, raw (Includes foods for USDA&#39;s Food Distribution Program)</span></td>
+<td class="num">45</td><td class="num">0.2</td><td class="num">0.7</td><td class="num">10.4</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">10.2</td><td class="num">1</td></tr>
+<tr><td>fresh rosemary, chopped</td>
+<td>FDC 173473<br><span class="small">Rosemary, fresh</span></td>
+<td class="num">131</td><td class="num">5.9</td><td class="num">3.3</td><td class="num">20.7</td><td class="num">14.1</td><td class="num">0.0</td><td class="num">6.6</td><td class="num">2</td></tr>
+<tr><td>fresh spinach</td>
+<td>FDC 168462<br><span class="small">Spinach, raw</span></td>
+<td class="num">23</td><td class="num">0.4</td><td class="num">2.9</td><td class="num">3.6</td><td class="num">2.2</td><td class="num">0.0</td><td class="num">1.4</td><td class="num">2</td></tr>
+<tr><td>full-fat coconut milk (canned)</td>
+<td>FDC 170173<br><span class="small">Nuts, coconut milk, canned (liquid expressed from grated meat and water)</span></td>
+<td class="num">197</td><td class="num">21.3</td><td class="num">2.0</td><td class="num">2.8</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2.8</td><td class="num">10</td></tr>
+<tr><td>full-fat cream cheese</td>
+<td>FDC 173418<br><span class="small">Cheese, cream</span></td>
+<td class="num">350</td><td class="num">34.4</td><td class="num">6.2</td><td class="num">5.5</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">5.5</td><td class="num">12</td></tr>
+<tr><td>garlic clove</td>
+<td>FDC 169230<br><span class="small">Garlic, raw</span></td>
+<td class="num">149</td><td class="num">0.5</td><td class="num">6.4</td><td class="num">33.1</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">31.0</td><td class="num">7</td></tr>
+<tr><td>golden flaxseed meal</td>
+<td>FDC 169414<br><span class="small">Seeds, flaxseed</span></td>
+<td class="num">534</td><td class="num">42.2</td><td class="num">18.3</td><td class="num">28.9</td><td class="num">27.3</td><td class="num">0.0</td><td class="num">1.6</td><td class="num">4</td></tr>
+<tr><td>granulated erythritol</td>
+<td>label</td>
+<td class="num">20</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">107</td></tr>
+<tr><td>grated parmesan</td>
+<td>FDC 171247<br><span class="small">Cheese, parmesan, grated</span></td>
+<td class="num">420</td><td class="num">27.8</td><td class="num">28.4</td><td class="num">13.9</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">13.9</td><td class="num">1</td></tr>
+<tr><td>ground allspice</td>
+<td>FDC 171315<br><span class="small">Spices, allspice, ground</span></td>
+<td class="num">263</td><td class="num">8.7</td><td class="num">6.1</td><td class="num">72.1</td><td class="num">21.6</td><td class="num">0.0</td><td class="num">50.5</td><td class="num">3</td></tr>
+<tr><td>ground black pepper</td>
+<td>FDC 170931<br><span class="small">Spices, pepper, black</span></td>
+<td class="num">251</td><td class="num">3.3</td><td class="num">10.4</td><td class="num">64.0</td><td class="num">25.3</td><td class="num">0.0</td><td class="num">38.7</td><td class="num">7</td></tr>
+<tr><td>ground cardamom</td>
+<td>FDC 170919<br><span class="small">Spices, cardamom</span></td>
+<td class="num">311</td><td class="num">6.7</td><td class="num">10.8</td><td class="num">68.5</td><td class="num">28.0</td><td class="num">0.0</td><td class="num">40.5</td><td class="num">7</td></tr>
+<tr><td>ground cinnamon</td>
+<td>FDC 171320<br><span class="small">Spices, cinnamon, ground</span></td>
+<td class="num">247</td><td class="num">1.2</td><td class="num">4.0</td><td class="num">80.6</td><td class="num">53.1</td><td class="num">0.0</td><td class="num">27.5</td><td class="num">33</td></tr>
+<tr><td>ground cloves</td>
+<td>FDC 171321<br><span class="small">Spices, cloves, ground</span></td>
+<td class="num">274</td><td class="num">13.0</td><td class="num">6.0</td><td class="num">65.5</td><td class="num">33.9</td><td class="num">0.0</td><td class="num">31.6</td><td class="num">7</td></tr>
+<tr><td>ground ginger</td>
+<td>FDC 170926<br><span class="small">Spices, ginger, ground</span></td>
+<td class="num">335</td><td class="num">4.2</td><td class="num">9.0</td><td class="num">71.6</td><td class="num">14.1</td><td class="num">0.0</td><td class="num">57.5</td><td class="num">8</td></tr>
+<tr><td>ground nutmeg</td>
+<td>FDC 171326<br><span class="small">Spices, nutmeg, ground</span></td>
+<td class="num">525</td><td class="num">36.3</td><td class="num">5.8</td><td class="num">49.3</td><td class="num">20.8</td><td class="num">0.0</td><td class="num">28.5</td><td class="num">9</td></tr>
+<tr><td>hazelnut flour (ground hazelnuts)</td>
+<td>FDC 170582<br><span class="small">Nuts, hazelnuts or filberts, blanched</span></td>
+<td class="num">629</td><td class="num">61.1</td><td class="num">13.7</td><td class="num">17.0</td><td class="num">11.0</td><td class="num">0.0</td><td class="num">6.0</td><td class="num">4</td></tr>
+<tr><td>hazelnuts</td>
+<td>FDC 170581<br><span class="small">Nuts, hazelnuts or filberts</span></td>
+<td class="num">628</td><td class="num">60.8</td><td class="num">14.9</td><td class="num">16.7</td><td class="num">9.7</td><td class="num">0.0</td><td class="num">7.0</td><td class="num">1</td></tr>
+<tr><td>heavy whipping cream</td>
+<td>FDC 170859<br><span class="small">Cream, fluid, heavy whipping</span></td>
+<td class="num">340</td><td class="num">36.1</td><td class="num">2.8</td><td class="num">2.8</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2.8</td><td class="num">44</td></tr>
+<tr><td>hemp hearts</td>
+<td>FDC 170148<br><span class="small">Seeds, hemp seed, hulled</span></td>
+<td class="num">553</td><td class="num">48.8</td><td class="num">31.6</td><td class="num">8.7</td><td class="num">4.0</td><td class="num">0.0</td><td class="num">4.7</td><td class="num">1</td></tr>
+<tr><td>instant espresso powder</td>
+<td>FDC 171893<br><span class="small">Beverages, coffee, instant, regular, powder</span></td>
+<td class="num">353</td><td class="num">0.5</td><td class="num">12.2</td><td class="num">75.4</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">75.4</td><td class="num">5</td></tr>
+<tr><td>large egg</td>
+<td>FDC 171287<br><span class="small">Egg, whole, raw, fresh</span></td>
+<td class="num">143</td><td class="num">9.5</td><td class="num">12.6</td><td class="num">0.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.7</td><td class="num">73</td></tr>
+<tr><td>large egg white</td>
+<td>FDC 172183<br><span class="small">Egg, white, raw, fresh</span></td>
+<td class="num">52</td><td class="num">0.2</td><td class="num">10.9</td><td class="num">0.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.7</td><td class="num">16</td></tr>
+<tr><td>large egg yolk</td>
+<td>FDC 172184<br><span class="small">Egg, yolk, raw, fresh</span></td>
+<td class="num">322</td><td class="num">26.5</td><td class="num">15.9</td><td class="num">3.6</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">3.6</td><td class="num">30</td></tr>
+<tr><td>lemon zest</td>
+<td>FDC 167749<br><span class="small">Lemon peel, raw</span></td>
+<td class="num">47</td><td class="num">0.3</td><td class="num">1.5</td><td class="num">16.0</td><td class="num">10.6</td><td class="num">0.0</td><td class="num">5.4</td><td class="num">24</td></tr>
+<tr><td>liquid stevia</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1</td></tr>
+<tr><td>mascarpone</td>
+<td>label</td>
+<td class="num">430</td><td class="num">43.0</td><td class="num">5.0</td><td class="num">4.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4.0</td><td class="num">1</td></tr>
+<tr><td>olive oil</td>
+<td>FDC 171413<br><span class="small">Oil, olive, salad or cooking</span></td>
+<td class="num">884</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">12</td></tr>
+<tr><td>onion</td>
+<td>FDC 170000<br><span class="small">Onions, raw</span></td>
+<td class="num">40</td><td class="num">0.1</td><td class="num">1.1</td><td class="num">9.3</td><td class="num">1.7</td><td class="num">0.0</td><td class="num">7.6</td><td class="num">2</td></tr>
+<tr><td>orange blossom water</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4</td></tr>
+<tr><td>orange zest</td>
+<td>FDC 169103<br><span class="small">Orange peel, raw</span></td>
+<td class="num">97</td><td class="num">0.2</td><td class="num">1.5</td><td class="num">25.0</td><td class="num">10.6</td><td class="num">0.0</td><td class="num">14.4</td><td class="num">8</td></tr>
+<tr><td>peach</td>
+<td>FDC 169928<br><span class="small">Peaches, yellow, raw</span></td>
+<td class="num">39</td><td class="num">0.2</td><td class="num">0.9</td><td class="num">9.5</td><td class="num">1.5</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">1</td></tr>
+<tr><td>peanut butter, smooth, unsweetened</td>
+<td>FDC 172470<br><span class="small">Peanut butter, smooth style, without salt</span></td>
+<td class="num">598</td><td class="num">51.4</td><td class="num">22.2</td><td class="num">22.3</td><td class="num">5.0</td><td class="num">0.0</td><td class="num">17.3</td><td class="num">3</td></tr>
+<tr><td>pecans</td>
+<td>FDC 170182<br><span class="small">Nuts, pecans</span></td>
+<td class="num">691</td><td class="num">72.0</td><td class="num">9.2</td><td class="num">13.9</td><td class="num">9.6</td><td class="num">0.0</td><td class="num">4.3</td><td class="num">10</td></tr>
+<tr><td>peppermint extract</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2</td></tr>
+<tr><td>pistachios, shelled</td>
+<td>FDC 170184<br><span class="small">Nuts, pistachio nuts, raw</span></td>
+<td class="num">560</td><td class="num">45.3</td><td class="num">20.2</td><td class="num">27.2</td><td class="num">10.6</td><td class="num">0.0</td><td class="num">16.6</td><td class="num">4</td></tr>
+<tr><td>plain whole-milk Greek yogurt</td>
+<td>FDC 171304<br><span class="small">Yogurt, Greek, plain, whole milk</span></td>
+<td class="num">97</td><td class="num">5.0</td><td class="num">9.0</td><td class="num">4.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4.0</td><td class="num">2</td></tr>
+<tr><td>poppy seeds</td>
+<td>FDC 171330<br><span class="small">Spices, poppy seed</span></td>
+<td class="num">525</td><td class="num">41.6</td><td class="num">18.0</td><td class="num">28.1</td><td class="num">19.5</td><td class="num">0.0</td><td class="num">8.6</td><td class="num">1</td></tr>
+<tr><td>powdered erythritol (confectioners&#39; style)</td>
+<td>label</td>
+<td class="num">20</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">68</td></tr>
+<tr><td>psyllium husk powder</td>
+<td>label</td>
+<td class="num">200</td><td class="num">0.5</td><td class="num">2.0</td><td class="num">88.0</td><td class="num">80.0</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">15</td></tr>
+<tr><td>pumpkin purée (canned, unsweetened)</td>
+<td>FDC 168450<br><span class="small">Pumpkin, canned, without salt</span></td>
+<td class="num">34</td><td class="num">0.3</td><td class="num">1.1</td><td class="num">8.1</td><td class="num">2.9</td><td class="num">0.0</td><td class="num">5.2</td><td class="num">2</td></tr>
+<tr><td>pumpkin seeds (pepitas)</td>
+<td>FDC 170556<br><span class="small">Seeds, pumpkin and squash seed kernels, dried</span></td>
+<td class="num">559</td><td class="num">49.0</td><td class="num">30.2</td><td class="num">10.7</td><td class="num">6.0</td><td class="num">0.0</td><td class="num">4.7</td><td class="num">2</td></tr>
+<tr><td>pure vanilla extract</td>
+<td>FDC 173471<br><span class="small">Vanilla extract</span></td>
+<td class="num">288</td><td class="num">0.1</td><td class="num">0.1</td><td class="num">12.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">12.7</td><td class="num">108</td></tr>
+<tr><td>raspberries</td>
+<td>FDC 167755<br><span class="small">Raspberries, raw</span></td>
+<td class="num">52</td><td class="num">0.7</td><td class="num">1.2</td><td class="num">11.9</td><td class="num">6.5</td><td class="num">0.0</td><td class="num">5.4</td><td class="num">14</td></tr>
+<tr><td>rhubarb</td>
+<td>FDC 167758<br><span class="small">Rhubarb, raw</span></td>
+<td class="num">21</td><td class="num">0.2</td><td class="num">0.9</td><td class="num">4.5</td><td class="num">1.8</td><td class="num">0.0</td><td class="num">2.7</td><td class="num">2</td></tr>
+<tr><td>rose water</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4</td></tr>
+<tr><td>rum extract</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4</td></tr>
+<tr><td>saffron threads</td>
+<td>FDC 170934<br><span class="small">Spices, saffron</span></td>
+<td class="num">310</td><td class="num">5.8</td><td class="num">11.4</td><td class="num">65.4</td><td class="num">3.9</td><td class="num">0.0</td><td class="num">61.5</td><td class="num">2</td></tr>
+<tr><td>sesame seeds</td>
+<td>FDC 170150<br><span class="small">Seeds, sesame seeds, whole, dried</span></td>
+<td class="num">573</td><td class="num">49.7</td><td class="num">17.7</td><td class="num">23.4</td><td class="num">11.8</td><td class="num">0.0</td><td class="num">11.6</td><td class="num">4</td></tr>
+<tr><td>slice of bacon</td>
+<td>FDC 168277<br><span class="small">Pork, cured, bacon, unprepared</span></td>
+<td class="num">393</td><td class="num">37.1</td><td class="num">13.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1</td></tr>
+<tr><td>sour cream</td>
+<td>FDC 171257<br><span class="small">Cream, sour, cultured</span></td>
+<td class="num">198</td><td class="num">19.4</td><td class="num">2.4</td><td class="num">4.6</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4.6</td><td class="num">8</td></tr>
+<tr><td>strawberries</td>
+<td>FDC 167762<br><span class="small">Strawberries, raw</span></td>
+<td class="num">32</td><td class="num">0.3</td><td class="num">0.7</td><td class="num">7.7</td><td class="num">2.0</td><td class="num">0.0</td><td class="num">5.7</td><td class="num">8</td></tr>
+<tr><td>strong brewed coffee or espresso</td>
+<td>FDC 171891<br><span class="small">Beverages, coffee, brewed, espresso, restaurant-prepared</span></td>
+<td class="num">9</td><td class="num">0.2</td><td class="num">0.1</td><td class="num">1.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1.7</td><td class="num">5</td></tr>
+<tr><td>sugar-free dark chocolate chips (stevia or erythritol sweetened)</td>
+<td>label</td>
+<td class="num">400</td><td class="num">33.0</td><td class="num">7.0</td><td class="num">60.0</td><td class="num">13.0</td><td class="num">37.0</td><td class="num">10.0</td><td class="num">9</td></tr>
+<tr><td>sunflower seeds, hulled</td>
+<td>FDC 170562<br><span class="small">Seeds, sunflower seed kernels, dried</span></td>
+<td class="num">584</td><td class="num">51.5</td><td class="num">20.8</td><td class="num">20.0</td><td class="num">8.6</td><td class="num">0.0</td><td class="num">11.4</td><td class="num">2</td></tr>
+<tr><td>sweet cherries, pitted</td>
+<td>FDC 171719<br><span class="small">Cherries, sweet, raw</span></td>
+<td class="num">63</td><td class="num">0.2</td><td class="num">1.1</td><td class="num">16.0</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">13.9</td><td class="num">2</td></tr>
+<tr><td>tahini</td>
+<td>FDC 169410<br><span class="small">Seeds, sesame butter, tahini, from raw and stone ground kernels</span></td>
+<td class="num">570</td><td class="num">48.0</td><td class="num">17.8</td><td class="num">26.2</td><td class="num">9.3</td><td class="num">0.0</td><td class="num">16.9</td><td class="num">1</td></tr>
+<tr><td>unflavored powdered gelatin</td>
+<td>FDC 169599<br><span class="small">Gelatins, dry powder, unsweetened</span></td>
+<td class="num">335</td><td class="num">0.1</td><td class="num">85.6</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">5</td></tr>
+<tr><td>unsalted butter</td>
+<td>FDC 173430<br><span class="small">Butter, without salt</span></td>
+<td class="num">717</td><td class="num">81.1</td><td class="num">0.8</td><td class="num">0.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">85</td></tr>
+<tr><td>unsweetened almond milk</td>
+<td>FDC 174832<br><span class="small">Beverages, almond milk, unsweetened, shelf stable</span></td>
+<td class="num">15</td><td class="num">1.0</td><td class="num">0.4</td><td class="num">1.3</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">1.1</td><td class="num">28</td></tr>
+<tr><td>unsweetened baking chocolate (100% cacao)</td>
+<td>label</td>
+<td class="num">570</td><td class="num">50.0</td><td class="num">13.0</td><td class="num">30.0</td><td class="num">17.0</td><td class="num">0.0</td><td class="num">13.0</td><td class="num">19</td></tr>
+<tr><td>unsweetened cocoa powder</td>
+<td>FDC 169593<br><span class="small">Cocoa, dry powder, unsweetened</span></td>
+<td class="num">228</td><td class="num">13.7</td><td class="num">19.6</td><td class="num">57.9</td><td class="num">37.0</td><td class="num">0.0</td><td class="num">20.9</td><td class="num">17</td></tr>
+<tr><td>unsweetened coconut yogurt</td>
+<td>label</td>
+<td class="num">150</td><td class="num">13.0</td><td class="num">1.0</td><td class="num">6.0</td><td class="num">2.0</td><td class="num">0.0</td><td class="num">4.0</td><td class="num">10</td></tr>
+<tr><td>unsweetened shredded coconut</td>
+<td>FDC 170170<br><span class="small">Nuts, coconut meat, dried (desiccated), not sweetened</span></td>
+<td class="num">660</td><td class="num">64.5</td><td class="num">6.9</td><td class="num">23.6</td><td class="num">16.3</td><td class="num">0.0</td><td class="num">7.3</td><td class="num">9</td></tr>
+<tr><td>walnuts</td>
+<td>FDC 170187<br><span class="small">Nuts, walnuts, english</span></td>
+<td class="num">654</td><td class="num">65.2</td><td class="num">15.2</td><td class="num">13.7</td><td class="num">6.7</td><td class="num">0.0</td><td class="num">7.0</td><td class="num">4</td></tr>
+<tr><td>water</td>
+<td>label</td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">34</td></tr>
+<tr><td>whole milk</td>
+<td>FDC 171265<br><span class="small">Milk, whole, 3.25% milkfat, with added vitamin D</span></td>
+<td class="num">61</td><td class="num">3.2</td><td class="num">3.1</td><td class="num">4.8</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4.8</td><td class="num">8</td></tr>
+<tr><td>whole-milk ricotta</td>
+<td>FDC 170851<br><span class="small">Cheese, ricotta, whole milk</span></td>
+<td class="num">150</td><td class="num">10.2</td><td class="num">7.5</td><td class="num">7.3</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">7.3</td><td class="num">1</td></tr>
+<tr><td>xanthan gum</td>
+<td>label</td>
+<td class="num">330</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">78.0</td><td class="num">78.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">13</td></tr>
+<tr><td>zucchini</td>
+<td>FDC 169291<br><span class="small">Squash, summer, zucchini, includes skin, raw</span></td>
+<td class="num">17</td><td class="num">0.3</td><td class="num">1.2</td><td class="num">3.1</td><td class="num">1.0</td><td class="num">0.0</td><td class="num">2.1</td><td class="num">2</td></tr>
+</tbody></table></div>
+
+<h2>Sources and licence</h2>
+<ul>
+<li>U.S. Department of Agriculture, Agricultural Research Service. <em>FoodData Central: SR Legacy</em>, April 2018. Public domain.</li>
+<li>Map tiles © OpenStreetMap contributors (ODbL). Map library: Leaflet.</li>
+<li>Recipes and histories written for this book. The book is built and published by <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>, a Facetwork domain.</li>
+</ul>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 151 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>

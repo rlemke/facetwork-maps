@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Low-Carb Kitchen</title>
+<meta name="description" content="151 low-carb recipes, 105 of them desserts, each dairy-free or with a dairy-free version; nutrition computed from USDA FoodData Central; every dish mapped to where its kind comes from.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+#map { height: 480px; border-radius: 8px; border: 1px solid var(--line); margin: 8px 0 4px; }
+@media (max-width: 600px) { #map { height: 360px; } }
+.filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 12px 0 18px; font-size: .9rem; }
+.filters input[type=search] { flex: 1 1 220px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font-size: .95rem; }
+.filters select { padding: 5px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; text-decoration: none; color: var(--ink); display: block; }
+.card:hover { border-color: var(--accent); }
+.card h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.card .meta { font-size: .8rem; color: var(--muted); }
+.card[hidden] { display: none; }
+.stats { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 12px 0 20px; font-family: system-ui, sans-serif; }
+.stats b { display: block; font-size: 1.6rem; color: var(--accent); }
+.regions button { font: inherit; font-size: .8rem; border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 2px 10px; margin: 2px 4px 2px 0; cursor: pointer; }
+.regions button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.leaflet-popup-content { font-family: system-ui, sans-serif; font-size: .85rem; }
+.leaflet-popup-content ul { padding-left: 16px; margin: 4px 0; }
+#count { color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="index.html#recipes" class="on">Recipes</a>
+    <a href="index.html#origins">Origins map</a>
+    <a href="book.html" >The whole book</a>
+    <a href="about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<h1>The Low-Carb Kitchen</h1>
+<p class="lede">Desserts first — and a dairy-free way to make every recipe.</p>
+<div class="stats">
+  <div><b>151</b>recipes</div>
+  <div><b>105</b>desserts</div>
+  <div><b>54</b>dairy-free as written</div>
+  <div><b>97</b>with a dairy-free version</div>
+  <div><b>2.8 g</b>median net carbs, desserts</div>
+  <div><b>89</b>places of origin</div>
+</div>
+<p class="note">Every recipe is built on established low-carb baking ratios, and its nutrition is <a href="about.html#nutrition">computed from USDA data</a>, not estimated. None of these recipes has been kitchen-tested, so treat them as a careful starting point, especially the dairy-free versions.</p>
+
+<h2 id="origins">Where these dishes come from</h2>
+<p>Every recipe is placed where its <em>kind</em> of dish took shape: cheesecake in New York, Sachertorte in Vienna, haupia in Hawaii. Click a marker to see its recipes, or pick a region to filter the map and the list below. Origins are often disputed, and each recipe page says so where they are.</p>
+<div class="regions sans" id="regions"><button class="on" data-r="">All regions</button><button data-r="North America">North America</button><button data-r="Latin America &amp; Caribbean">Latin America &amp; Caribbean</button><button data-r="Western Europe">Western Europe</button><button data-r="Southern Europe">Southern Europe</button><button data-r="Northern Europe">Northern Europe</button><button data-r="Central &amp; Eastern Europe">Central &amp; Eastern Europe</button><button data-r="Middle East &amp; North Africa">Middle East &amp; North Africa</button><button data-r="Sub-Saharan Africa">Sub-Saharan Africa</button><button data-r="South Asia">South Asia</button><button data-r="East Asia">East Asia</button><button data-r="Southeast Asia">Southeast Asia</button><button data-r="Oceania">Oceania</button></div>
+<div id="map" role="region" aria-label="Map of where each dish comes from"></div>
+<p class="small">89 places in 12 regions. Modern low-carb inventions are placed where they first appeared.</p>
+
+<h2 id="recipes">Recipes</h2>
+<div class="filters" id="filters">
+  <input type="search" id="q" placeholder="Search: chocolate, lemon, Vienna…" aria-label="Search recipes">
+  <label>Chapter <select id="cat"><option value="">All</option><option value="cakes">Cakes</option><option value="cheesecakes">Cheesecakes</option><option value="cookies">Cookies &amp; biscuits</option><option value="bars">Bars &amp; brownies</option><option value="pies">Pies &amp; tarts</option><option value="custards">Puddings &amp; custards</option><option value="mousses">Mousses &amp; creams</option><option value="frozen">Frozen desserts</option><option value="candy">Candy &amp; confections</option><option value="fat-bombs">Fat bombs</option><option value="fruit">Fruit desserts</option><option value="drinks">Drinks</option><option value="breakfast">Breakfast</option><option value="breads">Breads &amp; crackers</option><option value="basics">Basics, crusts &amp; sauces</option></select></label>
+  <label>Net carbs <select id="net"><option value="">Any</option><option value="3">≤ 3 g</option><option value="5">≤ 5 g</option><option value="8">≤ 8 g</option></select></label>
+  <label><input type="checkbox" id="df"> Dairy-free as written</label>
+  <label><input type="checkbox" id="nf"> Nut-free</label>
+  <label><input type="checkbox" id="ef"> Egg-free</label>
+  <label><input type="checkbox" id="cf"> Coconut-free</label>
+  <span id="count"></span>
+</div>
+<div class="grid" id="grid">
+  <a class="card" href="recipes/almond-basbousa.html" data-id="almond-basbousa">
+    <h3>Almond basbousa</h3>
+    <div class="meta">Cakes · Egypt</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.0 g net</span> 157 kcal</div>
+  </a>
+  <a class="card" href="recipes/black-forest-cake.html" data-id="black-forest-cake">
+    <h3>Black Forest cake</h3>
+    <div class="meta">Cakes · Black Forest</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.8 g net</span> 334 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-lava-cakes.html" data-id="chocolate-lava-cakes">
+    <h3>Chocolate lava cakes</h3>
+    <div class="meta">Cakes · New York City</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.3 g net</span> 384 kcal</div>
+  </a>
+  <a class="card" href="recipes/gingerbread-loaf.html" data-id="gingerbread-loaf">
+    <h3>Gingerbread loaf</h3>
+    <div class="meta">Cakes · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.3 g net</span> 242 kcal</div>
+  </a>
+  <a class="card" href="recipes/olive-oil-cake.html" data-id="olive-oil-cake">
+    <h3>Italian olive-oil cake</h3>
+    <div class="meta">Cakes · Italy</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.7 g net</span> 249 kcal</div>
+  </a>
+  <a class="card" href="recipes/lamingtons.html" data-id="lamingtons">
+    <h3>Lamingtons</h3>
+    <div class="meta">Cakes · Queensland</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.8 g net</span> 207 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-drizzle-cake.html" data-id="lemon-drizzle-cake">
+    <h3>Lemon drizzle cake</h3>
+    <div class="meta">Cakes · Britain</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.1 g net</span> 246 kcal</div>
+  </a>
+  <a class="card" href="recipes/torta-di-nocciole.html" data-id="torta-di-nocciole">
+    <h3>Piedmontese hazelnut cake (torta di nocciole)</h3>
+    <div class="meta">Cakes · Langhe, Piedmont</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.8 g net</span> 226 kcal</div>
+  </a>
+  <a class="card" href="recipes/pound-cake.html" data-id="pound-cake">
+    <h3>Pound cake</h3>
+    <div class="meta">Cakes · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.7 g net</span> 291 kcal</div>
+  </a>
+  <a class="card" href="recipes/sachertorte.html" data-id="sachertorte">
+    <h3>Sachertorte</h3>
+    <div class="meta">Cakes · Vienna</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.2 g net</span> 311 kcal</div>
+  </a>
+  <a class="card" href="recipes/tarta-de-santiago.html" data-id="tarta-de-santiago">
+    <h3>Tarta de Santiago</h3>
+    <div class="meta">Cakes · Santiago de Compostela</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.4 g net</span> 184 kcal</div>
+  </a>
+  <a class="card" href="recipes/torta-caprese.html" data-id="torta-caprese">
+    <h3>Torta caprese</h3>
+    <div class="meta">Cakes · Capri</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.4 g net</span> 289 kcal</div>
+  </a>
+  <a class="card" href="recipes/tres-leches-cake.html" data-id="tres-leches-cake">
+    <h3>Tres leches cake</h3>
+    <div class="meta">Cakes · Mexico</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">5.0 g net</span> 269 kcal</div>
+  </a>
+  <a class="card" href="recipes/victoria-sponge.html" data-id="victoria-sponge">
+    <h3>Victoria sponge</h3>
+    <div class="meta">Cakes · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.9 g net</span> 302 kcal</div>
+  </a>
+  <a class="card" href="recipes/basque-burnt-cheesecake.html" data-id="basque-burnt-cheesecake">
+    <h3>Basque burnt cheesecake</h3>
+    <div class="meta">Cheesecakes · San Sebastián</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.3 g net</span> 402 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-cheesecake.html" data-id="chocolate-cheesecake">
+    <h3>Chocolate cheesecake</h3>
+    <div class="meta">Cheesecakes · New York City</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.8 g net</span> 355 kcal</div>
+  </a>
+  <a class="card" href="recipes/kasekuchen.html" data-id="kasekuchen">
+    <h3>German Käsekuchen</h3>
+    <div class="meta">Cheesecakes · Germany</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.4 g net</span> 278 kcal</div>
+  </a>
+  <a class="card" href="recipes/italian-ricotta-cheesecake.html" data-id="italian-ricotta-cheesecake">
+    <h3>Italian ricotta cheesecake</h3>
+    <div class="meta">Cheesecakes · Rome</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">6.0 g net</span> 158 kcal</div>
+  </a>
+  <a class="card" href="recipes/japanese-cotton-cheesecake.html" data-id="japanese-cotton-cheesecake">
+    <h3>Japanese cotton cheesecake</h3>
+    <div class="meta">Cheesecakes · Japan</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.0 g net</span> 178 kcal</div>
+  </a>
+  <a class="card" href="recipes/new-york-cheesecake.html" data-id="new-york-cheesecake">
+    <h3>New York cheesecake</h3>
+    <div class="meta">Cheesecakes · New York City</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.9 g net</span> 424 kcal</div>
+  </a>
+  <a class="card" href="recipes/no-bake-lemon-cheesecake.html" data-id="no-bake-lemon-cheesecake">
+    <h3>No-bake lemon cheesecake</h3>
+    <div class="meta">Cheesecakes · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.8 g net</span> 358 kcal</div>
+  </a>
+  <a class="card" href="recipes/pumpkin-cheesecake.html" data-id="pumpkin-cheesecake">
+    <h3>Pumpkin cheesecake</h3>
+    <div class="meta">Cheesecakes · New England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.6 g net</span> 365 kcal</div>
+  </a>
+  <a class="card" href="recipes/cantucci.html" data-id="cantucci">
+    <h3>Almond biscotti (cantucci)</h3>
+    <div class="meta">Cookies &amp; biscuits · Prato</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.2 g net</span> 81 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-chip-cookies.html" data-id="chocolate-chip-cookies">
+    <h3>Chocolate chip cookies</h3>
+    <div class="meta">Cookies &amp; biscuits · Whitman, Massachusetts</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.6 g net</span> 142 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-macaroons.html" data-id="coconut-macaroons">
+    <h3>Coconut macaroons</h3>
+    <div class="meta">Cookies &amp; biscuits · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.9 g net</span> 103 kcal</div>
+  </a>
+  <a class="card" href="recipes/florentines.html" data-id="florentines">
+    <h3>Florentines</h3>
+    <div class="meta">Cookies &amp; biscuits · Florence</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.3 g net</span> 110 kcal</div>
+  </a>
+  <a class="card" href="recipes/gingersnaps.html" data-id="gingersnaps">
+    <h3>Gingersnaps</h3>
+    <div class="meta">Cookies &amp; biscuits · England</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.0 g net</span> 82 kcal</div>
+  </a>
+  <a class="card" href="recipes/kourabiedes.html" data-id="kourabiedes">
+    <h3>Kourabiedes</h3>
+    <div class="meta">Cookies &amp; biscuits · Greece</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.1 g net</span> 115 kcal</div>
+  </a>
+  <a class="card" href="recipes/linzer-cookies.html" data-id="linzer-cookies">
+    <h3>Linzer cookies</h3>
+    <div class="meta">Cookies &amp; biscuits · Linz</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.7 g net</span> 157 kcal</div>
+  </a>
+  <a class="card" href="recipes/maamoul-nut-cookies.html" data-id="maamoul-nut-cookies">
+    <h3>Ma&#39;amoul-style walnut and pistachio cookies</h3>
+    <div class="meta">Cookies &amp; biscuits · The Levant</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.0 g net</span> 148 kcal</div>
+  </a>
+  <a class="card" href="recipes/mexican-wedding-cookies.html" data-id="mexican-wedding-cookies">
+    <h3>Mexican wedding cookies (polvorones)</h3>
+    <div class="meta">Cookies &amp; biscuits · Mexico</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.7 g net</span> 94 kcal</div>
+  </a>
+  <a class="card" href="recipes/nuremberg-lebkuchen.html" data-id="nuremberg-lebkuchen">
+    <h3>Nuremberg-style Lebkuchen</h3>
+    <div class="meta">Cookies &amp; biscuits · Nuremberg</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.7 g net</span> 125 kcal</div>
+  </a>
+  <a class="card" href="recipes/peanut-butter-cookies.html" data-id="peanut-butter-cookies">
+    <h3>Peanut butter cookies</h3>
+    <div class="meta">Cookies &amp; biscuits · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.8 g net</span> 102 kcal</div>
+  </a>
+  <a class="card" href="recipes/scottish-shortbread.html" data-id="scottish-shortbread">
+    <h3>Scottish shortbread</h3>
+    <div class="meta">Cookies &amp; biscuits · Scotland</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.6 g net</span> 166 kcal</div>
+  </a>
+  <a class="card" href="recipes/snickerdoodles.html" data-id="snickerdoodles">
+    <h3>Snickerdoodles</h3>
+    <div class="meta">Cookies &amp; biscuits · New England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.4 g net</span> 131 kcal</div>
+  </a>
+  <a class="card" href="recipes/amaretti.html" data-id="amaretti">
+    <h3>Soft amaretti</h3>
+    <div class="meta">Cookies &amp; biscuits · Saronno</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">0.9 g net</span> 60 kcal</div>
+  </a>
+  <a class="card" href="recipes/speculoos.html" data-id="speculoos">
+    <h3>Speculoos</h3>
+    <div class="meta">Cookies &amp; biscuits · Belgium and the Netherlands</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.0 g net</span> 88 kcal</div>
+  </a>
+  <a class="card" href="recipes/vanillekipferl.html" data-id="vanillekipferl">
+    <h3>Vanillekipferl</h3>
+    <div class="meta">Cookies &amp; biscuits · Vienna</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.7 g net</span> 86 kcal</div>
+  </a>
+  <a class="card" href="recipes/blondies.html" data-id="blondies">
+    <h3>Blondies</h3>
+    <div class="meta">Bars &amp; brownies · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.5 g net</span> 148 kcal</div>
+  </a>
+  <a class="card" href="recipes/fudgy-brownies.html" data-id="fudgy-brownies">
+    <h3>Fudgy brownies</h3>
+    <div class="meta">Bars &amp; brownies · Chicago</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.7 g net</span> 130 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-bars.html" data-id="lemon-bars">
+    <h3>Lemon bars</h3>
+    <div class="meta">Bars &amp; brownies · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.6 g net</span> 109 kcal</div>
+  </a>
+  <a class="card" href="recipes/millionaires-shortbread.html" data-id="millionaires-shortbread">
+    <h3>Millionaire&#39;s shortbread</h3>
+    <div class="meta">Bars &amp; brownies · Scotland</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.3 g net</span> 168 kcal</div>
+  </a>
+  <a class="card" href="recipes/nanaimo-bars.html" data-id="nanaimo-bars">
+    <h3>Nanaimo bars</h3>
+    <div class="meta">Bars &amp; brownies · Nanaimo, British Columbia</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.1 g net</span> 174 kcal</div>
+  </a>
+  <a class="card" href="recipes/pecan-pie-bars.html" data-id="pecan-pie-bars">
+    <h3>Pecan pie bars</h3>
+    <div class="meta">Bars &amp; brownies · Southern United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.3 g net</span> 187 kcal</div>
+  </a>
+  <a class="card" href="recipes/raspberry-crumble-bars.html" data-id="raspberry-crumble-bars">
+    <h3>Raspberry crumble bars</h3>
+    <div class="meta">Bars &amp; brownies · United Kingdom</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.6 g net</span> 146 kcal</div>
+  </a>
+  <a class="card" href="recipes/magic-bars.html" data-id="magic-bars">
+    <h3>Seven-layer magic bars</h3>
+    <div class="meta">Bars &amp; brownies · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.0 g net</span> 180 kcal</div>
+  </a>
+  <a class="card" href="recipes/galette-des-rois.html" data-id="galette-des-rois">
+    <h3>Almond frangipane tart (galette des rois-style)</h3>
+    <div class="meta">Pies &amp; tarts · Paris</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.2 g net</span> 337 kcal</div>
+  </a>
+  <a class="card" href="recipes/bakewell-tart.html" data-id="bakewell-tart">
+    <h3>Bakewell tart</h3>
+    <div class="meta">Pies &amp; tarts · Bakewell, Derbyshire</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.3 g net</span> 314 kcal</div>
+  </a>
+  <a class="card" href="recipes/butter-tarts.html" data-id="butter-tarts">
+    <h3>Butter tarts</h3>
+    <div class="meta">Pies &amp; tarts · Barrie, Ontario</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.6 g net</span> 200 kcal</div>
+  </a>
+  <a class="card" href="recipes/french-silk-pie.html" data-id="french-silk-pie">
+    <h3>French silk chocolate pie</h3>
+    <div class="meta">Pies &amp; tarts · Maryland, United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.7 g net</span> 411 kcal</div>
+  </a>
+  <a class="card" href="recipes/key-lime-pie.html" data-id="key-lime-pie">
+    <h3>Key lime pie</h3>
+    <div class="meta">Pies &amp; tarts · Key West, Florida</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">4.9 g net</span> 282 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-meringue-pie.html" data-id="lemon-meringue-pie">
+    <h3>Lemon meringue pie</h3>
+    <div class="meta">Pies &amp; tarts · Philadelphia</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.6 g net</span> 216 kcal</div>
+  </a>
+  <a class="card" href="recipes/pecan-pie.html" data-id="pecan-pie">
+    <h3>Pecan pie</h3>
+    <div class="meta">Pies &amp; tarts · Texas and the American South</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.2 g net</span> 309 kcal</div>
+  </a>
+  <a class="card" href="recipes/pumpkin-pie.html" data-id="pumpkin-pie">
+    <h3>Pumpkin pie</h3>
+    <div class="meta">Pies &amp; tarts · New England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.4 g net</span> 284 kcal</div>
+  </a>
+  <a class="card" href="recipes/strawberry-rhubarb-pie.html" data-id="strawberry-rhubarb-pie">
+    <h3>Strawberry-rhubarb pie</h3>
+    <div class="meta">Pies &amp; tarts · American Midwest</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.1 g net</span> 235 kcal</div>
+  </a>
+  <a class="card" href="recipes/tarte-au-citron.html" data-id="tarte-au-citron">
+    <h3>Tarte au citron</h3>
+    <div class="meta">Pies &amp; tarts · France</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.5 g net</span> 233 kcal</div>
+  </a>
+  <a class="card" href="recipes/cauliflower-kheer.html" data-id="cauliflower-kheer">
+    <h3>Cauliflower kheer</h3>
+    <div class="meta">Puddings &amp; custards · India</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.5 g net</span> 126 kcal</div>
+  </a>
+  <a class="card" href="recipes/pots-de-creme.html" data-id="pots-de-creme">
+    <h3>Chocolate pots de crème</h3>
+    <div class="meta">Puddings &amp; custards · France</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.1 g net</span> 322 kcal</div>
+  </a>
+  <a class="card" href="recipes/crema-catalana.html" data-id="crema-catalana">
+    <h3>Crema catalana</h3>
+    <div class="meta">Puddings &amp; custards · Catalonia, Spain</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.5 g net</span> 204 kcal</div>
+  </a>
+  <a class="card" href="recipes/creme-brulee.html" data-id="creme-brulee">
+    <h3>Crème brûlée</h3>
+    <div class="meta">Puddings &amp; custards · France (disputed with England)</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.9 g net</span> 324 kcal</div>
+  </a>
+  <a class="card" href="recipes/haupia.html" data-id="haupia">
+    <h3>Haupia</h3>
+    <div class="meta">Puddings &amp; custards · Hawaii</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.5 g net</span> 95 kcal</div>
+  </a>
+  <a class="card" href="recipes/leche-flan.html" data-id="leche-flan">
+    <h3>Leche flan</h3>
+    <div class="meta">Puddings &amp; custards · Manila, Philippines</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.8 g net</span> 178 kcal</div>
+  </a>
+  <a class="card" href="recipes/malva-pudding.html" data-id="malva-pudding">
+    <h3>Malva pudding</h3>
+    <div class="meta">Puddings &amp; custards · Cape Town, South Africa</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.3 g net</span> 231 kcal</div>
+  </a>
+  <a class="card" href="recipes/panna-cotta.html" data-id="panna-cotta">
+    <h3>Panna cotta</h3>
+    <div class="meta">Puddings &amp; custards · Piedmont, Italy</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.5 g net</span> 290 kcal</div>
+  </a>
+  <a class="card" href="recipes/spanish-flan.html" data-id="spanish-flan">
+    <h3>Spanish flan</h3>
+    <div class="meta">Puddings &amp; custards · Spain</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.6 g net</span> 161 kcal</div>
+  </a>
+  <a class="card" href="recipes/sticky-toffee-pudding.html" data-id="sticky-toffee-pudding">
+    <h3>Sticky toffee pudding</h3>
+    <div class="meta">Puddings &amp; custards · Cumbria, England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.9 g net</span> 270 kcal</div>
+  </a>
+  <a class="card" href="recipes/chia-pudding.html" data-id="chia-pudding">
+    <h3>Vanilla-cinnamon chia pudding</h3>
+    <div class="meta">Puddings &amp; custards · Central Mexico</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">5.1 g net</span> 250 kcal</div>
+  </a>
+  <a class="card" href="recipes/zabaglione.html" data-id="zabaglione">
+    <h3>Zabaglione (wine-free)</h3>
+    <div class="meta">Puddings &amp; custards · Turin, Italy</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.8 g net</span> 71 kcal</div>
+  </a>
+  <a class="card" href="recipes/bavarian-cream.html" data-id="bavarian-cream">
+    <h3>Bavarian cream (bavarois)</h3>
+    <div class="meta">Mousses &amp; creams · Paris</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.0 g net</span> 184 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-mousse.html" data-id="chocolate-mousse">
+    <h3>Chocolate mousse</h3>
+    <div class="meta">Mousses &amp; creams · Paris</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.3 g net</span> 203 kcal</div>
+  </a>
+  <a class="card" href="recipes/eton-mess.html" data-id="eton-mess">
+    <h3>Eton mess</h3>
+    <div class="meta">Mousses &amp; creams · Eton</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.0 g net</span> 191 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-posset.html" data-id="lemon-posset">
+    <h3>Lemon posset</h3>
+    <div class="meta">Mousses &amp; creams · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.2 g net</span> 280 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-syllabub.html" data-id="lemon-syllabub">
+    <h3>Lemon syllabub</h3>
+    <div class="meta">Mousses &amp; creams · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.2 g net</span> 206 kcal</div>
+  </a>
+  <a class="card" href="recipes/tiramisu.html" data-id="tiramisu">
+    <h3>Tiramisù</h3>
+    <div class="meta">Mousses &amp; creams · Treviso</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.8 g net</span> 427 kcal</div>
+  </a>
+  <a class="card" href="recipes/affogato.html" data-id="affogato">
+    <h3>Affogato</h3>
+    <div class="meta">Frozen desserts · Italy</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.7 g net</span> 243 kcal</div>
+  </a>
+  <a class="card" href="recipes/almond-semifreddo.html" data-id="almond-semifreddo">
+    <h3>Almond semifreddo</h3>
+    <div class="meta">Frozen desserts · Italy</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.0 g net</span> 190 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-kulfi.html" data-id="coconut-kulfi">
+    <h3>Coconut kulfi</h3>
+    <div class="meta">Frozen desserts · Delhi</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">4.7 g net</span> 280 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-strawberry-paletas.html" data-id="coconut-strawberry-paletas">
+    <h3>Coconut-strawberry paletas</h3>
+    <div class="meta">Frozen desserts · Tocumbo, Michoacán</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.0 g net</span> 111 kcal</div>
+  </a>
+  <a class="card" href="recipes/gelato-al-cioccolato.html" data-id="gelato-al-cioccolato">
+    <h3>Gelato al cioccolato</h3>
+    <div class="meta">Frozen desserts · Naples</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.4 g net</span> 147 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-granita.html" data-id="lemon-granita">
+    <h3>Lemon granita</h3>
+    <div class="meta">Frozen desserts · Catania</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.9 g net</span> 13 kcal</div>
+  </a>
+  <a class="card" href="recipes/mint-chocolate-chip-ice-cream.html" data-id="mint-chocolate-chip-ice-cream">
+    <h3>Mint chocolate chip ice cream</h3>
+    <div class="meta">Frozen desserts · England</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">5.0 g net</span> 285 kcal</div>
+  </a>
+  <a class="card" href="recipes/raspberry-sorbet.html" data-id="raspberry-sorbet">
+    <h3>Raspberry sorbet</h3>
+    <div class="meta">Frozen desserts · Naples</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">4.2 g net</span> 46 kcal</div>
+  </a>
+  <a class="card" href="recipes/vanilla-ice-cream.html" data-id="vanilla-ice-cream">
+    <h3>Vanilla ice cream</h3>
+    <div class="meta">Frozen desserts · Paris</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.7 g net</span> 266 kcal</div>
+  </a>
+  <a class="card" href="recipes/brigadeiros.html" data-id="brigadeiros">
+    <h3>Brigadeiros</h3>
+    <div class="meta">Candy &amp; confections · Rio de Janeiro</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.8 g net</span> 167 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-fudge.html" data-id="chocolate-fudge">
+    <h3>Chocolate fudge</h3>
+    <div class="meta">Candy &amp; confections · Poughkeepsie, New York</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.1 g net</span> 93 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-truffles.html" data-id="chocolate-truffles">
+    <h3>Chocolate truffles</h3>
+    <div class="meta">Candy &amp; confections · Chambéry</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.7 g net</span> 112 kcal</div>
+  </a>
+  <a class="card" href="recipes/marzipan.html" data-id="marzipan">
+    <h3>Marzipan</h3>
+    <div class="meta">Candy &amp; confections · Toledo</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.1 g net</span> 76 kcal</div>
+  </a>
+  <a class="card" href="recipes/peanut-butter-cups.html" data-id="peanut-butter-cups">
+    <h3>Peanut butter cups</h3>
+    <div class="meta">Candy &amp; confections · Hershey, Pennsylvania</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.5 g net</span> 156 kcal</div>
+  </a>
+  <a class="card" href="recipes/peppermint-patties.html" data-id="peppermint-patties">
+    <h3>Peppermint patties</h3>
+    <div class="meta">Candy &amp; confections · York, Pennsylvania</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.2 g net</span> 92 kcal</div>
+  </a>
+  <a class="card" href="recipes/sesame-brittle.html" data-id="sesame-brittle">
+    <h3>Sesame brittle</h3>
+    <div class="meta">Candy &amp; confections · Levant (eastern Mediterranean)</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.4 g net</span> 79 kcal</div>
+  </a>
+  <a class="card" href="recipes/turron-de-jijona.html" data-id="turron-de-jijona">
+    <h3>Soft almond turrón (Jijona style)</h3>
+    <div class="meta">Candy &amp; confections · Jijona (Xixona)</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.5 g net</span> 94 kcal</div>
+  </a>
+  <a class="card" href="recipes/tahini-halva.html" data-id="tahini-halva">
+    <h3>Tahini halva</h3>
+    <div class="meta">Candy &amp; confections · Istanbul</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.0 g net</span> 102 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-almond-fat-bombs.html" data-id="chocolate-almond-fat-bombs">
+    <h3>Chocolate-almond fat bombs</h3>
+    <div class="meta">Fat bombs · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.1 g net</span> 123 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-lime-fat-bombs.html" data-id="coconut-lime-fat-bombs">
+    <h3>Coconut-lime fat bombs</h3>
+    <div class="meta">Fat bombs · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">0.9 g net</span> 100 kcal</div>
+  </a>
+  <a class="card" href="recipes/mocha-fat-bombs.html" data-id="mocha-fat-bombs">
+    <h3>Mocha fat bombs</h3>
+    <div class="meta">Fat bombs · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.2 g net</span> 129 kcal</div>
+  </a>
+  <a class="card" href="recipes/peanut-butter-fat-bombs.html" data-id="peanut-butter-fat-bombs">
+    <h3>Peanut butter fat bombs</h3>
+    <div class="meta">Fat bombs · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.2 g net</span> 122 kcal</div>
+  </a>
+  <a class="card" href="recipes/raspberry-cheesecake-fat-bombs.html" data-id="raspberry-cheesecake-fat-bombs">
+    <h3>Raspberry cheesecake fat bombs</h3>
+    <div class="meta">Fat bombs · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.0 g net</span> 83 kcal</div>
+  </a>
+  <a class="card" href="recipes/baked-cinnamon-apple-slices.html" data-id="baked-cinnamon-apple-slices">
+    <h3>Baked cinnamon apple slices</h3>
+    <div class="meta">Fruit desserts · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.6 g net</span> 82 kcal</div>
+  </a>
+  <a class="card" href="recipes/berry-cobbler.html" data-id="berry-cobbler">
+    <h3>Berry cobbler</h3>
+    <div class="meta">Fruit desserts · Eastern United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.9 g net</span> 200 kcal</div>
+  </a>
+  <a class="card" href="recipes/berry-crumble.html" data-id="berry-crumble">
+    <h3>Berry crumble</h3>
+    <div class="meta">Fruit desserts · Britain</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.4 g net</span> 205 kcal</div>
+  </a>
+  <a class="card" href="recipes/cherry-clafoutis.html" data-id="cherry-clafoutis">
+    <h3>Cherry clafoutis</h3>
+    <div class="meta">Fruit desserts · Limousin, France</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.8 g net</span> 147 kcal</div>
+  </a>
+  <a class="card" href="recipes/pavlova-with-berries.html" data-id="pavlova-with-berries">
+    <h3>Pavlova with berries</h3>
+    <div class="meta">Fruit desserts · New Zealand or Australia (disputed)</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.7 g net</span> 131 kcal</div>
+  </a>
+  <a class="card" href="recipes/rhubarb-fool.html" data-id="rhubarb-fool">
+    <h3>Rhubarb fool</h3>
+    <div class="meta">Fruit desserts · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.1 g net</span> 154 kcal</div>
+  </a>
+  <a class="card" href="recipes/strawberries-romanoff.html" data-id="strawberries-romanoff">
+    <h3>Strawberries Romanoff</h3>
+    <div class="meta">Fruit desserts · Paris, France</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.9 g net</span> 116 kcal</div>
+  </a>
+  <a class="card" href="recipes/summer-pudding.html" data-id="summer-pudding">
+    <h3>Summer pudding</h3>
+    <div class="meta">Fruit desserts · England</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">5.0 g net</span> 173 kcal</div>
+  </a>
+  <a class="card" href="recipes/almond-horchata.html" data-id="almond-horchata">
+    <h3>Almond horchata</h3>
+    <div class="meta">Drinks · Valencia, Spain</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.7 g net</span> 161 kcal</div>
+  </a>
+  <a class="card" href="recipes/eggnog.html" data-id="eggnog">
+    <h3>Eggnog</h3>
+    <div class="meta">Drinks · Britain and colonial America</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">5.6 g net</span> 226 kcal</div>
+  </a>
+  <a class="card" href="recipes/golden-milk.html" data-id="golden-milk">
+    <h3>Golden milk (haldi doodh)</h3>
+    <div class="meta">Drinks · India</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.9 g net</span> 142 kcal</div>
+  </a>
+  <a class="card" href="recipes/masala-chai.html" data-id="masala-chai">
+    <h3>Masala chai</h3>
+    <div class="meta">Drinks · India</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">6.4 g net</span> 80 kcal</div>
+  </a>
+  <a class="card" href="recipes/mesoamerican-spiced-hot-chocolate.html" data-id="mesoamerican-spiced-hot-chocolate">
+    <h3>Mesoamerican-style spiced hot chocolate</h3>
+    <div class="meta">Drinks · Maya lowlands, Mesoamerica</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">4.2 g net</span> 117 kcal</div>
+  </a>
+  <a class="card" href="recipes/vietnamese-iced-coffee.html" data-id="vietnamese-iced-coffee">
+    <h3>Vietnamese iced coffee</h3>
+    <div class="meta">Drinks · Vietnam</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.6 g net</span> 129 kcal</div>
+  </a>
+  <a class="card" href="recipes/noatmeal.html" data-id="noatmeal">
+    <h3>&#34;Noatmeal&#34; hot cereal</h3>
+    <div class="meta">Breakfast · Scotland</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">4.5 g net</span> 318 kcal</div>
+  </a>
+  <a class="card" href="recipes/almond-flour-pancakes.html" data-id="almond-flour-pancakes">
+    <h3>Almond-flour pancakes</h3>
+    <div class="meta">Breakfast · Athens</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.0 g net</span> 253 kcal</div>
+  </a>
+  <a class="card" href="recipes/belgian-waffles.html" data-id="belgian-waffles">
+    <h3>Belgian waffles</h3>
+    <div class="meta">Breakfast · Brussels</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.7 g net</span> 273 kcal</div>
+  </a>
+  <a class="card" href="recipes/blueberry-muffins.html" data-id="blueberry-muffins">
+    <h3>Blueberry muffins</h3>
+    <div class="meta">Breakfast · Boston</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.6 g net</span> 195 kcal</div>
+  </a>
+  <a class="card" href="recipes/cinnamon-rolls.html" data-id="cinnamon-rolls">
+    <h3>Cinnamon rolls</h3>
+    <div class="meta">Breakfast · Stockholm</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.4 g net</span> 236 kcal</div>
+  </a>
+  <a class="card" href="recipes/cream-scones.html" data-id="cream-scones">
+    <h3>Cream scones</h3>
+    <div class="meta">Breakfast · Edinburgh</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.2 g net</span> 245 kcal</div>
+  </a>
+  <a class="card" href="recipes/almond-crepes.html" data-id="almond-crepes">
+    <h3>Crêpes</h3>
+    <div class="meta">Breakfast · Quimper, Brittany</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.8 g net</span> 171 kcal</div>
+  </a>
+  <a class="card" href="recipes/dutch-baby.html" data-id="dutch-baby">
+    <h3>Dutch baby</h3>
+    <div class="meta">Breakfast · Seattle</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.4 g net</span> 225 kcal</div>
+  </a>
+  <a class="card" href="recipes/french-toast.html" data-id="french-toast">
+    <h3>French toast</h3>
+    <div class="meta">Breakfast · Rome</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.7 g net</span> 394 kcal</div>
+  </a>
+  <a class="card" href="recipes/grain-free-granola.html" data-id="grain-free-granola">
+    <h3>Grain-free granola</h3>
+    <div class="meta">Breakfast · Dansville, New York</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.0 g net</span> 280 kcal</div>
+  </a>
+  <a class="card" href="recipes/green-shakshuka.html" data-id="green-shakshuka">
+    <h3>Green shakshuka</h3>
+    <div class="meta">Breakfast · Tunis</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">5.6 g net</span> 280 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-poppy-seed-muffins.html" data-id="lemon-poppy-seed-muffins">
+    <h3>Lemon poppy-seed muffins</h3>
+    <div class="meta">Breakfast · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.1 g net</span> 197 kcal</div>
+  </a>
+  <a class="card" href="recipes/quiche-lorraine.html" data-id="quiche-lorraine">
+    <h3>Quiche Lorraine</h3>
+    <div class="meta">Breakfast · Nancy, Lorraine</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">4.3 g net</span> 562 kcal</div>
+  </a>
+  <a class="card" href="recipes/spinach-frittata.html" data-id="spinach-frittata">
+    <h3>Spinach and zucchini frittata</h3>
+    <div class="meta">Breakfast · Rome</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.4 g net</span> 151 kcal</div>
+  </a>
+  <a class="card" href="recipes/almond-flour-sandwich-loaf.html" data-id="almond-flour-sandwich-loaf">
+    <h3>Almond-flour sandwich loaf</h3>
+    <div class="meta">Breads &amp; crackers · Chillicothe, Missouri</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.6 g net</span> 144 kcal</div>
+  </a>
+  <a class="card" href="recipes/cheese-bread-puffs.html" data-id="cheese-bread-puffs">
+    <h3>Cheese bread puffs</h3>
+    <div class="meta">Breads &amp; crackers · Minas Gerais</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.8 g net</span> 106 kcal</div>
+  </a>
+  <a class="card" href="recipes/cloud-bread.html" data-id="cloud-bread">
+    <h3>Cloud bread</h3>
+    <div class="meta">Breads &amp; crackers · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.7 g net</span> 62 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-flour-tortillas.html" data-id="coconut-flour-tortillas">
+    <h3>Coconut-flour tortillas</h3>
+    <div class="meta">Breads &amp; crackers · Valley of Mexico</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.1 g net</span> 62 kcal</div>
+  </a>
+  <a class="card" href="recipes/flax-crackers.html" data-id="flax-crackers">
+    <h3>Flax crackers</h3>
+    <div class="meta">Breads &amp; crackers · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">0.8 g net</span> 118 kcal</div>
+  </a>
+  <a class="card" href="recipes/irish-soda-bread.html" data-id="irish-soda-bread">
+    <h3>Irish soda bread</h3>
+    <div class="meta">Breads &amp; crackers · Ireland</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.1 g net</span> 201 kcal</div>
+  </a>
+  <a class="card" href="recipes/naan-style-flatbread.html" data-id="naan-style-flatbread">
+    <h3>Naan-style flatbread</h3>
+    <div class="meta">Breads &amp; crackers · Delhi</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">3.4 g net</span> 183 kcal</div>
+  </a>
+  <a class="card" href="recipes/pizza-crust.html" data-id="pizza-crust">
+    <h3>Pizza crust</h3>
+    <div class="meta">Breads &amp; crackers · Naples</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">4.1 g net</span> 301 kcal</div>
+  </a>
+  <a class="card" href="recipes/rosemary-focaccia.html" data-id="rosemary-focaccia">
+    <h3>Rosemary focaccia</h3>
+    <div class="meta">Breads &amp; crackers · Genoa, Liguria</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.4 g net</span> 224 kcal</div>
+  </a>
+  <a class="card" href="recipes/sesame-bagels.html" data-id="sesame-bagels">
+    <h3>Sesame bagels</h3>
+    <div class="meta">Breads &amp; crackers · Kraków</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.4 g net</span> 172 kcal</div>
+  </a>
+  <a class="card" href="recipes/southern-style-cornbread.html" data-id="southern-style-cornbread">
+    <h3>Southern-style &#34;cornbread&#34; (no corn)</h3>
+    <div class="meta">Breads &amp; crackers · Charleston, South Carolina</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.7 g net</span> 176 kcal</div>
+  </a>
+  <a class="card" href="recipes/seeded-crispbread.html" data-id="seeded-crispbread">
+    <h3>Swedish-style seeded crispbread</h3>
+    <div class="meta">Breads &amp; crackers · Sweden</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">2.2 g net</span> 171 kcal</div>
+  </a>
+  <a class="card" href="recipes/almond-flour-pie-crust.html" data-id="almond-flour-pie-crust">
+    <h3>Almond-flour sweet pie crust</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Paris</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.2 g net</span> 201 kcal</div>
+  </a>
+  <a class="card" href="recipes/berry-chia-jam.html" data-id="berry-chia-jam">
+    <h3>Berry chia jam</h3>
+    <div class="meta">Basics, crusts &amp; sauces · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.1 g net</span> 15 kcal</div>
+  </a>
+  <a class="card" href="recipes/chantilly-whipped-cream.html" data-id="chantilly-whipped-cream">
+    <h3>Chantilly whipped cream</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Chantilly</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.9 g net</span> 103 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-cookie-crumb-crust.html" data-id="chocolate-cookie-crumb-crust">
+    <h3>Chocolate cookie crumb crust</h3>
+    <div class="meta">Basics, crusts &amp; sauces · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.2 g net</span> 178 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-ganache.html" data-id="chocolate-ganache">
+    <h3>Chocolate ganache</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Paris</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.0 g net</span> 115 kcal</div>
+  </a>
+  <a class="card" href="recipes/chocolate-sauce.html" data-id="chocolate-sauce">
+    <h3>Chocolate sauce</h3>
+    <div class="meta">Basics, crusts &amp; sauces · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">1.1 g net</span> 56 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-whipped-cream.html" data-id="coconut-whipped-cream">
+    <h3>Coconut whipped cream</h3>
+    <div class="meta">Basics, crusts &amp; sauces · United States</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">3.1 g net</span> 151 kcal</div>
+  </a>
+  <a class="card" href="recipes/cream-cheese-frosting.html" data-id="cream-cheese-frosting">
+    <h3>Cream cheese frosting</h3>
+    <div class="meta">Basics, crusts &amp; sauces · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">1.1 g net</span> 106 kcal</div>
+  </a>
+  <a class="card" href="recipes/creme-anglaise.html" data-id="creme-anglaise">
+    <h3>Crème anglaise</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Paris</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.8 g net</span> 160 kcal</div>
+  </a>
+  <a class="card" href="recipes/lemon-curd.html" data-id="lemon-curd">
+    <h3>Lemon curd</h3>
+    <div class="meta">Basics, crusts &amp; sauces · England</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.9 g net</span> 78 kcal</div>
+  </a>
+  <a class="card" href="recipes/coconut-flour-pie-crust.html" data-id="coconut-flour-pie-crust">
+    <h3>Nut-free coconut-flour pie crust</h3>
+    <div class="meta">Basics, crusts &amp; sauces · United States</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">2.9 g net</span> 138 kcal</div>
+  </a>
+  <a class="card" href="recipes/salted-caramel-sauce.html" data-id="salted-caramel-sauce">
+    <h3>Salted caramel sauce</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Quiberon, Brittany</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.2 g net</span> 54 kcal</div>
+  </a>
+  <a class="card" href="recipes/sugar-free-maple-syrup.html" data-id="sugar-free-maple-syrup">
+    <h3>Sugar-free maple-style syrup</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Quebec</div>
+    <div class="meta"><span class="badge df">Dairy-free</span> <span class="badge net">0.1 g net</span> 9 kcal</div>
+  </a>
+  <a class="card" href="recipes/swiss-meringue-buttercream.html" data-id="swiss-meringue-buttercream">
+    <h3>Swiss meringue buttercream</h3>
+    <div class="meta">Basics, crusts &amp; sauces · Switzerland</div>
+    <div class="meta"><span class="badge opt">Dairy-free option</span> <span class="badge net">0.1 g net</span> 161 kcal</div>
+  </a>
+</div>
+
+<h2>Chapters</h2>
+<ul class="sans">
+<li><a href="book.html#ch-cakes">Cakes</a> — 14 recipes</li><li><a href="book.html#ch-cheesecakes">Cheesecakes</a> — 8 recipes</li><li><a href="book.html#ch-cookies">Cookies &amp; biscuits</a> — 16 recipes</li><li><a href="book.html#ch-bars">Bars &amp; brownies</a> — 8 recipes</li><li><a href="book.html#ch-pies">Pies &amp; tarts</a> — 10 recipes</li><li><a href="book.html#ch-custards">Puddings &amp; custards</a> — 12 recipes</li><li><a href="book.html#ch-mousses">Mousses &amp; creams</a> — 6 recipes</li><li><a href="book.html#ch-frozen">Frozen desserts</a> — 9 recipes</li><li><a href="book.html#ch-candy">Candy &amp; confections</a> — 9 recipes</li><li><a href="book.html#ch-fat-bombs">Fat bombs</a> — 5 recipes</li><li><a href="book.html#ch-fruit">Fruit desserts</a> — 8 recipes</li><li><a href="book.html#ch-drinks">Drinks</a> — 6 recipes</li><li><a href="book.html#ch-breakfast">Breakfast</a> — 14 recipes</li><li><a href="book.html#ch-breads">Breads &amp; crackers</a> — 12 recipes</li><li><a href="book.html#ch-basics">Basics, crusts &amp; sauces</a> — 14 recipes</li></ul>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 151 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script id="cards" type="application/json">[{"c":"cakes","d":true,"f":"Syrup cake","id":"almond-basbousa","k":157,"n":2.0,"nd":2.0,"p":"Egypt","r":"Middle East \u0026 North Africa","t":"Almond basbousa","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Layer cake","id":"black-forest-cake","k":334,"n":5.8,"nd":7.7,"p":"Black Forest","r":"Western Europe","t":"Black Forest cake","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Chocolate cake","id":"chocolate-lava-cakes","k":384,"n":4.3,"nd":4.3,"p":"New York City","r":"North America","t":"Chocolate lava cakes","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Gingerbread","id":"gingerbread-loaf","k":242,"n":3.3,"nd":3.2,"p":"England","r":"Northern Europe","t":"Gingerbread loaf","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":true,"f":"Oil cake","id":"olive-oil-cake","k":249,"n":2.7,"nd":2.7,"p":"Italy","r":"Southern Europe","t":"Italian olive-oil cake","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Sponge cake","id":"lamingtons","k":207,"n":2.8,"nd":2.8,"p":"Queensland","r":"Oceania","t":"Lamingtons","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Loaf cake","id":"lemon-drizzle-cake","k":246,"n":3.1,"nd":3.1,"p":"Britain","r":"Northern Europe","t":"Lemon drizzle cake","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Nut cake","id":"torta-di-nocciole","k":226,"n":1.8,"nd":1.8,"p":"Langhe, Piedmont","r":"Southern Europe","t":"Piedmontese hazelnut cake (torta di nocciole)","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Butter cake","id":"pound-cake","k":291,"n":2.7,"nd":2.6,"p":"England","r":"Northern Europe","t":"Pound cake","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Chocolate torte","id":"sachertorte","k":311,"n":5.2,"nd":5.6,"p":"Vienna","r":"Western Europe","t":"Sachertorte","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":true,"f":"Almond cake","id":"tarta-de-santiago","k":184,"n":2.4,"nd":2.4,"p":"Santiago de Compostela","r":"Southern Europe","t":"Tarta de Santiago","x":["eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Chocolate cake","id":"torta-caprese","k":289,"n":3.4,"nd":3.4,"p":"Capri","r":"Southern Europe","t":"Torta caprese","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":true,"f":"Soaked sponge cake","id":"tres-leches-cake","k":269,"n":5.0,"nd":5.0,"p":"Mexico","r":"Latin America \u0026 Caribbean","t":"Tres leches cake","x":["coconut","eggs","tree nuts"]},{"c":"cakes","d":false,"f":"Sponge cake","id":"victoria-sponge","k":302,"n":3.9,"nd":4.5,"p":"England","r":"Northern Europe","t":"Victoria sponge","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"basque-burnt-cheesecake","k":402,"n":5.3,"nd":9.1,"p":"San Sebastián","r":"Southern Europe","t":"Basque burnt cheesecake","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"chocolate-cheesecake","k":355,"n":5.8,"nd":7.7,"p":"New York City","r":"North America","t":"Chocolate cheesecake","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"kasekuchen","k":278,"n":4.4,"nd":5.1,"p":"Germany","r":"Western Europe","t":"German Käsekuchen","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"italian-ricotta-cheesecake","k":158,"n":6.0,"nd":7.3,"p":"Rome","r":"Southern Europe","t":"Italian ricotta cheesecake","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"japanese-cotton-cheesecake","k":178,"n":3.0,"nd":3.5,"p":"Japan","r":"East Asia","t":"Japanese cotton cheesecake","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"new-york-cheesecake","k":424,"n":5.9,"nd":8.5,"p":"New York City","r":"North America","t":"New York cheesecake","x":["coconut","eggs","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"no-bake-lemon-cheesecake","k":358,"n":4.8,"nd":7.3,"p":"United States","r":"North America","t":"No-bake lemon cheesecake","x":["coconut","tree nuts"]},{"c":"cheesecakes","d":false,"f":"Cheesecake","id":"pumpkin-cheesecake","k":365,"n":5.6,"nd":7.5,"p":"New England","r":"North America","t":"Pumpkin cheesecake","x":["coconut","eggs","tree nuts"]},{"c":"cookies","d":true,"f":"Biscotti","id":"cantucci","k":81,"n":1.2,"nd":1.2,"p":"Prato","r":"Southern Europe","t":"Almond biscotti (cantucci)","x":["eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Drop cookie","id":"chocolate-chip-cookies","k":142,"n":1.6,"nd":1.6,"p":"Whitman, Massachusetts","r":"North America","t":"Chocolate chip cookies","x":["eggs","tree nuts"]},{"c":"cookies","d":true,"f":"Macaroon","id":"coconut-macaroons","k":103,"n":1.9,"nd":1.9,"p":"United States","r":"North America","t":"Coconut macaroons","x":["coconut","eggs"]},{"c":"cookies","d":false,"f":"Florentine","id":"florentines","k":110,"n":2.3,"nd":2.4,"p":"Florence","r":"Southern Europe","t":"Florentines","x":["coconut","tree nuts"]},{"c":"cookies","d":true,"f":"Gingerbread","id":"gingersnaps","k":82,"n":1.0,"nd":1.0,"p":"England","r":"Northern Europe","t":"Gingersnaps","x":["coconut","eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Shortbread","id":"kourabiedes","k":115,"n":1.1,"nd":1.1,"p":"Greece","r":"Southern Europe","t":"Kourabiedes","x":["eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Linzer","id":"linzer-cookies","k":157,"n":1.7,"nd":1.7,"p":"Linz","r":"Western Europe","t":"Linzer cookies","x":["eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Ma'amoul","id":"maamoul-nut-cookies","k":148,"n":2.0,"nd":2.0,"p":"The Levant","r":"Middle East \u0026 North Africa","t":"Ma'amoul-style walnut and pistachio cookies","x":["coconut","eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Polvorón","id":"mexican-wedding-cookies","k":94,"n":0.7,"nd":0.7,"p":"Mexico","r":"Latin America \u0026 Caribbean","t":"Mexican wedding cookies (polvorones)","x":["tree nuts"]},{"c":"cookies","d":true,"f":"Lebkuchen","id":"nuremberg-lebkuchen","k":125,"n":2.7,"nd":2.7,"p":"Nuremberg","r":"Western Europe","t":"Nuremberg-style Lebkuchen","x":["coconut","eggs","tree nuts"]},{"c":"cookies","d":true,"f":"Peanut butter cookie","id":"peanut-butter-cookies","k":102,"n":2.8,"nd":2.8,"p":"United States","r":"North America","t":"Peanut butter cookies","x":["eggs","peanuts"]},{"c":"cookies","d":false,"f":"Shortbread","id":"scottish-shortbread","k":166,"n":1.6,"nd":1.6,"p":"Scotland","r":"Northern Europe","t":"Scottish shortbread","x":["coconut","tree nuts"]},{"c":"cookies","d":false,"f":"Drop cookie","id":"snickerdoodles","k":131,"n":1.4,"nd":1.4,"p":"New England","r":"North America","t":"Snickerdoodles","x":["coconut","eggs","tree nuts"]},{"c":"cookies","d":true,"f":"Macaroon","id":"amaretti","k":60,"n":0.9,"nd":0.9,"p":"Saronno","r":"Southern Europe","t":"Soft amaretti","x":["eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Spiced biscuit","id":"speculoos","k":88,"n":1.0,"nd":1.0,"p":"Belgium and the Netherlands","r":"Western Europe","t":"Speculoos","x":["coconut","eggs","tree nuts"]},{"c":"cookies","d":false,"f":"Kipferl","id":"vanillekipferl","k":86,"n":0.7,"nd":0.7,"p":"Vienna","r":"Western Europe","t":"Vanillekipferl","x":["eggs","tree nuts"]},{"c":"bars","d":false,"f":"Brownie","id":"blondies","k":148,"n":1.5,"nd":1.5,"p":"United States","r":"North America","t":"Blondies","x":["coconut","eggs","tree nuts"]},{"c":"bars","d":false,"f":"Brownie","id":"fudgy-brownies","k":130,"n":1.7,"nd":1.7,"p":"Chicago","r":"North America","t":"Fudgy brownies","x":["coconut","eggs","tree nuts"]},{"c":"bars","d":true,"f":"Lemon bar","id":"lemon-bars","k":109,"n":1.6,"nd":1.6,"p":"United States","r":"North America","t":"Lemon bars","x":["coconut","eggs","tree nuts"]},{"c":"bars","d":false,"f":"Shortbread","id":"millionaires-shortbread","k":168,"n":3.3,"nd":3.5,"p":"Scotland","r":"Northern Europe","t":"Millionaire's shortbread","x":["coconut","tree nuts"]},{"c":"bars","d":false,"f":"Nanaimo bar","id":"nanaimo-bars","k":174,"n":3.1,"nd":3.2,"p":"Nanaimo, British Columbia","r":"North America","t":"Nanaimo bars","x":["coconut","eggs","tree nuts"]},{"c":"bars","d":false,"f":"Pecan pie","id":"pecan-pie-bars","k":187,"n":1.3,"nd":1.3,"p":"Southern United States","r":"North America","t":"Pecan pie bars","x":["eggs","tree nuts"]},{"c":"bars","d":true,"f":"Crumble","id":"raspberry-crumble-bars","k":146,"n":2.6,"nd":2.6,"p":"United Kingdom","r":"Northern Europe","t":"Raspberry crumble bars","x":["coconut","eggs","tree nuts"]},{"c":"bars","d":true,"f":"Magic bar","id":"magic-bars","k":180,"n":2.0,"nd":2.0,"p":"United States","r":"North America","t":"Seven-layer magic bars","x":["coconut","tree nuts"]},{"c":"pies","d":false,"f":"Galette des rois","id":"galette-des-rois","k":337,"n":3.2,"nd":3.2,"p":"Paris","r":"Western Europe","t":"Almond frangipane tart (galette des rois-style)","x":["eggs","tree nuts"]},{"c":"pies","d":false,"f":"Bakewell tart","id":"bakewell-tart","k":314,"n":3.3,"nd":3.3,"p":"Bakewell, Derbyshire","r":"Northern Europe","t":"Bakewell tart","x":["eggs","tree nuts"]},{"c":"pies","d":false,"f":"Butter tart","id":"butter-tarts","k":200,"n":1.6,"nd":1.6,"p":"Barrie, Ontario","r":"North America","t":"Butter tarts","x":["eggs","tree nuts"]},{"c":"pies","d":false,"f":"Chocolate cream pie","id":"french-silk-pie","k":411,"n":3.7,"nd":4.6,"p":"Maryland, United States","r":"North America","t":"French silk chocolate pie","x":["coconut","eggs","tree nuts"]},{"c":"pies","d":true,"f":"Key lime pie","id":"key-lime-pie","k":282,"n":4.9,"nd":4.9,"p":"Key West, Florida","r":"North America","t":"Key lime pie","x":["coconut","eggs","tree nuts"]},{"c":"pies","d":false,"f":"Lemon meringue pie","id":"lemon-meringue-pie","k":216,"n":2.6,"nd":2.6,"p":"Philadelphia","r":"North America","t":"Lemon meringue pie","x":["coconut","eggs","tree nuts"]},{"c":"pies","d":false,"f":"Pecan pie","id":"pecan-pie","k":309,"n":2.2,"nd":2.1,"p":"Texas and the American South","r":"North America","t":"Pecan pie","x":["eggs","tree nuts"]},{"c":"pies","d":false,"f":"Pumpkin pie","id":"pumpkin-pie","k":284,"n":5.4,"nd":6.3,"p":"New England","r":"North America","t":"Pumpkin pie","x":["coconut","eggs","tree nuts"]},{"c":"pies","d":false,"f":"Fruit pie","id":"strawberry-rhubarb-pie","k":235,"n":4.1,"nd":4.1,"p":"American Midwest","r":"North America","t":"Strawberry-rhubarb pie","x":["eggs","tree nuts"]},{"c":"pies","d":false,"f":"Lemon tart","id":"tarte-au-citron","k":233,"n":2.5,"nd":2.5,"p":"France","r":"Western Europe","t":"Tarte au citron","x":["eggs","tree nuts"]},{"c":"custards","d":false,"f":"Rice pudding (kheer)","id":"cauliflower-kheer","k":126,"n":3.5,"nd":4.2,"p":"India","r":"South Asia","t":"Cauliflower kheer","x":["coconut","tree nuts"]},{"c":"custards","d":false,"f":"Baked custard","id":"pots-de-creme","k":322,"n":4.1,"nd":6.4,"p":"France","r":"Western Europe","t":"Chocolate pots de crème","x":["coconut","eggs","tree nuts"]},{"c":"custards","d":false,"f":"Stirred custard","id":"crema-catalana","k":204,"n":2.5,"nd":4.0,"p":"Catalonia, Spain","r":"Southern Europe","t":"Crema catalana","x":["coconut","eggs","tree nuts"]},{"c":"custards","d":false,"f":"Baked custard","id":"creme-brulee","k":324,"n":2.9,"nd":6.0,"p":"France (disputed with England)","r":"Western Europe","t":"Crème brûlée","x":["coconut","eggs"]},{"c":"custards","d":true,"f":"Coconut pudding","id":"haupia","k":95,"n":1.5,"nd":1.5,"p":"Hawaii","r":"Oceania","t":"Haupia","x":["coconut"]},{"c":"custards","d":false,"f":"Flan","id":"leche-flan","k":178,"n":1.8,"nd":3.0,"p":"Manila, Philippines","r":"Southeast Asia","t":"Leche flan","x":["coconut","eggs","tree nuts"]},{"c":"custards","d":false,"f":"Baked sponge pudding","id":"malva-pudding","k":231,"n":2.3,"nd":2.8,"p":"Cape Town, South Africa","r":"Sub-Saharan Africa","t":"Malva pudding","x":["coconut","eggs","tree nuts"]},{"c":"custards","d":false,"f":"Panna cotta","id":"panna-cotta","k":290,"n":3.5,"nd":6.5,"p":"Piedmont, Italy","r":"Southern Europe","t":"Panna cotta","x":["coconut","tree nuts"]},{"c":"custards","d":false,"f":"Flan","id":"spanish-flan","k":161,"n":1.6,"nd":2.7,"p":"Spain","r":"Southern Europe","t":"Spanish flan","x":["coconut","eggs","tree nuts"]},{"c":"custards","d":false,"f":"Steamed and baked sponge pudding","id":"sticky-toffee-pudding","k":270,"n":2.9,"nd":3.4,"p":"Cumbria, England","r":"Northern Europe","t":"Sticky toffee pudding","x":["coconut","eggs","tree nuts"]},{"c":"custards","d":true,"f":"Chia drink and pudding","id":"chia-pudding","k":250,"n":5.1,"nd":5.1,"p":"Central Mexico","r":"Latin America \u0026 Caribbean","t":"Vanilla-cinnamon chia pudding","x":["coconut","tree nuts"]},{"c":"custards","d":true,"f":"Zabaglione","id":"zabaglione","k":71,"n":2.8,"nd":2.8,"p":"Turin, Italy","r":"Southern Europe","t":"Zabaglione (wine-free)","x":["eggs"]},{"c":"mousses","d":false,"f":"Bavarian cream","id":"bavarian-cream","k":184,"n":3.0,"nd":3.3,"p":"Paris","r":"Western Europe","t":"Bavarian cream (bavarois)","x":["coconut","eggs","tree nuts"]},{"c":"mousses","d":true,"f":"Chocolate mousse","id":"chocolate-mousse","k":203,"n":3.3,"nd":3.3,"p":"Paris","r":"Western Europe","t":"Chocolate mousse","x":["coconut","eggs"]},{"c":"mousses","d":false,"f":"Eton mess","id":"eton-mess","k":191,"n":4.0,"nd":5.9,"p":"Eton","r":"Northern Europe","t":"Eton mess","x":["coconut","eggs"]},{"c":"mousses","d":false,"f":"Posset","id":"lemon-posset","k":280,"n":3.2,"nd":6.3,"p":"England","r":"Northern Europe","t":"Lemon posset","x":["coconut"]},{"c":"mousses","d":false,"f":"Syllabub","id":"lemon-syllabub","k":206,"n":2.2,"nd":4.5,"p":"England","r":"Northern Europe","t":"Lemon syllabub","x":["coconut"]},{"c":"mousses","d":false,"f":"Tiramisù","id":"tiramisu","k":427,"n":4.8,"nd":8.3,"p":"Treviso","r":"Southern Europe","t":"Tiramisù","x":["coconut","eggs","tree nuts"]},{"c":"frozen","d":false,"f":"Affogato","id":"affogato","k":243,"n":2.7,"nd":5.0,"p":"Italy","r":"Southern Europe","t":"Affogato","x":["coconut","eggs"]},{"c":"frozen","d":false,"f":"Semifreddo","id":"almond-semifreddo","k":190,"n":2.0,"nd":3.3,"p":"Italy","r":"Southern Europe","t":"Almond semifreddo","x":["coconut","eggs","tree nuts"]},{"c":"frozen","d":true,"f":"Kulfi","id":"coconut-kulfi","k":280,"n":4.7,"nd":4.7,"p":"Delhi","r":"South Asia","t":"Coconut kulfi","x":["coconut","tree nuts"]},{"c":"frozen","d":true,"f":"Paletas","id":"coconut-strawberry-paletas","k":111,"n":3.0,"nd":3.0,"p":"Tocumbo, Michoacán","r":"Latin America \u0026 Caribbean","t":"Coconut-strawberry paletas","x":["coconut"]},{"c":"frozen","d":false,"f":"Gelato","id":"gelato-al-cioccolato","k":147,"n":5.4,"nd":4.8,"p":"Naples","r":"Southern Europe","t":"Gelato al cioccolato","x":["coconut"]},{"c":"frozen","d":true,"f":"Granita","id":"lemon-granita","k":13,"n":1.9,"nd":1.9,"p":"Catania","r":"Southern Europe","t":"Lemon granita","x":[]},{"c":"frozen","d":true,"f":"Mint chocolate chip ice cream","id":"mint-chocolate-chip-ice-cream","k":285,"n":5.0,"nd":5.0,"p":"England","r":"Northern Europe","t":"Mint chocolate chip ice cream","x":["coconut","eggs"]},{"c":"frozen","d":true,"f":"Sorbet","id":"raspberry-sorbet","k":46,"n":4.2,"nd":4.2,"p":"Naples","r":"Southern Europe","t":"Raspberry sorbet","x":[]},{"c":"frozen","d":false,"f":"Ice cream","id":"vanilla-ice-cream","k":266,"n":3.7,"nd":5.4,"p":"Paris","r":"Western Europe","t":"Vanilla ice cream","x":["coconut","eggs"]},{"c":"candy","d":false,"f":"Brigadeiro","id":"brigadeiros","k":167,"n":1.8,"nd":3.1,"p":"Rio de Janeiro","r":"Latin America \u0026 Caribbean","t":"Brigadeiros","x":["coconut"]},{"c":"candy","d":false,"f":"Fudge","id":"chocolate-fudge","k":93,"n":1.1,"nd":1.4,"p":"Poughkeepsie, New York","r":"North America","t":"Chocolate fudge","x":["coconut","tree nuts"]},{"c":"candy","d":true,"f":"Chocolate truffle","id":"chocolate-truffles","k":112,"n":2.7,"nd":2.7,"p":"Chambéry","r":"Western Europe","t":"Chocolate truffles","x":["coconut"]},{"c":"candy","d":true,"f":"Marzipan","id":"marzipan","k":76,"n":1.1,"nd":1.1,"p":"Toledo","r":"Southern Europe","t":"Marzipan","x":["eggs","tree nuts"]},{"c":"candy","d":true,"f":"Peanut butter cup","id":"peanut-butter-cups","k":156,"n":3.5,"nd":3.5,"p":"Hershey, Pennsylvania","r":"North America","t":"Peanut butter cups","x":["coconut","peanuts"]},{"c":"candy","d":true,"f":"Peppermint patty","id":"peppermint-patties","k":92,"n":1.2,"nd":1.2,"p":"York, Pennsylvania","r":"North America","t":"Peppermint patties","x":["coconut"]},{"c":"candy","d":true,"f":"Sesame brittle","id":"sesame-brittle","k":79,"n":1.4,"nd":1.4,"p":"Levant (eastern Mediterranean)","r":"Middle East \u0026 North Africa","t":"Sesame brittle","x":["coconut","sesame"]},{"c":"candy","d":true,"f":"Turrón","id":"turron-de-jijona","k":94,"n":1.5,"nd":1.5,"p":"Jijona (Xixona)","r":"Southern Europe","t":"Soft almond turrón (Jijona style)","x":["eggs","tree nuts"]},{"c":"candy","d":true,"f":"Halva","id":"tahini-halva","k":102,"n":3.0,"nd":3.0,"p":"Istanbul","r":"Middle East \u0026 North Africa","t":"Tahini halva","x":["sesame","tree nuts"]},{"c":"fat-bombs","d":true,"f":"Fat bomb","id":"chocolate-almond-fat-bombs","k":123,"n":1.1,"nd":1.1,"p":"United States","r":"North America","t":"Chocolate-almond fat bombs","x":["coconut","tree nuts"]},{"c":"fat-bombs","d":true,"f":"Fat bomb","id":"coconut-lime-fat-bombs","k":100,"n":0.9,"nd":0.9,"p":"United States","r":"North America","t":"Coconut-lime fat bombs","x":["coconut"]},{"c":"fat-bombs","d":true,"f":"Fat bomb","id":"mocha-fat-bombs","k":129,"n":1.2,"nd":1.2,"p":"United States","r":"North America","t":"Mocha fat bombs","x":["coconut","tree nuts"]},{"c":"fat-bombs","d":true,"f":"Fat bomb","id":"peanut-butter-fat-bombs","k":122,"n":2.2,"nd":2.2,"p":"United States","r":"North America","t":"Peanut butter fat bombs","x":["coconut","peanuts"]},{"c":"fat-bombs","d":false,"f":"Fat bomb","id":"raspberry-cheesecake-fat-bombs","k":83,"n":1.0,"nd":1.5,"p":"United States","r":"North America","t":"Raspberry cheesecake fat bombs","x":["coconut","tree nuts"]},{"c":"fruit","d":false,"f":"Baked apples","id":"baked-cinnamon-apple-slices","k":82,"n":5.6,"nd":5.6,"p":"England","r":"Northern Europe","t":"Baked cinnamon apple slices","x":["coconut","tree nuts"]},{"c":"fruit","d":false,"f":"Cobbler","id":"berry-cobbler","k":200,"n":5.9,"nd":6.2,"p":"Eastern United States","r":"North America","t":"Berry cobbler","x":["coconut","eggs","tree nuts"]},{"c":"fruit","d":false,"f":"Fruit crumble","id":"berry-crumble","k":205,"n":5.4,"nd":5.4,"p":"Britain","r":"Northern Europe","t":"Berry crumble","x":["tree nuts"]},{"c":"fruit","d":false,"f":"Clafoutis","id":"cherry-clafoutis","k":147,"n":4.8,"nd":5.4,"p":"Limousin, France","r":"Western Europe","t":"Cherry clafoutis","x":["coconut","eggs","tree nuts"]},{"c":"fruit","d":false,"f":"Pavlova","id":"pavlova-with-berries","k":131,"n":3.7,"nd":4.8,"p":"New Zealand or Australia (disputed)","r":"Oceania","t":"Pavlova with berries","x":["coconut","eggs"]},{"c":"fruit","d":false,"f":"Fool","id":"rhubarb-fool","k":154,"n":3.1,"nd":4.6,"p":"England","r":"Northern Europe","t":"Rhubarb fool","x":["coconut"]},{"c":"fruit","d":false,"f":"Strawberries Romanoff","id":"strawberries-romanoff","k":116,"n":5.9,"nd":6.6,"p":"Paris, France","r":"Western Europe","t":"Strawberries Romanoff","x":["coconut"]},{"c":"fruit","d":true,"f":"Summer pudding","id":"summer-pudding","k":173,"n":5.0,"nd":5.0,"p":"England","r":"Northern Europe","t":"Summer pudding","x":["coconut","eggs","tree nuts"]},{"c":"drinks","d":true,"f":"Horchata","id":"almond-horchata","k":161,"n":2.7,"nd":2.7,"p":"Valencia, Spain","r":"Southern Europe","t":"Almond horchata","x":["tree nuts"]},{"c":"drinks","d":false,"f":"Eggnog","id":"eggnog","k":226,"n":5.6,"nd":4.1,"p":"Britain and colonial America","r":"Northern Europe","t":"Eggnog","x":["coconut","eggs","tree nuts"]},{"c":"drinks","d":true,"f":"Haldi doodh","id":"golden-milk","k":142,"n":3.9,"nd":3.9,"p":"India","r":"South Asia","t":"Golden milk (haldi doodh)","x":["coconut","tree nuts"]},{"c":"drinks","d":false,"f":"Chai","id":"masala-chai","k":80,"n":6.4,"nd":1.9,"p":"India","r":"South Asia","t":"Masala chai","x":["tree nuts"]},{"c":"drinks","d":true,"f":"Cacao drink","id":"mesoamerican-spiced-hot-chocolate","k":117,"n":4.2,"nd":4.2,"p":"Maya lowlands, Mesoamerica","r":"Latin America \u0026 Caribbean","t":"Mesoamerican-style spiced hot chocolate","x":["tree nuts"]},{"c":"drinks","d":true,"f":"Cà phê sữa đá","id":"vietnamese-iced-coffee","k":129,"n":3.6,"nd":3.6,"p":"Vietnam","r":"Southeast Asia","t":"Vietnamese iced coffee","x":["coconut"]},{"c":"breakfast","d":true,"f":"Porridge","id":"noatmeal","k":318,"n":4.5,"nd":4.5,"p":"Scotland","r":"Northern Europe","t":"\"Noatmeal\" hot cereal","x":["coconut","tree nuts"]},{"c":"breakfast","d":false,"f":"Pancake","id":"almond-flour-pancakes","k":253,"n":3.0,"nd":2.9,"p":"Athens","r":"Southern Europe","t":"Almond-flour pancakes","x":["eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Waffle","id":"belgian-waffles","k":273,"n":3.7,"nd":3.7,"p":"Brussels","r":"Western Europe","t":"Belgian waffles","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Muffin","id":"blueberry-muffins","k":195,"n":3.6,"nd":3.6,"p":"Boston","r":"North America","t":"Blueberry muffins","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Cinnamon roll","id":"cinnamon-rolls","k":236,"n":3.4,"nd":3.7,"p":"Stockholm","r":"Northern Europe","t":"Cinnamon rolls","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Scone","id":"cream-scones","k":245,"n":3.2,"nd":3.6,"p":"Edinburgh","r":"Northern Europe","t":"Cream scones","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Crêpe","id":"almond-crepes","k":171,"n":1.8,"nd":1.7,"p":"Quimper, Brittany","r":"Western Europe","t":"Crêpes","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Dutch baby","id":"dutch-baby","k":225,"n":3.4,"nd":2.2,"p":"Seattle","r":"North America","t":"Dutch baby","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"French toast","id":"french-toast","k":394,"n":3.7,"nd":3.7,"p":"Rome","r":"Southern Europe","t":"French toast","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":true,"f":"Granola","id":"grain-free-granola","k":280,"n":3.0,"nd":3.0,"p":"Dansville, New York","r":"North America","t":"Grain-free granola","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":true,"f":"Shakshuka","id":"green-shakshuka","k":280,"n":5.6,"nd":5.6,"p":"Tunis","r":"Middle East \u0026 North Africa","t":"Green shakshuka","x":["coconut","eggs"]},{"c":"breakfast","d":false,"f":"Muffin","id":"lemon-poppy-seed-muffins","k":197,"n":3.1,"nd":3.0,"p":"United States","r":"North America","t":"Lemon poppy-seed muffins","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":false,"f":"Quiche","id":"quiche-lorraine","k":562,"n":4.3,"nd":4.3,"p":"Nancy, Lorraine","r":"Western Europe","t":"Quiche Lorraine","x":["coconut","eggs","tree nuts"]},{"c":"breakfast","d":true,"f":"Frittata","id":"spinach-frittata","k":151,"n":2.4,"nd":2.4,"p":"Rome","r":"Southern Europe","t":"Spinach and zucchini frittata","x":["eggs"]},{"c":"breads","d":true,"f":"Sandwich loaf","id":"almond-flour-sandwich-loaf","k":144,"n":2.6,"nd":2.6,"p":"Chillicothe, Missouri","r":"North America","t":"Almond-flour sandwich loaf","x":["coconut","eggs","tree nuts"]},{"c":"breads","d":false,"f":"Pão de queijo","id":"cheese-bread-puffs","k":106,"n":1.8,"nd":1.6,"p":"Minas Gerais","r":"Latin America \u0026 Caribbean","t":"Cheese bread puffs","x":["eggs","tree nuts"]},{"c":"breads","d":false,"f":"Cloud bread","id":"cloud-bread","k":62,"n":0.7,"nd":1.0,"p":"United States","r":"North America","t":"Cloud bread","x":["eggs","tree nuts"]},{"c":"breads","d":true,"f":"Tortilla","id":"coconut-flour-tortillas","k":62,"n":2.1,"nd":2.1,"p":"Valley of Mexico","r":"Latin America \u0026 Caribbean","t":"Coconut-flour tortillas","x":["coconut"]},{"c":"breads","d":true,"f":"Seed cracker","id":"flax-crackers","k":118,"n":0.8,"nd":0.8,"p":"United States","r":"North America","t":"Flax crackers","x":["sesame"]},{"c":"breads","d":false,"f":"Soda bread","id":"irish-soda-bread","k":201,"n":3.1,"nd":3.1,"p":"Ireland","r":"Northern Europe","t":"Irish soda bread","x":["coconut","eggs","tree nuts"]},{"c":"breads","d":false,"f":"Naan","id":"naan-style-flatbread","k":183,"n":3.4,"nd":3.4,"p":"Delhi","r":"South Asia","t":"Naan-style flatbread","x":["coconut","tree nuts"]},{"c":"breads","d":true,"f":"Pizza","id":"pizza-crust","k":301,"n":4.1,"nd":4.1,"p":"Naples","r":"Southern Europe","t":"Pizza crust","x":["eggs","tree nuts"]},{"c":"breads","d":true,"f":"Focaccia","id":"rosemary-focaccia","k":224,"n":3.4,"nd":3.4,"p":"Genoa, Liguria","r":"Southern Europe","t":"Rosemary focaccia","x":["coconut","eggs","tree nuts"]},{"c":"breads","d":true,"f":"Bagel","id":"sesame-bagels","k":172,"n":3.4,"nd":3.4,"p":"Kraków","r":"Central \u0026 Eastern Europe","t":"Sesame bagels","x":["eggs","sesame","tree nuts"]},{"c":"breads","d":false,"f":"Cornbread","id":"southern-style-cornbread","k":176,"n":2.7,"nd":2.6,"p":"Charleston, South Carolina","r":"North America","t":"Southern-style \"cornbread\" (no corn)","x":["coconut","eggs","tree nuts"]},{"c":"breads","d":true,"f":"Knäckebröd","id":"seeded-crispbread","k":171,"n":2.2,"nd":2.2,"p":"Sweden","r":"Northern Europe","t":"Swedish-style seeded crispbread","x":["sesame","tree nuts"]},{"c":"basics","d":false,"f":"Sweet shortcrust (pâte sucrée)","id":"almond-flour-pie-crust","k":201,"n":2.2,"nd":2.2,"p":"Paris","r":"Western Europe","t":"Almond-flour sweet pie crust","x":["eggs","tree nuts"]},{"c":"basics","d":true,"f":"Fruit jam","id":"berry-chia-jam","k":15,"n":1.1,"nd":1.1,"p":"United States","r":"North America","t":"Berry chia jam","x":[]},{"c":"basics","d":false,"f":"Whipped cream","id":"chantilly-whipped-cream","k":103,"n":0.9,"nd":2.1,"p":"Chantilly","r":"Western Europe","t":"Chantilly whipped cream","x":["coconut"]},{"c":"basics","d":false,"f":"Crumb crust","id":"chocolate-cookie-crumb-crust","k":178,"n":2.2,"nd":2.2,"p":"United States","r":"North America","t":"Chocolate cookie crumb crust","x":["coconut","tree nuts"]},{"c":"basics","d":false,"f":"Ganache","id":"chocolate-ganache","k":115,"n":2.0,"nd":2.5,"p":"Paris","r":"Western Europe","t":"Chocolate ganache","x":["coconut"]},{"c":"basics","d":true,"f":"Chocolate sauce","id":"chocolate-sauce","k":56,"n":1.1,"nd":1.1,"p":"United States","r":"North America","t":"Chocolate sauce","x":["coconut"]},{"c":"basics","d":true,"f":"Whipped cream","id":"coconut-whipped-cream","k":151,"n":3.1,"nd":3.1,"p":"United States","r":"North America","t":"Coconut whipped cream","x":["coconut"]},{"c":"basics","d":false,"f":"Cream cheese frosting","id":"cream-cheese-frosting","k":106,"n":1.1,"nd":1.8,"p":"United States","r":"North America","t":"Cream cheese frosting","x":["coconut","tree nuts"]},{"c":"basics","d":false,"f":"Custard sauce","id":"creme-anglaise","k":160,"n":2.8,"nd":2.2,"p":"Paris","r":"Western Europe","t":"Crème anglaise","x":["coconut","eggs"]},{"c":"basics","d":false,"f":"Lemon curd","id":"lemon-curd","k":78,"n":0.9,"nd":0.9,"p":"England","r":"Northern Europe","t":"Lemon curd","x":["coconut","eggs"]},{"c":"basics","d":false,"f":"Pie crust","id":"coconut-flour-pie-crust","k":138,"n":2.9,"nd":2.9,"p":"United States","r":"North America","t":"Nut-free coconut-flour pie crust","x":["coconut","eggs"]},{"c":"basics","d":false,"f":"Caramel","id":"salted-caramel-sauce","k":54,"n":0.2,"nd":0.5,"p":"Quiberon, Brittany","r":"Western Europe","t":"Salted caramel sauce","x":["coconut"]},{"c":"basics","d":true,"f":"Maple syrup (imitation)","id":"sugar-free-maple-syrup","k":9,"n":0.1,"nd":0.1,"p":"Quebec","r":"North America","t":"Sugar-free maple-style syrup","x":[]},{"c":"basics","d":false,"f":"Buttercream","id":"swiss-meringue-buttercream","k":161,"n":0.1,"nd":0.1,"p":"Switzerland","r":"Western Europe","t":"Swiss meringue buttercream","x":["eggs"]}]</script>
+<script id="places" type="application/json">[{"items":[{"e":"1600s","f":"Bagel","id":"sesame-bagels","t":"Sesame bagels"}],"lat":50.1,"lon":19.9,"place":"Kraków","region":"Central \u0026 Eastern Europe"},{"items":[{"e":"1960s","f":"Cheesecake","id":"japanese-cotton-cheesecake","t":"Japanese cotton cheesecake"}],"lat":35.7,"lon":139.7,"place":"Japan","region":"East Asia"},{"items":[{"e":"ancient","f":"Cacao drink","id":"mesoamerican-spiced-hot-chocolate","t":"Mesoamerican-style spiced hot chocolate"}],"lat":17.2,"lon":-89.6,"place":"Maya lowlands, Mesoamerica","region":"Latin America \u0026 Caribbean"},{"items":[{"e":"ancient","f":"Tortilla","id":"coconut-flour-tortillas","t":"Coconut-flour tortillas"},{"e":"colonial era","f":"Polvorón","id":"mexican-wedding-cookies","t":"Mexican wedding cookies (polvorones)"},{"e":"1900s","f":"Soaked sponge cake","id":"tres-leches-cake","t":"Tres leches cake"},{"e":"ancient (modern pudding form, 2000s)","f":"Chia drink and pudding","id":"chia-pudding","t":"Vanilla-cinnamon chia pudding"}],"lat":19.4,"lon":-99.1,"place":"Mexico","region":"Latin America \u0026 Caribbean"},{"items":[{"e":"1700s","f":"Pão de queijo","id":"cheese-bread-puffs","t":"Cheese bread puffs"}],"lat":-18.5,"lon":-44.6,"place":"Minas Gerais","region":"Latin America \u0026 Caribbean"},{"items":[{"e":"1940s","f":"Brigadeiro","id":"brigadeiros","t":"Brigadeiros"}],"lat":-22.9,"lon":-43.2,"place":"Rio de Janeiro","region":"Latin America \u0026 Caribbean"},{"items":[{"e":"1940s","f":"Paletas","id":"coconut-strawberry-paletas","t":"Coconut-strawberry paletas"}],"lat":19.7,"lon":-102.5,"place":"Tocumbo, Michoacán","region":"Latin America \u0026 Caribbean"},{"items":[{"e":"by the 1900s","f":"Syrup cake","id":"almond-basbousa","t":"Almond basbousa"}],"lat":30.0,"lon":31.2,"place":"Egypt","region":"Middle East \u0026 North Africa"},{"items":[{"e":"Ottoman era","f":"Halva","id":"tahini-halva","t":"Tahini halva"}],"lat":41.0,"lon":29.0,"place":"Istanbul","region":"Middle East \u0026 North Africa"},{"items":[{"e":"by the 1800s","f":"Ma'amoul","id":"maamoul-nut-cookies","t":"Ma'amoul-style walnut and pistachio cookies"},{"e":"ancient","f":"Sesame brittle","id":"sesame-brittle","t":"Sesame brittle"}],"lat":33.5,"lon":36.3,"place":"The Levant","region":"Middle East \u0026 North Africa"},{"items":[{"e":"by the 1900s","f":"Shakshuka","id":"green-shakshuka","t":"Green shakshuka"}],"lat":36.8,"lon":10.2,"place":"Tunis","region":"Middle East \u0026 North Africa"},{"items":[{"e":"1800s","f":"Fruit pie","id":"strawberry-rhubarb-pie","t":"Strawberry-rhubarb pie"}],"lat":41.6,"lon":-93.6,"place":"American Midwest","region":"North America"},{"items":[{"e":"1900","f":"Butter tart","id":"butter-tarts","t":"Butter tarts"}],"lat":44.4,"lon":-79.7,"place":"Barrie, Ontario","region":"North America"},{"items":[{"e":"1700s","f":"Cornbread","id":"southern-style-cornbread","t":"Southern-style \"cornbread\" (no corn)"}],"lat":32.8,"lon":-79.9,"place":"Charleston, South Carolina","region":"North America"},{"items":[{"e":"1890s","f":"Brownie","id":"fudgy-brownies","t":"Fudgy brownies"}],"lat":41.9,"lon":-87.6,"place":"Chicago","region":"North America"},{"items":[{"e":"1928","f":"Sandwich loaf","id":"almond-flour-sandwich-loaf","t":"Almond-flour sandwich loaf"}],"lat":39.8,"lon":-93.5,"place":"Chillicothe, Missouri","region":"North America"},{"items":[{"e":"1860s","f":"Granola","id":"grain-free-granola","t":"Grain-free granola"}],"lat":42.6,"lon":-77.7,"place":"Dansville, New York","region":"North America"},{"items":[{"e":"1800s","f":"Cobbler","id":"berry-cobbler","t":"Berry cobbler"}],"lat":38.0,"lon":-78.0,"place":"Eastern United States","region":"North America"},{"items":[{"e":"1928","f":"Peanut butter cup","id":"peanut-butter-cups","t":"Peanut butter cups"}],"lat":40.3,"lon":-76.7,"place":"Hershey, Pennsylvania","region":"North America"},{"items":[{"e":"late 1800s","f":"Key lime pie","id":"key-lime-pie","t":"Key lime pie"}],"lat":24.6,"lon":-81.8,"place":"Key West, Florida","region":"North America"},{"items":[{"e":"1951","f":"Chocolate cream pie","id":"french-silk-pie","t":"French silk chocolate pie"}],"lat":39.0,"lon":-77.1,"place":"Maryland, United States","region":"North America"},{"items":[{"e":"1950s","f":"Nanaimo bar","id":"nanaimo-bars","t":"Nanaimo bars"}],"lat":49.2,"lon":-123.9,"place":"Nanaimo, British Columbia","region":"North America"},{"items":[{"e":"1800s","f":"Muffin","id":"blueberry-muffins","t":"Blueberry muffins"},{"e":"late 1900s","f":"Cheesecake","id":"pumpkin-cheesecake","t":"Pumpkin cheesecake"},{"e":"1700s","f":"Pumpkin pie","id":"pumpkin-pie","t":"Pumpkin pie"},{"e":"1800s","f":"Drop cookie","id":"snickerdoodles","t":"Snickerdoodles"}],"lat":42.4,"lon":-71.1,"place":"New England","region":"North America"},{"items":[{"e":"1900s","f":"Cheesecake","id":"chocolate-cheesecake","t":"Chocolate cheesecake"},{"e":"1980s","f":"Chocolate cake","id":"chocolate-lava-cakes","t":"Chocolate lava cakes"},{"e":"late 1800s","f":"Macaroon","id":"coconut-macaroons","t":"Coconut macaroons"},{"e":"early 1900s","f":"Cheesecake","id":"new-york-cheesecake","t":"New York cheesecake"}],"lat":40.7,"lon":-74.0,"place":"New York City","region":"North America"},{"items":[{"e":"early 1800s","f":"Lemon meringue pie","id":"lemon-meringue-pie","t":"Lemon meringue pie"}],"lat":40.0,"lon":-75.2,"place":"Philadelphia","region":"North America"},{"items":[{"e":"1880s","f":"Fudge","id":"chocolate-fudge","t":"Chocolate fudge"}],"lat":41.7,"lon":-73.9,"place":"Poughkeepsie, New York","region":"North America"},{"items":[{"e":"pre-colonial","f":"Maple syrup (imitation)","id":"sugar-free-maple-syrup","t":"Sugar-free maple-style syrup"}],"lat":46.8,"lon":-71.2,"place":"Quebec","region":"North America"},{"items":[{"e":"early 1900s","f":"Dutch baby","id":"dutch-baby","t":"Dutch baby"}],"lat":47.6,"lon":-122.3,"place":"Seattle","region":"North America"},{"items":[{"e":"early 1900s","f":"Pecan pie","id":"pecan-pie-bars","t":"Pecan pie bars"}],"lat":32.3,"lon":-86.9,"place":"Southern United States","region":"North America"},{"items":[{"e":"late 1800s","f":"Pecan pie","id":"pecan-pie","t":"Pecan pie"}],"lat":30.3,"lon":-97.7,"place":"Texas and the American South","region":"North America"},{"items":[{"e":"2010s","f":"Fruit jam","id":"berry-chia-jam","t":"Berry chia jam"},{"e":"1900s","f":"Brownie","id":"blondies","t":"Blondies"},{"e":"early 1900s","f":"Crumb crust","id":"chocolate-cookie-crumb-crust","t":"Chocolate cookie crumb crust"},{"e":"early 1900s","f":"Chocolate sauce","id":"chocolate-sauce","t":"Chocolate sauce"},{"e":"2010s","f":"Fat bomb","id":"chocolate-almond-fat-bombs","t":"Chocolate-almond fat bombs"},{"e":"2000s","f":"Cloud bread","id":"cloud-bread","t":"Cloud bread"},{"e":"2000s","f":"Whipped cream","id":"coconut-whipped-cream","t":"Coconut whipped cream"},{"e":"2010s","f":"Fat bomb","id":"coconut-lime-fat-bombs","t":"Coconut-lime fat bombs"},{"e":"mid-1900s","f":"Cream cheese frosting","id":"cream-cheese-frosting","t":"Cream cheese frosting"},{"e":"late 1900s","f":"Seed cracker","id":"flax-crackers","t":"Flax crackers"},{"e":"mid-1900s","f":"Lemon bar","id":"lemon-bars","t":"Lemon bars"},{"e":"late 1900s","f":"Muffin","id":"lemon-poppy-seed-muffins","t":"Lemon poppy-seed muffins"},{"e":"2010s","f":"Fat bomb","id":"mocha-fat-bombs","t":"Mocha fat bombs"},{"e":"mid-1900s","f":"Cheesecake","id":"no-bake-lemon-cheesecake","t":"No-bake lemon cheesecake"},{"e":"2000s","f":"Pie crust","id":"coconut-flour-pie-crust","t":"Nut-free coconut-flour pie crust"},{"e":"early 1900s","f":"Peanut butter cookie","id":"peanut-butter-cookies","t":"Peanut butter cookies"},{"e":"2010s","f":"Fat bomb","id":"peanut-butter-fat-bombs","t":"Peanut butter fat bombs"},{"e":"2010s","f":"Fat bomb","id":"raspberry-cheesecake-fat-bombs","t":"Raspberry cheesecake fat bombs"},{"e":"1950s","f":"Magic bar","id":"magic-bars","t":"Seven-layer magic bars"}],"lat":39.8,"lon":-98.6,"place":"United States","region":"North America"},{"items":[{"e":"1930s","f":"Drop cookie","id":"chocolate-chip-cookies","t":"Chocolate chip cookies"}],"lat":42.1,"lon":-70.9,"place":"Whitman, Massachusetts","region":"North America"},{"items":[{"e":"1940","f":"Peppermint patty","id":"peppermint-patties","t":"Peppermint patties"}],"lat":40.0,"lon":-76.7,"place":"York, Pennsylvania","region":"North America"},{"items":[{"e":"1800s","f":"Bakewell tart","id":"bakewell-tart","t":"Bakewell tart"}],"lat":53.2,"lon":-1.7,"place":"Bakewell, Derbyshire","region":"Northern Europe"},{"items":[{"e":"late 1900s","f":"Loaf cake","id":"lemon-drizzle-cake","t":"Lemon drizzle cake"}],"lat":52.5,"lon":-1.9,"place":"Britain","region":"Northern Europe"},{"items":[{"e":"1970s","f":"Steamed and baked sponge pudding","id":"sticky-toffee-pudding","t":"Sticky toffee pudding"}],"lat":54.6,"lon":-2.9,"place":"Cumbria, England","region":"Northern Europe"},{"items":[{"e":"1700s","f":"Eggnog","id":"eggnog","t":"Eggnog"},{"e":"medieval","f":"Gingerbread","id":"gingerbread-loaf","t":"Gingerbread loaf"},{"e":"by the 1800s","f":"Gingerbread","id":"gingersnaps","t":"Gingersnaps"},{"e":"1700s","f":"Butter cake","id":"pound-cake","t":"Pound cake"},{"e":"1940s","f":"Crumble","id":"raspberry-crumble-bars","t":"Raspberry crumble bars"},{"e":"1800s","f":"Sponge cake","id":"victoria-sponge","t":"Victoria sponge"}],"lat":51.5,"lon":-0.1,"place":"England","region":"Northern Europe"},{"items":[{"e":"medieval","f":"Posset","id":"lemon-posset","t":"Lemon posset"},{"e":"1500s","f":"Syllabub","id":"lemon-syllabub","t":"Lemon syllabub"},{"e":"1970s","f":"Mint chocolate chip ice cream","id":"mint-chocolate-chip-ice-cream","t":"Mint chocolate chip ice cream"}],"lat":52.5,"lon":-1.5,"place":"England","region":"Northern Europe"},{"items":[{"e":"medieval","f":"Baked apples","id":"baked-cinnamon-apple-slices","t":"Baked cinnamon apple slices"},{"e":"1900s","f":"Fruit crumble","id":"berry-crumble","t":"Berry crumble"},{"e":"1800s","f":"Lemon curd","id":"lemon-curd","t":"Lemon curd"},{"e":"1600s","f":"Fool","id":"rhubarb-fool","t":"Rhubarb fool"},{"e":"late 1800s","f":"Summer pudding","id":"summer-pudding","t":"Summer pudding"}],"lat":52.4,"lon":-1.2,"place":"England","region":"Northern Europe"},{"items":[{"e":"1800s","f":"Eton mess","id":"eton-mess","t":"Eton mess"}],"lat":51.5,"lon":-0.6,"place":"Eton","region":"Northern Europe"},{"items":[{"e":"1800s","f":"Soda bread","id":"irish-soda-bread","t":"Irish soda bread"}],"lat":53.4,"lon":-8.2,"place":"Ireland","region":"Northern Europe"},{"items":[{"e":"1500s","f":"Scone","id":"cream-scones","t":"Cream scones"},{"e":"1500s","f":"Shortbread","id":"scottish-shortbread","t":"Scottish shortbread"}],"lat":56.0,"lon":-3.2,"place":"Scotland","region":"Northern Europe"},{"items":[{"e":"1900s","f":"Shortbread","id":"millionaires-shortbread","t":"Millionaire's shortbread"}],"lat":55.9,"lon":-4.2,"place":"Scotland","region":"Northern Europe"},{"items":[{"e":"medieval","f":"Porridge","id":"noatmeal","t":"\"Noatmeal\" hot cereal"}],"lat":56.5,"lon":-4.2,"place":"Scotland","region":"Northern Europe"},{"items":[{"e":"1920s","f":"Cinnamon roll","id":"cinnamon-rolls","t":"Cinnamon rolls"}],"lat":59.3,"lon":18.1,"place":"Stockholm","region":"Northern Europe"},{"items":[{"e":"by the 1800s","f":"Knäckebröd","id":"seeded-crispbread","t":"Swedish-style seeded crispbread"}],"lat":60.1,"lon":18.6,"place":"Sweden","region":"Northern Europe"},{"items":[{"e":"traditional (pre-1800s)","f":"Coconut pudding","id":"haupia","t":"Haupia"}],"lat":21.3,"lon":-157.9,"place":"Hawaii","region":"Oceania"},{"items":[{"e":"1920s–1930s","f":"Pavlova","id":"pavlova-with-berries","t":"Pavlova with berries"}],"lat":-41.3,"lon":174.8,"place":"New Zealand or Australia (disputed)","region":"Oceania"},{"items":[{"e":"around 1900","f":"Sponge cake","id":"lamingtons","t":"Lamingtons"}],"lat":-27.5,"lon":153.0,"place":"Queensland","region":"Oceania"},{"items":[{"e":"1500s","f":"Kulfi","id":"coconut-kulfi","t":"Coconut kulfi"},{"e":"medieval","f":"Naan","id":"naan-style-flatbread","t":"Naan-style flatbread"}],"lat":28.6,"lon":77.2,"place":"Delhi","region":"South Asia"},{"items":[{"e":"ancient","f":"Rice pudding (kheer)","id":"cauliflower-kheer","t":"Cauliflower kheer"},{"e":"traditional","f":"Haldi doodh","id":"golden-milk","t":"Golden milk (haldi doodh)"}],"lat":20.6,"lon":79.0,"place":"India","region":"South Asia"},{"items":[{"e":"1900s","f":"Chai","id":"masala-chai","t":"Masala chai"}],"lat":22.6,"lon":88.4,"place":"India","region":"South Asia"},{"items":[{"e":"Spanish colonial era","f":"Flan","id":"leche-flan","t":"Leche flan"}],"lat":14.6,"lon":121.0,"place":"Manila, Philippines","region":"Southeast Asia"},{"items":[{"e":"1900s","f":"Cà phê sữa đá","id":"vietnamese-iced-coffee","t":"Vietnamese iced coffee"}],"lat":10.8,"lon":106.6,"place":"Vietnam","region":"Southeast Asia"},{"items":[{"e":"1900s","f":"Chocolate cake","id":"torta-caprese","t":"Torta caprese"}],"lat":40.5,"lon":14.2,"place":"Capri","region":"Southern Europe"},{"items":[{"e":"medieval (claimed)","f":"Stirred custard","id":"crema-catalana","t":"Crema catalana"}],"lat":41.4,"lon":2.2,"place":"Catalonia, Spain","region":"Southern Europe"},{"items":[{"e":"1800s","f":"Granita","id":"lemon-granita","t":"Lemon granita"}],"lat":37.5,"lon":15.1,"place":"Catania","region":"Southern Europe"},{"items":[{"e":"by the 1800s","f":"Florentine","id":"florentines","t":"Florentines"}],"lat":43.8,"lon":11.3,"place":"Florence","region":"Southern Europe"},{"items":[{"e":"ancient","f":"Focaccia","id":"rosemary-focaccia","t":"Rosemary focaccia"}],"lat":44.4,"lon":8.9,"place":"Genoa, Liguria","region":"Southern Europe"},{"items":[{"e":"ancient","f":"Pancake","id":"almond-flour-pancakes","t":"Almond-flour pancakes"},{"e":"Ottoman era","f":"Shortbread","id":"kourabiedes","t":"Kourabiedes"}],"lat":38.0,"lon":23.7,"place":"Greece","region":"Southern Europe"},{"items":[{"e":"1900s","f":"Affogato","id":"affogato","t":"Affogato"},{"e":"1900s","f":"Semifreddo","id":"almond-semifreddo","t":"Almond semifreddo"},{"e":"by the 1900s","f":"Oil cake","id":"olive-oil-cake","t":"Italian olive-oil cake"}],"lat":42.5,"lon":12.5,"place":"Italy","region":"Southern Europe"},{"items":[{"e":"1500s","f":"Turrón","id":"turron-de-jijona","t":"Soft almond turrón (Jijona style)"}],"lat":38.5,"lon":-0.5,"place":"Jijona (Xixona)","region":"Southern Europe"},{"items":[{"e":"by the 1900s","f":"Nut cake","id":"torta-di-nocciole","t":"Piedmontese hazelnut cake (torta di nocciole)"}],"lat":44.6,"lon":8.0,"place":"Langhe, Piedmont","region":"Southern Europe"},{"items":[{"e":"1600s","f":"Gelato","id":"gelato-al-cioccolato","t":"Gelato al cioccolato"},{"e":"1700s","f":"Pizza","id":"pizza-crust","t":"Pizza crust"},{"e":"1600s","f":"Sorbet","id":"raspberry-sorbet","t":"Raspberry sorbet"}],"lat":40.9,"lon":14.3,"place":"Naples","region":"Southern Europe"},{"items":[{"e":"1900s","f":"Panna cotta","id":"panna-cotta","t":"Panna cotta"},{"e":"by the 1800s","f":"Zabaglione","id":"zabaglione","t":"Zabaglione (wine-free)"}],"lat":45.1,"lon":7.7,"place":"Piedmont, Italy","region":"Southern Europe"},{"items":[{"e":"1800s","f":"Biscotti","id":"cantucci","t":"Almond biscotti (cantucci)"}],"lat":43.9,"lon":11.1,"place":"Prato","region":"Southern Europe"},{"items":[{"e":"ancient","f":"French toast","id":"french-toast","t":"French toast"},{"e":"ancient","f":"Cheesecake","id":"italian-ricotta-cheesecake","t":"Italian ricotta cheesecake"},{"e":"by the 1800s","f":"Frittata","id":"spinach-frittata","t":"Spinach and zucchini frittata"}],"lat":41.9,"lon":12.5,"place":"Rome","region":"Southern Europe"},{"items":[{"e":"1990","f":"Cheesecake","id":"basque-burnt-cheesecake","t":"Basque burnt cheesecake"}],"lat":43.3,"lon":-2.0,"place":"San Sebastián","region":"Southern Europe"},{"items":[{"e":"1800s","f":"Almond cake","id":"tarta-de-santiago","t":"Tarta de Santiago"}],"lat":42.9,"lon":-8.5,"place":"Santiago de Compostela","region":"Southern Europe"},{"items":[{"e":"by the 1800s","f":"Macaroon","id":"amaretti","t":"Soft amaretti"}],"lat":45.6,"lon":9.0,"place":"Saronno","region":"Southern Europe"},{"items":[{"e":"ancient (Roman roots)","f":"Flan","id":"spanish-flan","t":"Spanish flan"}],"lat":40.4,"lon":-3.7,"place":"Spain","region":"Southern Europe"},{"items":[{"e":"medieval","f":"Marzipan","id":"marzipan","t":"Marzipan"}],"lat":39.9,"lon":-4.0,"place":"Toledo","region":"Southern Europe"},{"items":[{"e":"1960s–1970s","f":"Tiramisù","id":"tiramisu","t":"Tiramisù"}],"lat":45.7,"lon":12.2,"place":"Treviso","region":"Southern Europe"},{"items":[{"e":"medieval","f":"Horchata","id":"almond-horchata","t":"Almond horchata"}],"lat":39.5,"lon":-0.4,"place":"Valencia, Spain","region":"Southern Europe"},{"items":[{"e":"1900s","f":"Baked sponge pudding","id":"malva-pudding","t":"Malva pudding"}],"lat":-33.9,"lon":18.4,"place":"Cape Town, South Africa","region":"Sub-Saharan Africa"},{"items":[{"e":"medieval","f":"Waffle","id":"belgian-waffles","t":"Belgian waffles"},{"e":"by the 1700s","f":"Spiced biscuit","id":"speculoos","t":"Speculoos"}],"lat":50.9,"lon":4.3,"place":"Belgium and the Netherlands","region":"Western Europe"},{"items":[{"e":"1900s","f":"Layer cake","id":"black-forest-cake","t":"Black Forest cake"}],"lat":48.0,"lon":8.2,"place":"Black Forest","region":"Western Europe"},{"items":[{"e":"late 1800s","f":"Chocolate truffle","id":"chocolate-truffles","t":"Chocolate truffles"}],"lat":45.6,"lon":5.9,"place":"Chambéry","region":"Western Europe"},{"items":[{"e":"1600s","f":"Whipped cream","id":"chantilly-whipped-cream","t":"Chantilly whipped cream"}],"lat":49.2,"lon":2.5,"place":"Chantilly","region":"Western Europe"},{"items":[{"e":"medieval","f":"Cheesecake","id":"kasekuchen","t":"German Käsekuchen"}],"lat":51.2,"lon":10.4,"place":"Germany","region":"Western Europe"},{"items":[{"e":"1800s","f":"Clafoutis","id":"cherry-clafoutis","t":"Cherry clafoutis"}],"lat":45.8,"lon":1.3,"place":"Limousin, France","region":"Western Europe"},{"items":[{"e":"1600s","f":"Linzer","id":"linzer-cookies","t":"Linzer cookies"}],"lat":48.3,"lon":14.3,"place":"Linz","region":"Western Europe"},{"items":[{"e":"by the 1500s","f":"Quiche","id":"quiche-lorraine","t":"Quiche Lorraine"}],"lat":48.7,"lon":6.2,"place":"Nancy, Lorraine","region":"Western Europe"},{"items":[{"e":"medieval","f":"Lebkuchen","id":"nuremberg-lebkuchen","t":"Nuremberg-style Lebkuchen"}],"lat":49.5,"lon":11.1,"place":"Nuremberg","region":"Western Europe"},{"items":[{"e":"medieval","f":"Galette des rois","id":"galette-des-rois","t":"Almond frangipane tart (galette des rois-style)"},{"e":"1800s","f":"Sweet shortcrust (pâte sucrée)","id":"almond-flour-pie-crust","t":"Almond-flour sweet pie crust"},{"e":"early 1800s","f":"Bavarian cream","id":"bavarian-cream","t":"Bavarian cream (bavarois)"},{"e":"1800s","f":"Ganache","id":"chocolate-ganache","t":"Chocolate ganache"},{"e":"1700s","f":"Chocolate mousse","id":"chocolate-mousse","t":"Chocolate mousse"},{"e":"1700s","f":"Baked custard","id":"pots-de-creme","t":"Chocolate pots de crème"},{"e":"1800s","f":"Custard sauce","id":"creme-anglaise","t":"Crème anglaise"},{"e":"1600s","f":"Baked custard","id":"creme-brulee","t":"Crème brûlée"},{"e":"1800s","f":"Strawberries Romanoff","id":"strawberries-romanoff","t":"Strawberries Romanoff"},{"e":"by the 1900s","f":"Lemon tart","id":"tarte-au-citron","t":"Tarte au citron"},{"e":"1700s","f":"Ice cream","id":"vanilla-ice-cream","t":"Vanilla ice cream"}],"lat":48.9,"lon":2.4,"place":"Paris","region":"Western Europe"},{"items":[{"e":"1970s","f":"Caramel","id":"salted-caramel-sauce","t":"Salted caramel sauce"}],"lat":47.5,"lon":-3.1,"place":"Quiberon, Brittany","region":"Western Europe"},{"items":[{"e":"medieval","f":"Crêpe","id":"almond-crepes","t":"Crêpes"}],"lat":48.0,"lon":-4.1,"place":"Quimper, Brittany","region":"Western Europe"},{"items":[{"e":"1900s","f":"Buttercream","id":"swiss-meringue-buttercream","t":"Swiss meringue buttercream"}],"lat":46.8,"lon":8.2,"place":"Switzerland","region":"Western Europe"},{"items":[{"e":"1832","f":"Chocolate torte","id":"sachertorte","t":"Sachertorte"},{"e":"by the 1900s","f":"Kipferl","id":"vanillekipferl","t":"Vanillekipferl"}],"lat":48.2,"lon":16.4,"place":"Vienna","region":"Western Europe"}]</script>
+<script>
+(function () {
+  var cards = JSON.parse(document.getElementById('cards').textContent);
+  var places = JSON.parse(document.getElementById('places').textContent);
+  var byId = {}; cards.forEach(function (c) { byId[c.id] = c; });
+  var region = '';
+  var els = {}; document.querySelectorAll('#grid .card').forEach(function (a) { els[a.dataset.id] = a; });
+  var f = { q: document.getElementById('q'), cat: document.getElementById('cat'), net: document.getElementById('net'),
+            df: document.getElementById('df'), nf: document.getElementById('nf'), ef: document.getElementById('ef'), cf: document.getElementById('cf') };
+  function keep(c) {
+    var q = f.q.value.trim().toLowerCase();
+    if (q && (c.t + ' ' + c.f + ' ' + c.p + ' ' + c.r).toLowerCase().indexOf(q) < 0) return false;
+    if (f.cat.value && c.c !== f.cat.value) return false;
+    if (f.net.value && Math.min(c.n, c.nd) > parseFloat(f.net.value)) return false;
+    if (f.df.checked && !c.d) return false;
+    if (f.nf.checked && (c.x.indexOf('tree nuts') >= 0 || c.x.indexOf('peanuts') >= 0)) return false;
+    if (f.ef.checked && c.x.indexOf('eggs') >= 0) return false;
+    if (f.cf.checked && c.x.indexOf('coconut') >= 0) return false;
+    if (region && c.r !== region) return false;
+    return true;
+  }
+  var markers = [];
+  function apply() {
+    var n = 0;
+    cards.forEach(function (c) { var ok = keep(c); els[c.id].hidden = !ok; if (ok) n++; });
+    document.getElementById('count').textContent = n + ' of ' + cards.length;
+    markers.forEach(function (m) {
+      var any = m.p.items.some(function (i) { return keep(byId[i.id]); });
+      m.m.setStyle({ opacity: any ? 1 : 0.15, fillOpacity: any ? 0.8 : 0.1 });
+    });
+  }
+  Object.keys(f).forEach(function (k) { f[k].addEventListener('input', apply); f[k].addEventListener('change', apply); });
+  document.getElementById('regions').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    region = b.dataset.r;
+    document.querySelectorAll('#regions button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    apply();
+  });
+  if (window.L) {
+    var map = L.map('map', { worldCopyJump: true, scrollWheelZoom: false }).setView([30, 10], 2);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 9, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var focus = new URLSearchParams(location.search).get('focus');
+    places.forEach(function (p) {
+      var html = '<strong>' + esc(p.place) + '</strong><br><span style="color:#888">' + esc(p.region) + '</span><ul>' +
+        p.items.map(function (i) { return '<li><a href="recipes/' + esc(i.id) + '.html">' + esc(i.t) + '</a> <span style="color:#888">' + esc(i.f) + ', ' + esc(i.e) + '</span></li>'; }).join('') + '</ul>';
+      var m = L.circleMarker([p.lat, p.lon], { radius: 5 + Math.min(8, 2 * p.items.length), color: '#a4452c', weight: 2, fillColor: '#e48a6c', fillOpacity: 0.8 })
+        .bindPopup(html).addTo(map);
+      markers.push({ m: m, p: p });
+      if (focus && p.items.some(function (i) { return i.id === focus; })) { map.setView([p.lat, p.lon], 5); m.openPopup(); }
+    });
+  }
+  apply();
+})();
+</script>
+</body>
+</html>

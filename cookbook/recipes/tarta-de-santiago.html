@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarta de Santiago — The Low-Carb Kitchen</title>
+<meta name="description" content="The Galician almond cake: ground almonds, eggs and lemon zest, baked flat and dusted with the cross of St James. 2.4 g net carbs per serving; dairy-free.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="../index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="../index.html#recipes" >Recipes</a>
+    <a href="../index.html#origins">Origins map</a>
+    <a href="../book.html" >The whole book</a>
+    <a href="../about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<p class="small noprint"><a href="../index.html#recipes">Recipes</a> › <a href="../book.html#ch-cakes">Cakes</a></p>
+<h1>Tarta de Santiago</h1>
+<p class="lede">The Galician almond cake: ground almonds, eggs and lemon zest, baked flat and dusted with the cross of St James.</p>
+<p class="sans">
+  <span class="badge df">Dairy-free</span> <span class="badge net">2.4 g net carbs</span>
+  <span class="chip">Serves 10 · 1 slice</span>
+<span class="chip">prep 15 min · cook 35 min · rest 30 min</span></p>
+<div class="two">
+  <div>
+    <h2>Ingredients</h2>
+      <ul class="ing">
+<li><span class="m">250 g</span> almond flour (blanched, finely ground)</li><li><span class="m">180 g</span> granulated erythritol</li><li><span class="m">1 tbsp</span> lemon zest</li><li><span class="m">¼ tsp</span> ground cinnamon</li><li><span class="m">⅛ tsp</span> fine salt</li><li><span class="m">4</span> large eggs</li><li><span class="m">¼ tsp</span> almond extract, optional</li><li><span class="m">1 tsp</span> olive oil, for the pan</li><li><span class="m">2 tbsp</span> powdered erythritol (confectioners&#39; style) (16 g), for dusting</li>  </ul>
+
+  </div>
+  <div>
+    <h2>Nutrition</h2>
+    <table class="facts">
+  <thead><tr><th>Per serving</th><th class="num">As written</th></tr></thead>
+  <tbody>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">2.4 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">24.6 g</td></tr>
+    <tr><td>Fibre</td><td class="num">2.6 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">19.6 g</td></tr>
+    <tr><td>Sugars</td><td class="num">1.3 g</td></tr>
+    <tr><td>Fat</td><td class="num">15.5 g</td></tr>
+    <tr><td>Protein</td><td class="num">7.9 g</td></tr>
+    <tr><td>Energy</td><td class="num">184 kcal</td></tr>
+  </tbody>
+</table>
+    <p class="small">Contains: eggs, tree nuts.</p>
+<p class="small">From typical product labels, which vary by brand: almond extract, granulated erythritol, powdered erythritol (confectioners&#39; style).</p>  </div>
+</div>
+<h2>Method</h2>
+<ol class="steps"><li>Heat the oven to 175 °C (350 °F). Oil a 23 cm (9 in) round pan and line the base with parchment.</li><li>Mix the almond flour, erythritol, lemon zest, cinnamon and salt in a bowl.</li><li>In another bowl whisk the eggs for about 2 minutes, until frothy and slightly paler, then whisk in the almond extract.</li><li>Stir the almond mixture into the eggs until evenly combined; it will be a thick, spoonable batter.</li><li>Spread in the pan and bake 30–35 minutes, until golden brown and just firm in the centre. Cool completely in the pan.</li><li>Cut a cross of St James from paper, lay it in the centre of the cake, dust heavily with powdered erythritol and lift the stencil off carefully.</li></ol>
+<p class="sans"><span class="badge df">Dairy-free as written</span></p>
+
+<h2>Tips</h2><ul><li>The cake keeps well for 3–4 days at room temperature and tastes better on day two.</li><li>Without the stencil, a plain dusting is just as traditional at home.</li></ul><aside class="origin">
+  <h2>Where it comes from</h2>
+  <p class="sans"><strong>Almond cake</strong> · Santiago de Compostela · Southern Europe · 1800s</p>
+  <p>The tarta de Santiago takes its name from the pilgrimage city of Santiago de Compostela and its patron, St James. Almond cakes of this kind are recorded in Galicia by the nineteenth century, and the powdered-sugar cross of the Order of Santiago on top became the standard decoration in the twentieth. Made only of almonds, eggs and sugar, it is naturally flourless and dairy-free; it now carries protected geographical status in the EU.</p>
+  <p class="sans noprint"><a href="../index.html?focus=tarta-de-santiago#map">See it on the map</a></p>
+</aside>
+<p class="sans noprint">
+← <a href="sachertorte.html">Sachertorte</a> · <a href="torta-caprese.html">Torta caprese</a> →</p>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 151 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>

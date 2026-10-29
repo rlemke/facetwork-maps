@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almond frangipane tart (galette des rois-style) — The Low-Carb Kitchen</title>
+<meta name="description" content="Two rounds of almond pastry sealed around a rum-scented frangipane and scored in the classic pattern; a low-carb nod to the French Epiphany cake. 3.2 g net carbs per serving; dairy-free option.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="../index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="../index.html#recipes" >Recipes</a>
+    <a href="../index.html#origins">Origins map</a>
+    <a href="../book.html" >The whole book</a>
+    <a href="../about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<p class="small noprint"><a href="../index.html#recipes">Recipes</a> › <a href="../book.html#ch-pies">Pies &amp; tarts</a></p>
+<h1>Almond frangipane tart (galette des rois-style)</h1>
+<p class="lede">Two rounds of almond pastry sealed around a rum-scented frangipane and scored in the classic pattern; a low-carb nod to the French Epiphany cake.</p>
+<p class="sans">
+  <span class="badge opt">Dairy-free option</span> <span class="badge net">3.2 g net carbs</span>
+  <span class="chip">Serves 10 · 1 slice</span>
+<span class="chip">prep 50 min · cook 35 min · rest 1 h</span></p>
+<div class="two">
+  <div>
+    <h2>Ingredients</h2>
+    <h3>Pastry</h3>  <ul class="ing">
+<li><span class="m">2½ cups</span> almond flour (blanched, finely ground) (240 g)</li><li><span class="m">1 tbsp</span> psyllium husk powder</li><li><span class="m">½ tsp</span> xanthan gum</li><li><span class="m">2 tbsp</span> granulated erythritol (24 g)</li><li><span class="m">¼ tsp</span> fine salt</li><li><span class="m">6 tbsp</span> unsalted butter (85 g), cold, cubed</li><li><span class="m">1</span> large egg</li>  </ul>
+<h3>Frangipane</h3>  <ul class="ing">
+<li><span class="m">⅓ cup</span> unsalted butter (75 g), softened</li><li><span class="m">⅓ cup</span> granulated erythritol (63 g)</li><li><span class="m">1</span> large egg</li><li><span class="m">1 cup</span> almond flour (blanched, finely ground) (96 g)</li><li><span class="m">½ tsp</span> rum extract</li><li><span class="m">¼ tsp</span> almond extract</li>  </ul>
+<h3>Glaze</h3>  <ul class="ing">
+<li><span class="m">1</span> large egg yolk</li><li><span class="m">1 tsp</span> water</li>  </ul>
+
+  </div>
+  <div>
+    <h2>Nutrition</h2>
+    <table class="facts">
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th></tr></thead>
+  <tbody>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">3.2 g</td><td class="num">3.2 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">16.1 g</td><td class="num">16.1 g</td></tr>
+    <tr><td>Fibre</td><td class="num">4.2 g</td><td class="num">4.2 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">8.7 g</td><td class="num">8.7 g</td></tr>
+    <tr><td>Sugars</td><td class="num">1.6 g</td><td class="num">1.6 g</td></tr>
+    <tr><td>Fat</td><td class="num">32.0 g</td><td class="num">31.7 g</td></tr>
+    <tr><td>Protein</td><td class="num">8.9 g</td><td class="num">8.7 g</td></tr>
+    <tr><td>Energy</td><td class="num">337 kcal</td><td class="num">336 kcal</td></tr>
+  </tbody>
+</table>
+    <p class="small">Contains: dairy, eggs, tree nuts. Dairy-free version contains: eggs, tree nuts.</p>
+<p class="small">From typical product labels, which vary by brand: almond extract, granulated erythritol, psyllium husk powder, rum extract, water, xanthan gum.</p>  </div>
+</div>
+<h2>Method</h2>
+<ol class="steps"><li>Pulse the almond flour, psyllium, xanthan gum, erythritol and salt in a food processor. Add the butter and egg and pulse until the dough forms. Divide in two, flatten each into a disc and chill 30 minutes.</li><li>Beat the butter and erythritol for the frangipane until fluffy, then the egg, almond flour and both extracts. Chill while you roll the pastry.</li><li>Roll each disc between parchment to a 23 cm (9 in) round. Slide one round, on its parchment, onto a baking sheet.</li><li>Spread the frangipane over it, leaving a 2 cm (3/4 in) border. Hide a whole almond in it if you like. Brush the border with water, lay the second round on top and press the edges firmly to seal.</li><li>Whisk the yolk with the water and brush the top. Chill 20 minutes, brush again, then score a curved sunburst pattern lightly with a knife tip, and cut a small steam hole in the centre.</li><li>Heat the oven to 180 °C (355 °F) and bake 30–35 minutes, until deep golden. Cool at least 30 minutes; serve warm or at room temperature.</li></ol>
+<section class="dfree">
+  <h2>Dairy-free version</h2>
+  <ul>
+<li>Use <strong>dairy-free butter (stick, plant-based)</strong> instead of unsalted butter.</li>  </ul>
+<p>Dairy-free butter gives a slightly crumblier pastry and a softer frangipane; chill the assembled tart well before baking.</p></section>
+
+<h2>Tips</h2><ul><li>This is a short almond pastry, not puff pastry: it will be tender and crumbly rather than flaky.</li><li>Warn guests if you hide a whole almond in place of the traditional fève.</li></ul><aside class="origin">
+  <h2>Where it comes from</h2>
+  <p class="sans"><strong>Galette des rois</strong> · Paris · Western Europe · medieval</p>
+  <p>Sharing a cake with a hidden bean at Epiphany, the finder becoming king or queen for the day, is a custom with medieval roots in France and elsewhere in Europe. In Paris and northern France the cake became a puff-pastry galette filled with frangipane, an almond cream; in the south a brioche ring is more usual. Porcelain charms called fèves later replaced the dried bean.</p>
+  <p class="sans noprint"><a href="../index.html?focus=galette-des-rois#map">See it on the map</a></p>
+</aside>
+<p class="sans noprint">
+← <a href="magic-bars.html">Seven-layer magic bars</a> · <a href="bakewell-tart.html">Bakewell tart</a> →</p>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 151 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>
