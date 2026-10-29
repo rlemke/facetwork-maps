@@ -41,6 +41,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
 .badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
 .badge.df { background: var(--good-soft); color: var(--good); }
+.facts .conv { color: var(--muted); font-style: italic; }
+.facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
@@ -98,18 +100,20 @@ ol.steps li { margin: 0 0 10px; }
   <div>
     <h2>Nutrition</h2>
     <table class="facts">
-  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th></tr></thead>
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
   <tbody>
-    <tr style="font-weight:600"><td>Net carbs</td><td class="num">3.7 g</td><td class="num">4.8 g</td></tr>
-    <tr><td>Total carbohydrate</td><td class="num">18.3 g</td><td class="num">19.4 g</td></tr>
-    <tr><td>Fibre</td><td class="num">1.3 g</td><td class="num">1.3 g</td></tr>
-    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">13.2 g</td><td class="num">13.2 g</td></tr>
-    <tr><td>Sugars</td><td class="num">3.2 g</td><td class="num">3.3 g</td></tr>
-    <tr><td>Fat</td><td class="num">10.9 g</td><td class="num">10.6 g</td></tr>
-    <tr><td>Protein</td><td class="num">3.0 g</td><td class="num">3.1 g</td></tr>
-    <tr><td>Energy</td><td class="num">131 kcal</td><td class="num">128 kcal</td></tr>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">3.7 g</td><td class="num">4.8 g</td><td class="num conv">12.9 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">18.3 g</td><td class="num">19.4 g</td><td class="num conv">14.3 g</td></tr>
+    <tr><td>Fibre</td><td class="num">1.3 g</td><td class="num">1.3 g</td><td class="num conv">1.3 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">13.2 g</td><td class="num">13.2 g</td><td class="num conv">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">3.2 g</td><td class="num">3.3 g</td><td class="num conv">12.2 g</td></tr>
+    <tr><td>Fat</td><td class="num">10.9 g</td><td class="num">10.6 g</td><td class="num conv">10.9 g</td></tr>
+    <tr><td>Protein</td><td class="num">3.0 g</td><td class="num">3.1 g</td><td class="num conv">3.0 g</td></tr>
+    <tr><td>Energy</td><td class="num">131 kcal</td><td class="num">128 kcal</td><td class="num conv">164 kcal</td></tr>
   </tbody>
 </table>
+<p class="small"><strong>Not low-carb</strong> is a rough estimate of a conventional version, not a tested recipe: powdered sugar for powdered erythritol (confectioners&#39; style) (0.7 × by weight). Everything else is as written. Sweeteners are matched for sweetness, and ordinary recipes are often sweeter, so the real difference is usually larger. </p>
+
     <p class="small">Contains: dairy, eggs. Dairy-free version contains: coconut, eggs.</p>
 <p class="small">From typical product labels, which vary by brand: powdered erythritol (confectioners&#39; style).</p>  </div>
 </div>
