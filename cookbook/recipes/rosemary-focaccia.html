@@ -68,6 +68,16 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
 </style>
 </head>
 <body>
@@ -76,6 +86,7 @@ ol.steps li { margin: 0 0 10px; }
   <nav>
     <a href="../index.html#recipes" >Recipes</a>
     <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
     <a href="../book.html" >The whole book</a>
     <a href="../about.html" >Method &amp; guides</a>
   </nav>
@@ -119,7 +130,7 @@ ol.steps li { margin: 0 0 10px; }
 <ol class="steps"><li>Heat the oven to 175 °C (350 °F). Pour 2 tablespoons of the olive oil into a 20 × 30 cm (8 × 12 in) baking pan and tilt to coat.</li><li>Whisk the almond flour, psyllium, coconut flour, baking powder and half the salt.</li><li>Add the egg whites and lemon juice, then pour in the boiling water and mix quickly with a spatula until a soft dough forms. Rest 10 minutes; it firms up as the psyllium sets.</li><li>With oiled hands, press the dough into the pan to the edges.</li><li>Press deep dimples all over with your fingertips. Drizzle with the remaining oil and scatter with rosemary, garlic and the remaining salt.</li><li>Bake 28–32 minutes, until golden and firm. Cool 10 minutes in the pan, then cut into 8 squares.</li></ol>
 <p class="sans"><span class="badge df">Dairy-free as written</span></p>
 
-<h2>Tips</h2><ul><li>Psyllium gives this dough a bread-like chew; brands differ, and some darken the crumb purple-grey — it is harmless.</li><li>Use powdered psyllium husk, not whole husks, which need different quantities.</li></ul><aside class="origin">
+<h2>Tips</h2><ul><li>Psyllium gives this dough a bread-like chew; brands differ, and some darken the crumb purple-grey — it is harmless.</li><li>Use powdered psyllium husk, not whole husks, which need different quantities.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/christmas.html">Christmas dinner</a>.</p><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Focaccia</strong> · Genoa, Liguria · Southern Europe · ancient</p>
   <p>Focaccia takes its name from the Latin panis focacius, bread baked on the hearth (focus), and flat hearth breads were common in the Roman world. Liguria, and Genoa in particular, is now the home of the classic oily, dimpled focaccia eaten at breakfast and through the day.</p>
@@ -129,7 +140,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="pizza-crust.html">Pizza crust</a> · <a href="sesame-bagels.html">Sesame bagels</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 163 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

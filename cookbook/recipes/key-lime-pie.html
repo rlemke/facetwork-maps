@@ -68,6 +68,16 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
 </style>
 </head>
 <body>
@@ -76,6 +86,7 @@ ol.steps li { margin: 0 0 10px; }
   <nav>
     <a href="../index.html#recipes" >Recipes</a>
     <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
     <a href="../book.html" >The whole book</a>
     <a href="../about.html" >Method &amp; guides</a>
   </nav>
@@ -123,7 +134,7 @@ ol.steps li { margin: 0 0 10px; }
 <ol class="steps"><li>Simmer the coconut cream and allulose in a wide saucepan over medium-low heat, stirring often, for 20–25 minutes, until reduced to about 1 cup and thick enough to coat a spoon. Cool to lukewarm.</li><li>Heat the oven to 175 °C (350 °F). Stir the crust ingredients together, press them into a 23 cm (9 in) pie plate and bake 10 minutes. Lower the oven to 160 °C (325 °F).</li><li>Whisk the yolks with the lime zest until pale, then whisk in the cooled condensed coconut, followed by the lime juice and salt. It will thicken as the acid meets the yolks.</li><li>Pour into the crust and bake 15 minutes, just until the surface is set but still pale.</li><li>Cool for 30 minutes, then refrigerate at least 4 hours before slicing.</li></ol>
 <p class="sans"><span class="badge df">Dairy-free as written</span></p>
 
-<h2>Tips</h2><ul><li>Do not boil the coconut cream hard; a gentle simmer keeps it from splitting into oil.</li><li>Persian limes are fine; the filling will just be a touch less floral than with Key limes.</li></ul><aside class="origin">
+<h2>Tips</h2><ul><li>Do not boil the coconut cream hard; a gentle simmer keeps it from splitting into oil.</li><li>Persian limes are fine; the filling will just be a touch less floral than with Key limes.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/outdoor-bbq.html">Outdoor barbecue</a>.</p><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Key lime pie</strong> · Key West, Florida · North America · late 1800s</p>
   <p>Key limes grew in the Florida Keys, where fresh milk was scarce before refrigeration and the arrival of a mainland road. Canned sweetened condensed milk, available from the later 1800s, made a custard that sets with lime juice alone. Who first made the pie is unknown, and the stories naming an inventor are local legend; Florida made it the official state pie in 2006.</p>
@@ -133,7 +144,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="french-silk-pie.html">French silk chocolate pie</a> · <a href="lemon-meringue-pie.html">Lemon meringue pie</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 163 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

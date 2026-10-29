@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lettuce-wrap burgers — The Low-Carb Kitchen</title>
+<meta name="description" content="Thick 80/20 beef patties seasoned at the last minute and served in crisp romaine leaves with pickles, mustard and raw onion. 3.2 g net carbs per serving; dairy-free.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.facts .conv { color: var(--muted); font-style: italic; }
+.facts th .small { display: block; font-weight: normal; }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="../index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="../index.html#recipes" >Recipes</a>
+    <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
+    <a href="../book.html" >The whole book</a>
+    <a href="../about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<p class="small noprint"><a href="../index.html#recipes">Recipes</a> › <a href="../book.html#ch-mains">Main dishes</a></p>
+<h1>Lettuce-wrap burgers</h1>
+<p class="lede">Thick 80/20 beef patties seasoned at the last minute and served in crisp romaine leaves with pickles, mustard and raw onion.</p>
+<p class="sans">
+  <span class="badge df">Dairy-free</span> <span class="badge net">3.2 g net carbs</span>
+  <span class="chip">Serves 4 · 1 burger</span>
+<span class="chip">prep 15 min · cook 10 min</span></p>
+<div class="two">
+  <div>
+    <h2>Ingredients</h2>
+      <ul class="ing">
+<li><span class="m">680 g</span> ground beef (80% lean), 80% lean, cold</li><li><span class="m">1 tsp</span> fine salt</li><li><span class="m">½ tsp</span> ground black pepper</li><li><span class="m">200 g</span> romaine lettuce, chopped, 8 large inner leaves, washed and dried</li><li><span class="m">2</span> dill pickles, sliced</li><li><span class="m">4 tbsp</span> prepared mustard (yellow or Dijon) (60 g)</li><li><span class="m">60 g</span> onion, half a small onion, thinly sliced</li><li><span class="m">1</span> ripe tomato, sliced, optional</li><li><span class="m">2 tbsp</span> mayonnaise (sugar-free, avocado or olive oil) (28 g), optional</li>  </ul>
+
+  </div>
+  <div>
+    <h2>Nutrition</h2>
+    <table class="facts">
+  <thead><tr><th>Per serving</th><th class="num">As written</th></tr></thead>
+  <tbody>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">3.2 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">5.8 g</td></tr>
+    <tr><td>Fibre</td><td class="num">2.5 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">2.4 g</td></tr>
+    <tr><td>Fat</td><td class="num">40.0 g</td></tr>
+    <tr><td>Protein</td><td class="num">31.0 g</td></tr>
+    <tr><td>Energy</td><td class="num">511 kcal</td></tr>
+  </tbody>
+</table>
+<p class="small">Nothing here is a low-carb stand-in, so a conventional version would be much the same.</p>
+    <p class="small">Contains: eggs.</p>
+  </div>
+</div>
+<h2>Method</h2>
+<ol class="steps"><li>Divide the beef into 4 portions and shape each loosely into a patty about 2 cm (¾ in) thick and a little wider than your leaves. Press a shallow dimple into the centre so it stays flat as it cooks. Keep cold until cooking.</li><li>Heat a grill to high, or a cast-iron pan over medium-high heat until it smokes lightly.</li><li>Season the patties on both sides with the salt and pepper just before cooking (salting early makes them dense).</li><li>Cook 3–4 minutes a side without pressing down, until a thermometer in the centre reads 71 °C (160 °F), the safe point for ground beef.</li><li>Nest two romaine leaves per burger, spread with mustard and mayonnaise, add the patty and top with pickle, onion and tomato. Wrap the leaves up around it and eat from paper or foil.</li></ol>
+<p class="sans"><span class="badge df">Dairy-free as written</span></p>
+
+<h2>Tips</h2><ul><li>Iceberg or butter-lettuce leaves hold together better than romaine if you prefer a rounder &#39;bun&#39;.</li><li>Check the pickle label: some dill pickles are sweetened.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/outdoor-bbq.html">Outdoor barbecue</a>.</p><aside class="origin">
+  <h2>Where it comes from</h2>
+  <p class="sans"><strong>Hamburger</strong> · New Haven, Connecticut · North America · 1880s–1900s</p>
+  <p>Who first put a ground-beef patty in bread is genuinely disputed: claims come from New Haven, Connecticut; Seymour, Wisconsin; Hamburg, New York; and Athens, Texas, all for the 1880s to early 1900s, and the name points to the &#39;Hamburg steak&#39; known to German immigrants. The pin marks one of these claims, not a settled answer. Serving the patty in lettuce instead of a bun is a modern low-carb habit.</p>
+  <p class="sans noprint"><a href="../index.html?focus=lettuce-wrap-burgers#map">See it on the map</a></p>
+</aside>
+<p class="sans noprint">
+← <a href="lemon-thyme-roast-chicken.html">Lemon-thyme roast chicken</a> · <a href="memphis-dry-rub-ribs.html">Memphis dry-rub ribs</a> →</p>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>

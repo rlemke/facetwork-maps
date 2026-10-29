@@ -68,6 +68,16 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
 </style>
 </head>
 <body>
@@ -76,6 +86,7 @@ ol.steps li { margin: 0 0 10px; }
   <nav>
     <a href="../index.html#recipes" >Recipes</a>
     <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
     <a href="../book.html" >The whole book</a>
     <a href="../about.html" >Method &amp; guides</a>
   </nav>
@@ -125,7 +136,7 @@ ol.steps li { margin: 0 0 10px; }
 <li>Use <strong>coconut oil</strong> instead of unsalted butter.</li><li>Use <strong>coconut cream (canned, unsweetened)</strong> instead of heavy whipping cream.</li>  </ul>
 <p>Coconut cream sets the filling just as firmly; a faint coconut note sits under the spices.</p></section>
 
-<h2>Tips</h2><ul><li>Blot very wet pumpkin purée with paper towel first, or the filling may weep.</li><li>A crack in the centre means it baked too long; take it out while the middle still wobbles.</li></ul><aside class="origin">
+<h2>Tips</h2><ul><li>Blot very wet pumpkin purée with paper towel first, or the filling may weep.</li><li>A crack in the centre means it baked too long; take it out while the middle still wobbles.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/thanksgiving.html">Thanksgiving dinner</a>.</p><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Pumpkin pie</strong> · New England · North America · 1700s</p>
   <p>Pumpkins and other squash are native to the Americas and were grown by Indigenous peoples long before European settlement. English cooks were already baking pumpkin into pies in the 1600s, and Amelia Simmons&#39;s &#39;American Cookery&#39; (1796) printed a pumpkin custard baked in a crust much like today&#39;s. Through the 1800s the pie became firmly tied to the New England Thanksgiving table.</p>
@@ -135,7 +146,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="pecan-pie.html">Pecan pie</a> · <a href="strawberry-rhubarb-pie.html">Strawberry-rhubarb pie</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 163 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

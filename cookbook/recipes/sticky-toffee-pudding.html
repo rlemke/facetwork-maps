@@ -68,6 +68,16 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
 </style>
 </head>
 <body>
@@ -76,6 +86,7 @@ ol.steps li { margin: 0 0 10px; }
   <nav>
     <a href="../index.html#recipes" >Recipes</a>
     <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
     <a href="../book.html" >The whole book</a>
     <a href="../about.html" >Method &amp; guides</a>
   </nav>
@@ -125,7 +136,7 @@ ol.steps li { margin: 0 0 10px; }
 <li>Use <strong>dairy-free butter (stick, plant-based)</strong> instead of unsalted butter.</li><li>Use <strong>coconut cream (canned, unsweetened)</strong> instead of heavy whipping cream.</li>  </ul>
 <p>With dairy-free butter and coconut cream the sauce is a little thinner and tastes faintly of coconut, but it still caramelises well.</p></section>
 
-<h2>Tips</h2><ul><li>The sponge reheats well: warm it with the sauce poured over, covered, at 150 °C (300 °F) for 10 minutes.</li></ul><aside class="origin">
+<h2>Tips</h2><ul><li>The sponge reheats well: warm it with the sauce poured over, covered, at 150 °C (300 °F) for 10 minutes.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/christmas.html">Christmas dinner</a>.</p><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Steamed and baked sponge pudding</strong> · Cumbria, England · Northern Europe · 1970s</p>
   <p>Sticky toffee pudding, a date sponge drenched in toffee sauce, is usually credited to the Sharrow Bay hotel on Ullswater in the Lake District, which made it famous in the 1970s. The hotel&#39;s own account was that the recipe came to it from elsewhere, so the true origin is uncertain. It belongs to the long British tradition of sponge puddings with sauce.</p>
@@ -135,7 +146,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="spanish-flan.html">Spanish flan</a> · <a href="chia-pudding.html">Vanilla-cinnamon chia pudding</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 163 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

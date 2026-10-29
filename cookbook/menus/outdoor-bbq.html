@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outdoor barbecue — The Low-Carb Kitchen</title>
+<meta name="description" content="A backyard cookout across America&#39;s barbecue regions: Carolina pulled pork, Memphis ribs and grilled chicken, with three regional sauces, the classic cold sides and frozen desserts for a hot day.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.facts .conv { color: var(--muted); font-style: italic; }
+.facts th .small { display: block; font-weight: normal; }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="../index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="../index.html#recipes" >Recipes</a>
+    <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" class="on">Dinner menus</a>
+    <a href="../book.html" >The whole book</a>
+    <a href="../about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<p class="small noprint"><a href="../menus.html">Dinner menus</a></p>
+<h1>Outdoor barbecue</h1>
+<p class="lede">A backyard cookout across America&#39;s barbecue regions: Carolina pulled pork, Memphis ribs and grilled chicken, with three regional sauces, the classic cold sides and frozen desserts for a hot day.</p>
+<p class="sans"><span class="chip">Summer</span> <span class="chip">Serves 12–15</span> <span class="chip">15 recipes</span></p>
+<section class="course">
+  <h2>To start</h2>
+  <ul>
+    <li><span><a href="../recipes/deviled-eggs.html">Deviled eggs</a> <span class="small">· serves 12, 2 halves · <strong>make 2×</strong></span></span>
+      <span class="sans small">0.4 g net · dairy-free</span></li>
+  </ul>
+</section>
+<section class="course">
+  <h2>From the grill and smoker</h2>
+  <ul>
+    <li><span><a href="../recipes/pulled-pork.html">Pulled pork with vinegar-pepper sauce</a> <span class="small">· serves 12, about 170 g (6 oz) pulled pork + 2 tbsp sauce · <strong>make 2×</strong></span></span>
+      <span class="sans small">1.4 g net · dairy-free</span></li>
+    <li><span><a href="../recipes/memphis-dry-rub-ribs.html">Memphis dry-rub ribs</a> <span class="small">· serves 4, half a rack · <strong>make 4×</strong></span></span>
+      <span class="sans small">3.5 g net · dairy-free</span></li>
+    <li><span><a href="../recipes/grilled-chicken-thighs.html">Grilled BBQ chicken thighs</a> <span class="small">· serves 4, 2 thighs · <strong>make 4×</strong></span></span>
+      <span class="sans small">3.9 g net · dairy-free</span></li>
+    <li class="alt"><span><em>or</em> <a href="../recipes/texas-smoked-brisket.html">Texas smoked brisket</a> <span class="small">· serves 16, about 170 g (6 oz) sliced brisket</span></span>
+      <span class="sans small">2.5 g net · dairy-free</span></li>
+    <li class="alt"><span><em>or</em> <a href="../recipes/lettuce-wrap-burgers.html">Lettuce-wrap burgers</a> <span class="small">· serves 4, 1 burger · <strong>make 4×</strong></span></span>
+      <span class="sans small">3.2 g net · dairy-free</span></li>
+  </ul>
+</section>
+<section class="course">
+  <h2>Sauces</h2>
+  <ul>
+    <li><span><a href="../recipes/kansas-city-bbq-sauce.html">Kansas City barbecue sauce</a> <span class="small">· serves 20, 2 tbsp</span></span>
+      <span class="sans small">2.2 g net · dairy-free</span></li>
+    <li><span><a href="../recipes/carolina-vinegar-sauce.html">Eastern Carolina vinegar sauce</a> <span class="small">· serves 16, 2 tbsp</span></span>
+      <span class="sans small">0.4 g net · dairy-free</span></li>
+    <li><span><a href="../recipes/alabama-white-sauce.html">Alabama white sauce</a> <span class="small">· serves 11, 2 tbsp · <strong>make 2×</strong></span></span>
+      <span class="sans small">0.6 g net · dairy-free</span></li>
+  </ul>
+</section>
+<section class="course">
+  <h2>Sides</h2>
+  <ul>
+    <li><span><a href="../recipes/creamy-coleslaw.html">Creamy coleslaw</a> <span class="small">· serves 8, about 3/4 cup · <strong>make 2×</strong></span></span>
+      <span class="sans small">4.1 g net · dairy-free</span></li>
+    <li><span><a href="../recipes/cauliflower-potato-salad.html">Cauliflower &#39;potato&#39; salad</a> <span class="small">· serves 8, about 3/4 cup · <strong>make 2×</strong></span></span>
+      <span class="sans small">4.4 g net · dairy-free</span></li>
+    <li><span><a href="../recipes/grilled-vegetable-platter.html">Grilled vegetable platter</a> <span class="small">· serves 8, about 1 cup · <strong>make 2×</strong></span></span>
+      <span class="sans small">5.7 g net · dairy-free</span></li>
+  </ul>
+</section>
+<section class="course">
+  <h2>Bread</h2>
+  <ul>
+    <li><span><a href="../recipes/southern-style-cornbread.html">Southern-style &#34;cornbread&#34; (no corn)</a> <span class="small">· serves 9, 1 wedge · <strong>make 2×</strong></span></span>
+      <span class="sans small">2.7 g net · dairy-free option</span></li>
+  </ul>
+</section>
+<section class="course">
+  <h2>Dessert</h2>
+  <ul>
+    <li><span><a href="../recipes/key-lime-pie.html">Key lime pie</a> <span class="small">· serves 10, 1 slice · <strong>make 2×</strong></span></span>
+      <span class="sans small">4.9 g net · dairy-free</span></li>
+    <li class="alt"><span><em>or</em> <a href="../recipes/coconut-strawberry-paletas.html">Coconut-strawberry paletas</a> <span class="small">· serves 8, 1 ice pop · <strong>make 2×</strong></span></span>
+      <span class="sans small">3.0 g net · dairy-free</span></li>
+  </ul>
+</section>
+<p class="small">“Make 2×” is how many batches feed 15 people; sauces and dressings are counted the same way, which is generous.</p>
+<h2>A plate of everything</h2>
+<p>One serving of every dish above, dessert included, leaving out the alternatives.</p>
+<table class="facts">
+  <thead><tr><th>Per plate</th><th class="num">As written</th><th class="num">Dairy-free</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
+  <tbody>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">34.2 g</td><td class="num">34.1 g</td><td class="num conv">77.6 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">79.6 g</td><td class="num">79.6 g</td><td class="num conv">93.0 g</td></tr>
+    <tr><td>Fat</td><td class="num">262.6 g</td><td class="num">262.5 g</td><td class="num conv">246.7 g</td></tr>
+    <tr><td>Protein</td><td class="num">180.2 g</td><td class="num">180.1 g</td><td class="num conv">177.1 g</td></tr>
+    <tr><td>Energy</td><td class="num">3294 kcal</td><td class="num">3294 kcal</td><td class="num conv">3306 kcal</td></tr>
+  </tbody>
+</table>
+<p class="small">“Not low-carb” adds each dish's rough conventional estimate, or its as-written figure where it uses no low-carb stand-in, so it understates a traditional dinner (real stuffing is bread, real mashed potatoes are potatoes). Dishes with a dairy-free option are counted with it in the dairy-free column.</p>
+<h2>Plan ahead</h2>
+<dl class="plan">
+<dt>Two days before</dt><dd>Make the three sauces and the rubs; the sauces taste better after a day. Freeze the paletas.</dd><dt>The day before</dt><dd>Rub the pork shoulder and ribs. Make the coleslaw dressing, the cauliflower salad and the key lime pie. Hard-boil the eggs.</dd><dt>Early morning</dt><dd>Start the pork shoulder: it needs 8–10 hours at low heat. The ribs go on about 5 hours before serving.</dd><dt>An hour before</dt><dd>Grill the vegetables and fill the eggs. Let the pork rest wrapped while the chicken thighs go on the hot side of the grill.</dd><dt>Serving</dt><dd>Pull the pork and set the sauces out in bowls so guests choose their region. Keep the cold sides in the shade or over ice.</dd></dl>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>
