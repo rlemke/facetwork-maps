@@ -29,8 +29,27 @@ jobs:
           links = re.findall(r'<li><a href=[\'"]([^\'"]+)[\'"]', root.read_text())
           linked_sections = {l.split("/")[0] for l in links if "/" in l}
 
-          have = {p.parts[0] for p in pathlib.Path(".").glob("*/**/index.html")}
-          have |= {p.parts[0] for p in pathlib.Path(".").glob("*/index.html")}
+          # A "Moved" page (meta refresh) is not a map: it keeps an old address
+          # working after a section moves. Counting stubs as maps failed this
+          # check on every publish for two weeks after amr/ and repro/ moved
+          # (2026-10-22), until a real failure would have been invisible in it.
+          # A stub is still checked: its target must exist (see below).
+          refresh = re.compile(
+              r'http-equiv=[\'"]refresh[\'"][^>]*content=[\'"][^\'"]*url=([^\'"]+)[\'"]', re.I
+          )
+          stubs = {}
+          for q in pathlib.Path(".").glob("**/*.html"):
+              if q.parts[0] == ".github":
+                  continue
+              m = refresh.search(q.read_text(errors="replace")[:2000])
+              if m:
+                  stubs[str(q)] = m.group(1).strip()
+
+          def pages(pattern):
+              return {q for q in pathlib.Path(".").glob(pattern) if str(q) not in stubs}
+
+          have = {p.parts[0] for p in pages("*/**/index.html")}
+          have |= {p.parts[0] for p in pages("*/index.html")}
           have -= {".github"}
 
           orphaned = sorted(have - linked_sections)
@@ -55,7 +74,7 @@ jobs:
                       linked_pages.add(str(cand))
                       if not m.endswith(".html"):
                           linked_pages.add(str(cand / "index.html"))
-          all_pages = {str(q) for q in pathlib.Path(".").glob("*/*/index.html")}
+          all_pages = {str(q) for q in pages("*/*/index.html")}
           unreachable = sorted(all_pages - linked_pages)
           print(f"map pages      : {len(all_pages)}")
           print(f"reachable      : {len(all_pages) - len(unreachable)}")
@@ -73,13 +92,28 @@ jobs:
               for b in broken:
                   print(f"  {b}")
 
+          bad_stubs = []
+          for stub, url in sorted(stubs.items()):
+              if url.startswith(("http:", "https:")):
+                  continue
+              target = (pathlib.Path(stub).parent / url.split("#")[0]).resolve()
+              if target.is_dir():
+                  target = target / "index.html"
+              if not target.exists():
+                  bad_stubs.append((stub, url))
+          print(f"redirect stubs : {len(stubs)} (not counted as maps)")
+          if bad_stubs:
+              print("\nBROKEN redirects (stub points at a missing page):")
+              for stub, url in bad_stubs:
+                  print(f"  {stub} -> {url}")
+
           if orphaned:
               print("\nORPHANED sections — maps exist but nothing links to them:")
               for o in orphaned:
                   n = len(list(pathlib.Path(o).glob("**/index.html")))
                   print(f"  {o}  ({n} page(s))")
 
-          if orphaned or broken or unreachable:
+          if orphaned or broken or unreachable or bad_stubs:
               sys.exit("the front door does not reach every map")
           print("\nOK — every section is reachable and every link resolves")
           PY
