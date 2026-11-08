@@ -139,10 +139,31 @@ footer a{color:var(--muted)}
   <div class="panel-head">
     <h2>Games</h2>
     <div class="tabs" role="tablist">
-<button type="button" data-tab="recent" class="cur">Recent results</button>    </div>
+<button type="button" data-tab="up" class="cur">Upcoming</button><button type="button" data-tab="recent">Recent results</button>    </div>
     <span class="t">Up to 7 days of games</span>
   </div>
-  <div class="overflow-x gtab" data-tab="recent">
+  <div class="overflow-x gtab" data-tab="up">
+  <table class="dtable">
+    <thead><tr><th>Game</th><th>When (ET)</th><th>Model</th><th class="num">Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a class="tm" href="teams/CIN.html" title="FC Cincinnati"><i style="background:#003087"></i>CIN</a> <span class="t">at</span> <a class="tm" href="teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a>
+<div class="t">East wild card</div></td>
+        <td class="t">Thu 19 Nov, 7:30 PM</td>
+        <td><a class="tm" href="teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a> 54%<span class="pbar"><b style="width:53.6%"></b></span><div class="p3">H 54% &middot; D 27% &middot; A 20%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td><a class="tm" href="teams/RSL.html" title="Real Salt Lake"><i style="background:#a32035"></i>RSL</a> <span class="t">at</span> <a class="tm" href="teams/SEA.html" title="Seattle Sounders FC"><i style="background:#2dc84d"></i>SEA</a>
+<div class="t">West wild card</div></td>
+        <td class="t">Thu 19 Nov, 10:00 PM</td>
+        <td><a class="tm" href="teams/SEA.html" title="Seattle Sounders FC"><i style="background:#2dc84d"></i>SEA</a> 56%<span class="pbar"><b style="width:56.1%"></b></span><div class="p3">H 56% &middot; D 26% &middot; A 18%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="overflow-x gtab" data-tab="recent" hidden>
   <table class="dtable">
     <thead><tr><th>Game</th><th>When (ET)</th><th>Model</th><th class="num">Result</th></tr></thead>
     <tbody>
@@ -298,6 +319,21 @@ footer a{color:var(--muted)}
   </div>
 </section>
 
+<section class="panel section">
+  <div class="panel-head"><h2>Postseason</h2></div>
+  <div class="overflow-x">
+  <table class="dtable"><tbody>
+    <tr><td class="t">East wild card</td>
+      <td><a class="tm" href="teams/CIN.html" title="FC Cincinnati"><i style="background:#003087"></i>CIN</a> at <a class="tm" href="teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a></td>
+      <td class="t">2026-11-19</td>
+      <td class="num"><a class="tm" href="teams/ORL.html" title="Orlando City SC"><i style="background:#60269e"></i>ORL</a> 54%<span class="pbar"><b style="width:53.6%"></b></span><div class="p3">H 54% &middot; D 27% &middot; A 20%</div></td></tr>
+    <tr><td class="t">West wild card</td>
+      <td><a class="tm" href="teams/RSL.html" title="Real Salt Lake"><i style="background:#a32035"></i>RSL</a> at <a class="tm" href="teams/SEA.html" title="Seattle Sounders FC"><i style="background:#2dc84d"></i>SEA</a></td>
+      <td class="t">2026-11-19</td>
+      <td class="num"><a class="tm" href="teams/SEA.html" title="Seattle Sounders FC"><i style="background:#2dc84d"></i>SEA</a> 56%<span class="pbar"><b style="width:56.1%"></b></span><div class="p3">H 56% &middot; D 26% &middot; A 18%</div></td></tr>
+  </tbody></table>
+  </div>
+</section>
 
 <section class="panel section">
   <div class="panel-head"><h2>Playoff seeds</h2>
