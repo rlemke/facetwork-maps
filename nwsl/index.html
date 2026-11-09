@@ -115,13 +115,13 @@ footer a{color:var(--muted)}
 <section class="kpis">
   <div class="kpi">
     <div class="lbl">Data through</div>
-    <div class="val" style="font-size:19px">2026-11-07</div>
+    <div class="val" style="font-size:19px">2026-11-08</div>
     <div class="sub">Last result loaded</div>
   </div>
   <div class="kpi">
     <div class="lbl">Model this season</div>
-    <div class="val">90%</div>
-    <div class="sub">10 games, from predictions stored before each game began</div>
+    <div class="val">92%</div>
+    <div class="sub">12 games, from predictions stored before each game began</div>
   </div>
   <div class="kpi">
     <div class="lbl">Model since 2019</div>
@@ -130,7 +130,7 @@ footer a{color:var(--muted)}
   </div>
   <div class="kpi">
     <div class="lbl">Favourite</div>
-    <div class="val"><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> <span style="font-size:15px;color:var(--muted)">30%</span></div>
+    <div class="val"><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> <span style="font-size:15px;color:var(--muted)">34%</span></div>
     <div class="sub">To win the NWSL Championship &middot; 10,000 simulated seasons</div>
   </div>
 </section>
@@ -139,34 +139,27 @@ footer a{color:var(--muted)}
   <div class="panel-head">
     <h2>Games</h2>
     <div class="tabs" role="tablist">
-<button type="button" data-tab="up" class="cur">Upcoming</button><button type="button" data-tab="recent">Recent results</button>    </div>
+<button type="button" data-tab="recent" class="cur">Recent results</button>    </div>
     <span class="t">Up to 7 days of games</span>
   </div>
-  <div class="overflow-x gtab" data-tab="up">
+  <div class="overflow-x gtab" data-tab="recent">
   <table class="dtable">
     <thead><tr><th>Game</th><th>When (ET)</th><th>Model</th><th class="num">Result</th></tr></thead>
     <tbody>
-      <tr>
-        <td><a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a> <span class="t">at</span> <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a>
-<div class="t">Quarterfinals</div></td>
-        <td class="t">Sun 8 Nov, 12:30 PM</td>
-        <td><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> 59%<span class="pbar"><b style="width:58.7%"></b></span><div class="p3">H 59% &middot; D 21% &middot; A 20%</div></td>
-        <td class="num"><span class="t">&mdash;</span></td>
-      </tr>
       <tr>
         <td><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a> <span class="t">at</span> <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a>
 <div class="t">Quarterfinals</div></td>
         <td class="t">Sun 8 Nov, 3:00 PM</td>
         <td><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 49%<span class="pbar"><b style="width:49.3%"></b></span><div class="p3">H 49% &middot; D 24% &middot; A 27%</div></td>
-        <td class="num"><span class="t">&mdash;</span></td>
+        <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td>
       </tr>
-    </tbody>
-  </table>
-  </div>
-  <div class="overflow-x gtab" data-tab="recent" hidden>
-  <table class="dtable">
-    <thead><tr><th>Game</th><th>When (ET)</th><th>Model</th><th class="num">Result</th></tr></thead>
-    <tbody>
+      <tr>
+        <td><a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a> <span class="t">at</span> <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a>
+<div class="t">Quarterfinals</div></td>
+        <td class="t">Sun 8 Nov, 12:30 PM</td>
+        <td><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> 59%<span class="pbar"><b style="width:58.7%"></b></span><div class="p3">H 59% &middot; D 21% &middot; A 20%</div></td>
+        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td>
+      </tr>
       <tr>
         <td><a class="tm" href="teams/LA.html" title="Angel City FC"><i style="background:#202121"></i>LA</a> <span class="t">at</span> <a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a>
 <div class="t">Quarterfinals</div></td>
@@ -180,62 +173,6 @@ footer a{color:var(--muted)}
         <td class="t">Fri 6 Nov, 10:00 PM</td>
         <td><a class="tm" href="teams/SD.html" title="San Diego Wave FC"><i style="background:#032e62"></i>SD</a> 60%<span class="pbar"><b style="width:60.1%"></b></span><div class="p3">H 60% &middot; D 21% &middot; A 19%</div></td>
         <td class="num">1&ndash;0<span class="bad" title="model's most likely result did not happen">&#10007;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/DEN.html" title="Denver Summit FC"><i style="background:#20604E"></i>DEN</a> <span class="t">at</span> <a class="tm" href="teams/NC.html" title="North Carolina Courage"><i style="background:#ab0033"></i>NC</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/NC.html" title="North Carolina Courage"><i style="background:#ab0033"></i>NC</a> 44%<span class="pbar"><b style="width:43.8%"></b></span><div class="p3">H 44% &middot; D 25% &middot; A 32%</div></td>
-        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/BOS.html" title="Boston Legacy FC"><i style="background:#00FF00"></i>BOS</a> <span class="t">at</span> <a class="tm" href="teams/LA.html" title="Angel City FC"><i style="background:#202121"></i>LA</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/LA.html" title="Angel City FC"><i style="background:#202121"></i>LA</a> 67%<span class="pbar"><b style="width:67.3%"></b></span><div class="p3">H 67% &middot; D 18% &middot; A 15%</div></td>
-        <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a> <span class="t">at</span> <a class="tm" href="teams/HOU.html" title="Houston Dash"><i style="background:#ff6900"></i>HOU</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a> 44%<span class="pbar"><b style="width:43.7%"></b></span><div class="p3">H 32% &middot; D 25% &middot; A 44%</div></td>
-        <td class="num">2&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/ORL.html" title="Orlando Pride"><i style="background:#c5b5f2"></i>ORL</a> <span class="t">at</span> <a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a> 53%<span class="pbar"><b style="width:53.0%"></b></span><div class="p3">H 53% &middot; D 23% &middot; A 24%</div></td>
-        <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> <span class="t">at</span> <a class="tm" href="teams/LOU.html" title="Racing Louisville FC"><i style="background:#c5b5f2"></i>LOU</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> 64%<span class="pbar"><b style="width:64.0%"></b></span><div class="p3">H 17% &middot; D 19% &middot; A 64%</div></td>
-        <td class="num">2&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/CHI.html" title="Chicago Stars FC"><i style="background:#c7102e"></i>CHI</a> <span class="t">at</span> <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 82%<span class="pbar"><b style="width:82.4%"></b></span><div class="p3">H 82% &middot; D 11% &middot; A 7%</div></td>
-        <td class="num">0&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> <span class="t">at</span> <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> 61%<span class="pbar"><b style="width:61.3%"></b></span><div class="p3">H 61% &middot; D 20% &middot; A 18%</div></td>
-        <td class="num">0&ndash;2<span class="good" title="model's most likely result happened">&#10003;</span></td>
-      </tr>
-      <tr>
-        <td><a class="tm" href="teams/SD.html" title="San Diego Wave FC"><i style="background:#032e62"></i>SD</a> <span class="t">at</span> <a class="tm" href="teams/BAY.html" title="Bay FC"><i style="background:#ff5049"></i>BAY</a>
-</td>
-        <td class="t">Sun 1 Nov, 5:00 PM</td>
-        <td><a class="tm" href="teams/SD.html" title="San Diego Wave FC"><i style="background:#032e62"></i>SD</a> 61%<span class="pbar"><b style="width:60.7%"></b></span><div class="p3">H 19% &middot; D 21% &middot; A 61%</div></td>
-        <td class="num">1&ndash;0<span class="good" title="model's most likely result happened">&#10003;</span></td>
       </tr>
     </tbody>
   </table>
@@ -257,11 +194,11 @@ footer a{color:var(--muted)}
     <tr><td class="t"></td>
       <td><a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a> at <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a></td>
       <td class="t">2026-11-08</td>
-      <td class="num"><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> 59%<span class="pbar"><b style="width:58.7%"></b></span><div class="p3">H 59% &middot; D 21% &middot; A 20%</div></td></tr>
+      <td class="num">0&ndash;1<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
     <tr><td class="t"></td>
       <td><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a> at <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a></td>
       <td class="t">2026-11-08</td>
-      <td class="num"><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 49%<span class="pbar"><b style="width:49.3%"></b></span><div class="p3">H 49% &middot; D 24% &middot; A 27%</div></td></tr>
+      <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
   </tbody></table>
   </div>
 </section>
@@ -275,7 +212,7 @@ footer a{color:var(--muted)}
 <div class="slot"><span class="seed">1</span><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a></div><div class="slot"><span class="seed">2</span><a class="tm" href="teams/SD.html" title="San Diego Wave FC"><i style="background:#032e62"></i>SD</a></div><div class="slot"><span class="seed">3</span><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a></div><div class="slot"><span class="seed">4</span><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a></div><div class="slot"><span class="seed">5</span><a class="tm" href="teams/LA.html" title="Angel City FC"><i style="background:#202121"></i>LA</a></div><div class="slot"><span class="seed">6</span><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a></div><div class="slot"><span class="seed">7</span><a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a></div><div class="slot"><span class="seed">8</span><a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a></div>    </div>
   </div>
   <div style="padding:0 .9rem .9rem" class="t">Likeliest finals:
-<a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> v <a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> 20.3% &middot; <a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> v <a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> 17.7% &middot; <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> v <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 16.2% &middot; <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> v <a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> 14.2% &middot; <a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> v <a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a> 12.1%  </div>
+<a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> v <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 39.0% &middot; <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> v <a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> 28.7% &middot; <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> v <a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> 18.5% &middot; <a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> v <a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> 13.8%  </div>
 </section>
 
 <section class="panel section">
@@ -288,15 +225,15 @@ footer a{color:var(--muted)}
       <tr>
         <td><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a></td>
         <td class="num">18-7-5</td>
-<td class="num">61</td><td class="num">+16</td>        <td class="num">1621 <span class="t">#1</span></td>
+<td class="num">61</td><td class="num">+16</td>        <td class="num">1629 <span class="t">#1</span></td>
         <td class="num">61.0</td>
-<td class="num">100%</td><td class="num">70%</td><td class="num">40%</td>        <td class="num">100%</td>
-        <td class="num">25%</td>
+<td class="num">100%</td><td class="num">100%</td><td class="num">57%</td>        <td class="num">100%</td>
+        <td class="num">34%</td>
       </tr>
       <tr>
         <td><a class="tm" href="teams/SD.html" title="San Diego Wave FC"><i style="background:#032e62"></i>SD</a></td>
         <td class="num">18-4-8</td>
-<td class="num">58</td><td class="num">+14</td>        <td class="num">1574 <span class="t">#4</span></td>
+<td class="num">58</td><td class="num">+14</td>        <td class="num">1574 <span class="t">#5</span></td>
         <td class="num">58.0</td>
 <td class="num">100%</td><td class="num">0%</td><td class="num">0%</td>        <td class="num">0%</td>
         <td class="num">0%</td>
@@ -304,18 +241,18 @@ footer a{color:var(--muted)}
       <tr>
         <td><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a></td>
         <td class="num">17-4-9</td>
-<td class="num">55</td><td class="num">+15</td>        <td class="num">1567 <span class="t">#5</span></td>
+<td class="num">55</td><td class="num">+15</td>        <td class="num">1584 <span class="t">#4</span></td>
         <td class="num">55.0</td>
-<td class="num">100%</td><td class="num">61%</td><td class="num">40%</td>        <td class="num">0%</td>
-        <td class="num">18%</td>
+<td class="num">100%</td><td class="num">100%</td><td class="num">68%</td>        <td class="num">0%</td>
+        <td class="num">30%</td>
       </tr>
       <tr>
         <td><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a></td>
         <td class="num">16-5-9</td>
 <td class="num">53</td><td class="num">+15</td>        <td class="num">1618 <span class="t">#2</span></td>
         <td class="num">53.0</td>
-<td class="num">100%</td><td class="num">100%</td><td class="num">50%</td>        <td class="num">0%</td>
-        <td class="num">30%</td>
+<td class="num">100%</td><td class="num">100%</td><td class="num">43%</td>        <td class="num">0%</td>
+        <td class="num">25%</td>
       </tr>
       <tr>
         <td><a class="tm" href="teams/LA.html" title="Angel City FC"><i style="background:#202121"></i>LA</a></td>
@@ -328,26 +265,26 @@ footer a{color:var(--muted)}
       <tr>
         <td><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a></td>
         <td class="num">14-8-8</td>
-<td class="num">50</td><td class="num">+9</td>        <td class="num">1534 <span class="t">#6</span></td>
+<td class="num">50</td><td class="num">+9</td>        <td class="num">1516 <span class="t">#7</span></td>
         <td class="num">50.0</td>
-<td class="num">100%</td><td class="num">39%</td><td class="num">24%</td>        <td class="num">0%</td>
-        <td class="num">10%</td>
+<td class="num">100%</td><td class="num">0%</td><td class="num">0%</td>        <td class="num">0%</td>
+        <td class="num">0%</td>
       </tr>
       <tr>
         <td><a class="tm" href="teams/SEA.html" title="Seattle Reign FC"><i style="background:#292431"></i>SEA</a></td>
         <td class="num">14-5-11</td>
-<td class="num">47</td><td class="num">+4</td>        <td class="num">1525 <span class="t">#7</span></td>
+<td class="num">47</td><td class="num">+4</td>        <td class="num">1517 <span class="t">#6</span></td>
         <td class="num">47.0</td>
-<td class="num">100%</td><td class="num">30%</td><td class="num">10%</td>        <td class="num">0%</td>
-        <td class="num">5%</td>
+<td class="num">100%</td><td class="num">0%</td><td class="num">0%</td>        <td class="num">0%</td>
+        <td class="num">0%</td>
       </tr>
       <tr>
         <td><a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a></td>
         <td class="num">14-5-11</td>
 <td class="num">47</td><td class="num">+5</td>        <td class="num">1503 <span class="t">#9</span></td>
         <td class="num">47.0</td>
-<td class="num">100%</td><td class="num">100%</td><td class="num">35%</td>        <td class="num">0%</td>
-        <td class="num">12%</td>
+<td class="num">100%</td><td class="num">100%</td><td class="num">32%</td>        <td class="num">0%</td>
+        <td class="num">11%</td>
       </tr>
       <tr>
         <td><a class="tm" href="teams/NC.html" title="North Carolina Courage"><i style="background:#ab0033"></i>NC</a></td>
@@ -417,7 +354,7 @@ footer a{color:var(--muted)}
   </table>
   </div>
 </section>
-<p class="t">Simulated from the ratings after 2026-11-07. Ties are broken with the league&rsquo;s own criteria where the data allows; see <a href="model.html#seeding">how often that reproduces the official seeds</a>.</p>
+<p class="t">Simulated from the ratings after 2026-11-08. Ties are broken with the league&rsquo;s own criteria where the data allows; see <a href="model.html#seeding">how often that reproduces the official seeds</a>.</p>
 <section class="panel section">
   <div class="panel-head"><h2>Teams</h2></div>
   <div class="teamgrid">
@@ -442,7 +379,7 @@ Over 2019&ndash;2025 its most likely result happened in 46.3% of games, against 
 </script>
 </main>
 <footer><div class="in">
-  Data: ESPN and <a href="https://www.americansocceranalysis.com">American Soccer Analysis</a>, through 2026-11-07.
+  Data: ESPN and <a href="https://www.americansocceranalysis.com">American Soccer Analysis</a>, through 2026-11-08.
   Ratings, predictions and odds are this site&rsquo;s own model, not the league&rsquo;s or a sportsbook&rsquo;s. Times are US Eastern.
   Generated by Facetwork workflow <code>sports.publish.UpdateAll</code> &middot; <a href="https://github.com/rlemke/fwh_sports/blob/main/src/sports/ffl/sports_site.ffl">view FFL</a> &middot; <a href="https://github.com/rlemke/fwh_sports">source repo</a>
 </div></footer>
