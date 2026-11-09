@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Grilled BBQ chicken thighs</h1>
 <p class="lede">Bone-in thighs with a smoky paprika rub, cooked over indirect heat, then brushed with a sugar-free tomato glaze in the last minutes.</p>
 <p class="sans">
-  <span class="badge df">Dairy-free</span> <span class="badge net">3.9 g net carbs</span>
+  <span class="badge df">Dairy-free</span>  <span class="badge net">3.9 g net carbs</span>
   <span class="chip">Serves 4 · 2 thighs</span>
 <span class="chip">prep 15 min · cook 40 min · rest 5 min</span></p>
 <div class="two">
@@ -134,6 +140,7 @@ ol.steps li { margin: 0 0 10px; }
 <ol class="steps"><li>Pat the thighs dry. Mix the rub spices, toss the thighs with the oil, then with the rub. Rest 20 minutes, or refrigerate up to a day.</li><li>Whisk the glaze ingredients in a small pan and simmer 2 minutes until slightly thickened.</li><li>Set up the grill for two zones: coals or burners on one side only, aiming for about 190 °C (375 °F) under the lid. Lay the thighs skin side up on the cool side.</li><li>Cover and cook 30–35 minutes, until a thermometer next to the bone reads 74 °C (165 °F); thighs are juicier taken to 80–85 °C (175–185 °F).</li><li>Move the thighs skin side down to the hot side for 2–3 minutes to crisp. Turn, brush with glaze and cook 1–2 minutes more; the glaze contains allulose and scorches fast.</li><li>Oven alternative: bake on a rack over a lined tray at 200 °C (400 °F) for 35–40 minutes, brush with glaze and grill under the broiler for 2 minutes.</li></ol>
 <p class="sans"><span class="badge df">Dairy-free as written</span></p>
 
+
 <h2>Tips</h2><ul><li>Worcestershire sauce contains anchovy; tamari is a fish-free swap.</li><li>Any of the sugar-free barbecue sauces in the sauces chapter can replace this glaze.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/outdoor-bbq.html">Outdoor barbecue</a>.</p><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Barbecued chicken</strong> · United States · North America · 1950s</p>
@@ -144,7 +151,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="greek-roast-lamb.html">Greek roast leg of lamb</a> · <a href="herb-roast-turkey.html">Herb roast turkey</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Mustard-glazed Christmas ham</h1>
 <p class="lede">A fully cooked ham warmed through slowly, then brushed with a mustard, egg-yolk and allulose glaze and browned, in the manner of the Swedish julskinka.</p>
 <p class="sans">
-  <span class="badge df">Dairy-free</span> <span class="badge net">0.5 g net carbs</span>
+  <span class="badge df">Dairy-free</span> <span class="badge vgopt">Egg-free option</span> <span class="badge net">0.5 g net carbs</span>
   <span class="chip">Serves 16 · about 225 g (8 oz) sliced ham</span>
 <span class="chip">prep 15 min · cook 2 h 45 min · rest 20 min</span></p>
 <div class="two">
@@ -111,16 +117,16 @@ ol.steps li { margin: 0 0 10px; }
   <div>
     <h2>Nutrition</h2>
     <table class="facts">
-  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Egg-free</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
   <tbody>
-    <tr style="font-weight:600"><td>Net carbs</td><td class="num">0.5 g</td><td class="num conv">2.5 g</td></tr>
-    <tr><td>Total carbohydrate</td><td class="num">2.4 g</td><td class="num conv">2.8 g</td></tr>
-    <tr><td>Fibre</td><td class="num">0.4 g</td><td class="num conv">0.3 g</td></tr>
-    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">1.5 g</td><td class="num conv">0.0 g</td></tr>
-    <tr><td>Sugars</td><td class="num">0.1 g</td><td class="num conv">1.1 g</td></tr>
-    <tr><td>Fat</td><td class="num">43.0 g</td><td class="num conv">42.2 g</td></tr>
-    <tr><td>Protein</td><td class="num">42.3 g</td><td class="num conv">42.2 g</td></tr>
-    <tr><td>Energy</td><td class="num">570 kcal</td><td class="num conv">570 kcal</td></tr>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">0.5 g</td><td class="num">0.4 g</td><td class="num conv">2.5 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">2.4 g</td><td class="num">2.3 g</td><td class="num conv">2.8 g</td></tr>
+    <tr><td>Fibre</td><td class="num">0.4 g</td><td class="num">0.4 g</td><td class="num conv">0.3 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">1.5 g</td><td class="num">1.5 g</td><td class="num conv">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">0.1 g</td><td class="num">0.1 g</td><td class="num conv">1.1 g</td></tr>
+    <tr><td>Fat</td><td class="num">43.0 g</td><td class="num">42.7 g</td><td class="num conv">42.2 g</td></tr>
+    <tr><td>Protein</td><td class="num">42.3 g</td><td class="num">42.2 g</td><td class="num conv">42.2 g</td></tr>
+    <tr><td>Energy</td><td class="num">570 kcal</td><td class="num">567 kcal</td><td class="num conv">570 kcal</td></tr>
   </tbody>
 </table>
 <p class="small"><strong>Not low-carb</strong> is a rough estimate of a conventional version, not a tested recipe: sugar for allulose (0.7 × by weight); all-purpose wheat flour for almond flour (blanched, finely ground). Everything else is as written. Sweeteners are matched for sweetness, and ordinary recipes are often sweeter, so the real difference is usually larger. </p>
@@ -132,6 +138,14 @@ ol.steps li { margin: 0 0 10px; }
 <ol class="steps"><li>Heat the oven to 160 °C (325 °F). Set the ham fat side up in a roasting pan, add the water and bay leaves and cover the pan tightly with foil.</li><li>Bake until a thermometer in the thickest part (not touching the bone) reads 55 °C (130 °F), about 15 minutes per 450 g (1 lb), roughly 2¼ hours.</li><li>Meanwhile whisk the mustard, mustard powder, egg yolk, allulose, cloves and pepper into a smooth glaze.</li><li>Take the ham out and raise the oven to 200 °C (400 °F). Score the fat in a diamond pattern, brush the glaze thickly over the top and sides and, if using, pat on the almond flour.</li><li>Return the ham uncovered for 15–20 minutes, until the glaze is set and browned and the centre reads 60 °C (140 °F). Allulose browns quickly, so check after 10 minutes and tent with foil if it darkens too fast.</li><li>Rest 20 minutes, then slice. Serve warm, or chill and slice thin for the cold table.</li></ol>
 <p class="sans"><span class="badge df">Dairy-free as written</span></p>
 
+<section class="dfree vfree">
+  <h2>Egg-free version</h2>
+  <p class="small">This dish has meat, so it cannot be vegan, but it can be made without egg:</p>
+  <ul>
+<li>Use <strong>unsweetened almond milk</strong> instead of large egg yolk — about 1 tbsp.</li>  </ul>
+<p>Without the yolk the glaze is thinner, browns less and holds the almond crumbs less firmly; brush it on in two coats. This makes the ham egg-free, not vegan.</p>  <p class="small">Egg-free version contains: tree nuts.</p>
+</section>
+
 <h2>Tips</h2><ul><li>A ham labelled &#39;cook before eating&#39; instead of &#39;fully cooked&#39; must reach 63 °C (145 °F) and rest 3 minutes.</li><li>Studding the fat with whole cloves is an English and American touch; the Swedish coat is mustard, egg and crumbs.</li></ul><p class="sans noprint">On the menu for: <a href="../menus/christmas.html">Christmas dinner</a>.</p><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Christmas ham</strong> · Sweden · Northern Europe · 1800s</p>
@@ -142,7 +156,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="memphis-dry-rub-ribs.html">Memphis dry-rub ribs</a> · <a href="pulled-pork.html">Pulled pork with vinegar-pepper sauce</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Gingerbread loaf</h1>
 <p class="lede">A dark, warmly spiced English-style ginger loaf, with a single spoonful of molasses for the true treacly flavour.</p>
 <p class="sans">
-  <span class="badge opt">Dairy-free option</span> <span class="badge net">4.6 g net carbs</span>
+  <span class="badge opt">Dairy-free option</span> <span class="badge vgopt">Vegan option</span> <span class="badge net">4.6 g net carbs</span>
   <span class="chip">Serves 10 · 1 slice</span>
 <span class="chip">prep 20 min · cook 50 min · rest 1 h</span></p>
 <div class="two">
@@ -109,16 +115,16 @@ ol.steps li { margin: 0 0 10px; }
   <div>
     <h2>Nutrition</h2>
     <table class="facts">
-  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th><th class="num">Vegan</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
   <tbody>
-    <tr style="font-weight:600"><td>Net carbs</td><td class="num">4.6 g</td><td class="num">4.6 g</td><td class="num conv">27.6 g</td></tr>
-    <tr><td>Total carbohydrate</td><td class="num">18.4 g</td><td class="num">18.5 g</td><td class="num conv">28.5 g</td></tr>
-    <tr><td>Fibre</td><td class="num">2.7 g</td><td class="num">2.8 g</td><td class="num conv">1.0 g</td></tr>
-    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">11.1 g</td><td class="num">11.1 g</td><td class="num conv">0.0 g</td></tr>
-    <tr><td>Sugars</td><td class="num">2.9 g</td><td class="num">2.8 g</td><td class="num conv">9.7 g</td></tr>
-    <tr><td>Fat</td><td class="num">22.1 g</td><td class="num">22.1 g</td><td class="num conv">12.0 g</td></tr>
-    <tr><td>Protein</td><td class="num">6.6 g</td><td class="num">6.4 g</td><td class="num conv">4.6 g</td></tr>
-    <tr><td>Energy</td><td class="num">247 kcal</td><td class="num">249 kcal</td><td class="num conv">240 kcal</td></tr>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">4.6 g</td><td class="num">4.6 g</td><td class="num">4.5 g</td><td class="num conv">27.6 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">18.4 g</td><td class="num">18.5 g</td><td class="num">19.0 g</td><td class="num conv">28.5 g</td></tr>
+    <tr><td>Fibre</td><td class="num">2.7 g</td><td class="num">2.8 g</td><td class="num">3.4 g</td><td class="num conv">1.0 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">11.1 g</td><td class="num">11.1 g</td><td class="num">11.1 g</td><td class="num conv">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">2.9 g</td><td class="num">2.8 g</td><td class="num">2.7 g</td><td class="num conv">9.7 g</td></tr>
+    <tr><td>Fat</td><td class="num">22.1 g</td><td class="num">22.1 g</td><td class="num">21.5 g</td><td class="num conv">12.0 g</td></tr>
+    <tr><td>Protein</td><td class="num">6.6 g</td><td class="num">6.4 g</td><td class="num">4.9 g</td><td class="num conv">4.6 g</td></tr>
+    <tr><td>Energy</td><td class="num">247 kcal</td><td class="num">249 kcal</td><td class="num">239 kcal</td><td class="num conv">240 kcal</td></tr>
   </tbody>
 </table>
 <p class="small"><strong>Not low-carb</strong> is a rough estimate of a conventional version, not a tested recipe: all-purpose wheat flour for almond flour (blanched, finely ground); all-purpose wheat flour for coconut flour (3 × by weight); sugar for granulated erythritol (0.7 × by weight); sugar for allulose (0.7 × by weight). Everything else is as written. Sweeteners are matched for sweetness, and ordinary recipes are often sweeter, so the real difference is usually larger. </p>
@@ -134,6 +140,14 @@ ol.steps li { margin: 0 0 10px; }
 <li>Use <strong>coconut oil</strong> instead of unsalted butter (0.85 × the amount) — melted.</li><li>Use <strong>unsweetened coconut yogurt</strong> instead of sour cream.</li>  </ul>
 <p>With coconut oil and coconut yogurt the loaf is just as moist; it firms more in the fridge, so keep it at room temperature.</p></section>
 
+<section class="dfree vfree">
+  <h2>Vegan version</h2>
+  <p class="small">Make the dairy-free swaps above, and also:</p>
+  <ul>
+<li>Use <strong>flax egg (1 tbsp golden flaxseed meal + 3 tbsp water, rested 10 min)</strong> instead of large egg (1.04 × the weight) — one flax egg per egg.</li>  </ul>
+<p>Rest the flax eggs 10 minutes and whisk them in one at a time as for the eggs. The loaf will rise a little less and be denser, and the spices hide the flax flavour; untested.</p>  <p class="small">Vegan version contains: coconut, tree nuts.</p>
+</section>
+
 <h2>Tips</h2><ul><li>The allulose is what gives a slightly sticky, treacly crumb; with erythritol alone the loaf is drier.</li><li>Only 1 tablespoon of molasses goes in: it is sugar, and the limit keeps each slice low-carb. It is there for flavour, not sweetness, so do not increase it; the loaf will be paler than a full treacle gingerbread.</li></ul><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Gingerbread</strong> · England · Northern Europe · medieval</p>
@@ -144,7 +158,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="chocolate-lava-cakes.html">Chocolate lava cakes</a> · <a href="olive-oil-cake.html">Italian olive-oil cake</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

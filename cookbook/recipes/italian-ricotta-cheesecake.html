@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Italian ricotta cheesecake</h1>
 <p class="lede">A lighter, slightly grainy crustless cheesecake of ricotta flavoured with lemon and orange zest.</p>
 <p class="sans">
-  <span class="badge opt">Dairy-free option</span> <span class="badge net">6.0 g net carbs</span>
+  <span class="badge opt">Dairy-free option</span> <span class="badge vgopt">Vegan option</span> <span class="badge net">6.0 g net carbs</span>
   <span class="chip">Serves 12 · 1 slice</span>
 <span class="chip">prep 20 min · cook 1 h · rest 4 h</span></p>
 <div class="two">
@@ -109,16 +115,16 @@ ol.steps li { margin: 0 0 10px; }
   <div>
     <h2>Nutrition</h2>
     <table class="facts">
-  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Dairy-free</th><th class="num">Vegan</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
   <tbody>
-    <tr style="font-weight:600"><td>Net carbs</td><td class="num">6.0 g</td><td class="num">7.3 g</td><td class="num conv">15.3 g</td></tr>
-    <tr><td>Total carbohydrate</td><td class="num">17.1 g</td><td class="num">19.2 g</td><td class="num conv">15.5 g</td></tr>
-    <tr><td>Fibre</td><td class="num">0.4 g</td><td class="num">1.1 g</td><td class="num conv">0.2 g</td></tr>
-    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">10.7 g</td><td class="num">10.7 g</td><td class="num conv">0.0 g</td></tr>
-    <tr><td>Sugars</td><td class="num">0.5 g</td><td class="num">1.8 g</td><td class="num conv">7.9 g</td></tr>
-    <tr><td>Fat</td><td class="num">10.5 g</td><td class="num">21.7 g</td><td class="num conv">10.0 g</td></tr>
-    <tr><td>Protein</td><td class="num">8.6 g</td><td class="num">6.7 g</td><td class="num conv">8.6 g</td></tr>
-    <tr><td>Energy</td><td class="num">158 kcal</td><td class="num">264 kcal</td><td class="num conv">187 kcal</td></tr>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">6.0 g</td><td class="num">7.3 g</td><td class="num">7.8 g</td><td class="num conv">15.3 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">17.1 g</td><td class="num">19.2 g</td><td class="num">19.6 g</td><td class="num conv">15.5 g</td></tr>
+    <tr><td>Fibre</td><td class="num">0.4 g</td><td class="num">1.1 g</td><td class="num">1.2 g</td><td class="num conv">0.2 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">10.7 g</td><td class="num">10.7 g</td><td class="num">10.7 g</td><td class="num conv">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">0.5 g</td><td class="num">1.8 g</td><td class="num">2.1 g</td><td class="num conv">7.9 g</td></tr>
+    <tr><td>Fat</td><td class="num">10.5 g</td><td class="num">21.7 g</td><td class="num">20.5 g</td><td class="num conv">10.0 g</td></tr>
+    <tr><td>Protein</td><td class="num">8.6 g</td><td class="num">6.7 g</td><td class="num">5.9 g</td><td class="num conv">8.6 g</td></tr>
+    <tr><td>Energy</td><td class="num">158 kcal</td><td class="num">264 kcal</td><td class="num">250 kcal</td><td class="num conv">187 kcal</td></tr>
   </tbody>
 </table>
 <p class="small"><strong>Not low-carb</strong> is a rough estimate of a conventional version, not a tested recipe: sugar for granulated erythritol (0.7 × by weight); all-purpose wheat flour for coconut flour (3 × by weight); all-purpose wheat flour for almond flour (blanched, finely ground). Everything else is as written. Sweeteners are matched for sweetness, and ordinary recipes are often sweeter, so the real difference is usually larger. </p>
@@ -134,6 +140,14 @@ ol.steps li { margin: 0 0 10px; }
 <li>Use <strong>dairy-free cream cheese (cashew or almond based)</strong> instead of whole-milk ricotta — add 2 tbsp almond milk to loosen it.</li><li>Use <strong>olive oil</strong> instead of unsalted butter.</li>  </ul>
 <p>With dairy-free cream cheese the cake is smoother and denser, closer to a New York style than to the grainy ricotta original.</p></section>
 
+<section class="dfree vfree">
+  <h2>Vegan version</h2>
+  <p class="small">Make the dairy-free swaps above, and also:</p>
+  <ul>
+<li>Use <strong>silken tofu, firm</strong> instead of large egg (1.26 × the weight) — blended completely smooth, ¼ cup per egg.</li>  </ul>
+<p>Blend the tofu smooth before beating it into the dairy-free cream cheese. As with the dairy-free version, it ends up closer to a dense New York style than a light ricotta cake, and it sets softer, so chill it overnight. Untested.</p>  <p class="small">Vegan version contains: coconut, soy, tree nuts.</p>
+</section>
+
 <h2>Tips</h2><ul><li>Draining the ricotta is essential; wet ricotta gives a soggy, weeping cake.</li></ul><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Cheesecake</strong> · Rome · Southern Europe · ancient</p>
@@ -144,7 +158,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="kasekuchen.html">German Käsekuchen</a> · <a href="japanese-cotton-cheesecake.html">Japanese cotton cheesecake</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

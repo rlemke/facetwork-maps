@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Quiche Lorraine</h1>
 <p class="lede">Smoky bacon set in a nutmeg-scented egg custard in a crisp almond-flour crust — made, as in Lorraine, without cheese.</p>
 <p class="sans">
-  <span class="badge opt">Dairy-free option</span> <span class="badge net">4.3 g net carbs</span>
+  <span class="badge opt">Dairy-free option</span>  <span class="badge net">4.3 g net carbs</span>
   <span class="chip">Serves 6 · 1 slice</span>
 <span class="chip">prep 25 min · cook 50 min · rest 15 min</span></p>
 <div class="two">
@@ -136,6 +142,12 @@ ol.steps li { margin: 0 0 10px; }
 <li>Use <strong>dairy-free butter (stick, plant-based)</strong> instead of unsalted butter.</li><li>Use <strong>full-fat coconut milk (canned)</strong> instead of heavy whipping cream.</li>  </ul>
 <p>Coconut milk sets a softer custard with a gentle coconut note that the bacon mostly covers; rest it 30 minutes before slicing.</p></section>
 
+<section class="dfree vfree">
+  <h2>Vegan instead</h2>
+  <p>The custard is the dish, so swaps don&#39;t rebuild it. The tofu quiche uses the same almond crust idea with a sliceable silken-tofu filling; it has mushrooms and smoked paprika where this one has bacon.</p>
+  <p class="sans">→ <a href="../recipes/tofu-quiche.html">Mushroom tofu quiche</a> <span class="small">(vegan as written)</span></p>
+</section>
+
 <h2>Tips</h2><ul><li>Cover the crust edge with foil if it browns before the filling sets.</li></ul><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Quiche</strong> · Nancy, Lorraine · Western Europe · by the 1500s</p>
@@ -143,10 +155,10 @@ ol.steps li { margin: 0 0 10px; }
   <p class="sans noprint"><a href="../index.html?focus=quiche-lorraine#map">See it on the map</a></p>
 </aside>
 <p class="sans noprint">
-← <a href="menemen.html">Menemen</a> · <a href="shakshuka.html">Shakshuka</a> →</p>
+← <a href="tofu-quiche.html">Mushroom tofu quiche</a> · <a href="shakshuka.html">Shakshuka</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

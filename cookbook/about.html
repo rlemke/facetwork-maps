@@ -4,24 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Method &amp; guides — The Low-Carb Kitchen</title>
-<meta name="description" content="206 low-carb recipes, 112 of them desserts, each dairy-free or with a dairy-free version; nutrition computed from USDA FoodData Central; every dish mapped to where its kind comes from.">
+<meta name="description" content="215 low-carb recipes, 116 of them desserts, each dairy-free or with a dairy-free version; nutrition computed from USDA FoodData Central; every dish mapped to where its kind comes from.">
 <style>
 :root {
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -93,10 +99,10 @@ ol.steps li { margin: 0 0 10px; }
 </div></header>
 <main class="wrap">
 <h1>Method &amp; guides</h1>
-<p class="lede">How the numbers are worked out, how to choose a sweetener, how the dairy-free versions work, and what this book cannot promise.</p>
+<p class="lede">How the numbers are worked out, how to choose a sweetener, how the dairy-free, egg-free and vegan versions work, and what this book cannot promise.</p>
 
 <h2>What has and has not been checked</h2>
-<p>The recipes follow established low-carb ratios: almond flour does not absorb like wheat flour, coconut flour absorbs about four times as much liquid, and eggs, psyllium, xanthan or gelatin supply the structure that gluten and sugar would. <strong>None has been made in a test kitchen.</strong> Expect to adjust baking times to your oven and the texture of the dairy-free versions to the brands you buy. What <em>has</em> been checked by the build itself: every ingredient is a known food with known nutrition, every amount converts to grams, every dairy ingredient has a dairy-free swap, and every dessert's carbs are computed rather than claimed.</p>
+<p>The recipes follow established low-carb ratios: almond flour does not absorb like wheat flour, coconut flour absorbs about four times as much liquid, and eggs, psyllium, xanthan or gelatin supply the structure that gluten and sugar would. <strong>None has been made in a test kitchen.</strong> Expect to adjust baking times to your oven and the texture of the dairy-free versions to the brands you buy. What <em>has</em> been checked by the build itself: every ingredient is a known food with known nutrition, every amount converts to grams, every dairy ingredient has a dairy-free swap, every recipe with eggs has an egg-free version or names a similar vegan recipe, and every dessert's carbs are computed rather than claimed.</p>
 
 <h2 id="nutrition">How the nutrition is computed</h2>
 <p>Each ingredient is matched to one food in the <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> <em>SR Legacy</em> release (public domain), read straight from USDA's download at build time. Cups and spoons are converted to grams with each ingredient's own weight: a cup of almond flour weighs about 96 g, a cup of cream cheese about 232 g. The recipe's total is divided by its servings.</p>
@@ -117,12 +123,27 @@ ol.steps li { margin: 0 0 10px; }
 <p>Powdered (confectioners') erythritol dissolves better in frostings and no-bake fillings; grind granulated erythritol in a blender if you have none.</p>
 
 <h2 id="dairy-free">How the dairy-free versions work</h2>
-<p>89 recipes contain no dairy at all. The other 117 list a swap for every dairy ingredient, and their dairy-free nutrition is computed from the swapped ingredients, not assumed to be the same. The swaps used across the book:</p>
+<p>98 recipes contain no dairy at all. The other 117 list a swap for every dairy ingredient, and their dairy-free nutrition is computed from the swapped ingredients, not assumed to be the same. The swaps used across the book:</p>
 <div class="scroll"><table>
 <thead><tr><th>Instead of</th><th>Use</th><th class="num">Recipes</th></tr></thead>
 <tbody><tr><td>unsalted butter</td><td>dairy-free butter (stick, plant-based)</td><td class="num">60</td></tr><tr><td>heavy whipping cream</td><td>coconut cream (canned, unsweetened)</td><td class="num">44</td></tr><tr><td>unsalted butter</td><td>coconut oil</td><td class="num">19</td></tr><tr><td>full-fat cream cheese</td><td>dairy-free cream cheese (cashew or almond based)</td><td class="num">16</td></tr><tr><td>heavy whipping cream</td><td>full-fat coconut milk (canned)</td><td class="num">10</td></tr><tr><td>sour cream</td><td>unsweetened coconut yogurt</td><td class="num">9</td></tr><tr><td>whole milk</td><td>unsweetened almond milk</td><td class="num">6</td></tr><tr><td>grated parmesan</td><td>nutritional yeast flakes</td><td class="num">4</td></tr><tr><td>whole milk</td><td>full-fat coconut milk (canned)</td><td class="num">4</td></tr><tr><td>plain whole-milk Greek yogurt</td><td>unsweetened coconut yogurt</td><td class="num">2</td></tr><tr><td>unsalted butter</td><td>olive oil</td><td class="num">1</td></tr><tr><td>sharp cheddar, shredded</td><td>nutritional yeast flakes</td><td class="num">1</td></tr><tr><td>feta, crumbled</td><td>ripe black olive</td><td class="num">1</td></tr><tr><td>mascarpone</td><td>dairy-free cream cheese (cashew or almond based)</td><td class="num">1</td></tr><tr><td>whole-milk ricotta</td><td>dairy-free cream cheese (cashew or almond based)</td><td class="num">1</td></tr></tbody>
 </table></div>
-<p>Dairy-free is not the same as vegan: many recipes use eggs. Check chocolate labels, because some dark and sugar-free chocolate contains milk. Dairy-free cream cheeses are usually made from cashews or almonds, so the dairy-free version of a recipe can contain nuts when the original did not; each recipe lists what both versions contain.</p>
+<p>Dairy-free is not the same as vegan; see below for eggs, gelatin and stock. Check chocolate labels, because some dark and sugar-free chocolate contains milk. Dairy-free cream cheeses are usually made from cashews or almonds, so the dairy-free version of a recipe can contain nuts when the original did not; each recipe lists what both versions contain.</p>
+
+<h2 id="vegan">Egg-free and vegan versions</h2>
+<p>51 recipes are vegan as written and 123 more have a vegan version. Of the 115 recipes with eggs, 90 list an egg-free swap for every egg, and the other 25 point to a similar recipe that is vegan. Those are dishes where the egg is the point: a soufflé, a set custard, a whisked sponge, a frittata. As with dairy, the vegan version's nutrition is computed from the swapped ingredients. Recipes with meat can be made egg-free but are not called vegan.</p>
+<p>The egg replacers each do a different job, and none does everything an egg does:</p>
+<ul>
+<li><strong>Flax or chia "eggs"</strong>: ground seed and water, left to gel. They bind cookies, brownies, muffins and dense cakes well, but give no lift, so use them where a recipe has one to three eggs.</li>
+<li><strong>Aquafaba</strong>, the liquid from a can of chickpeas, whips like egg white for meringues, macarons and mousses. It needs longer whisking and a low oven, and its nutrition varies from can to can.</li>
+<li><strong>Silken tofu</strong>, blended smooth, stands in for the eggs in cheesecakes and custard-like pies. They set softer, so chill them longer.</li>
+<li><strong>Agar</strong> replaces gelatin at about a quarter of the weight. Boil it for 1–2 minutes. It sets at room temperature and sets firmer than gelatin.</li>
+</ul>
+<p>Egg replacement is the least predictable part of this book. Expect egg-free bakes to be denser and to brown less, and treat each version as a starting point. The swaps used:</p>
+<div class="scroll"><table>
+<thead><tr><th>Instead of</th><th>Use</th><th class="num">Recipes</th></tr></thead>
+<tbody><tr><td>large egg</td><td>flax egg (1 tbsp golden flaxseed meal + 3 tbsp water, rested 10 min)</td><td class="num">38</td></tr><tr><td>large egg white</td><td>aquafaba (liquid from a can of unsalted chickpeas)</td><td class="num">15</td></tr><tr><td>large egg</td><td>silken tofu, firm</td><td class="num">12</td></tr><tr><td>large egg</td><td>aquafaba (liquid from a can of unsalted chickpeas)</td><td class="num">11</td></tr><tr><td>large egg yolk</td><td>flax egg (1 tbsp golden flaxseed meal + 3 tbsp water, rested 10 min)</td><td class="num">8</td></tr><tr><td>large egg yolk</td><td>silken tofu, firm</td><td class="num">7</td></tr><tr><td>mayonnaise (sugar-free, avocado or olive oil)</td><td>egg-free mayonnaise (tofu-based)</td><td class="num">5</td></tr><tr><td>unflavored powdered gelatin</td><td>agar powder</td><td class="num">4</td></tr><tr><td>chicken stock</td><td>vegetable broth</td><td class="num">2</td></tr><tr><td>large egg yolk</td><td>unsweetened almond milk</td><td class="num">2</td></tr><tr><td>Worcestershire sauce</td><td>vegan Worcestershire sauce (no anchovy)</td><td class="num">2</td></tr><tr><td>large egg</td><td>unsweetened almond milk</td><td class="num">1</td></tr><tr><td>large egg</td><td>firm tofu</td><td class="num">1</td></tr></tbody>
+</table></div>
 
 <h2 id="origins">How dishes are placed on the map</h2>
 <p>Each recipe is pinned to where its <em>kind</em> of dish took shape — a city where one is documented, otherwise a region — with the period it dates from. Food history is full of competing claims: where a dish is disputed (pavlova, tiramisu, brownies, crème brûlée), the recipe page says so rather than picking a winner. Low-carb inventions such as fat bombs and cloud bread are placed where they first appeared and are marked as modern.</p>
@@ -149,10 +170,10 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">77</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">19.2</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">19.2</td><td class="num">5</td></tr>
 <tr><td>agar powder</td>
 <td>FDC 170090<br><span class="small">Seaweed, agar, dried</span></td>
-<td class="num">306</td><td class="num">0.3</td><td class="num">6.2</td><td class="num">80.9</td><td class="num">7.7</td><td class="num">0.0</td><td class="num">73.2</td><td class="num">1</td></tr>
+<td class="num">306</td><td class="num">0.3</td><td class="num">6.2</td><td class="num">80.9</td><td class="num">7.7</td><td class="num">0.0</td><td class="num">73.2</td><td class="num">4</td></tr>
 <tr><td>allulose</td>
 <td>label</td>
-<td class="num">40</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">68</td></tr>
+<td class="num">40</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">74</td></tr>
 <tr><td>almond butter, unsalted</td>
 <td>FDC 168588<br><span class="small">Nuts, almond butter, plain, without salt added</span></td>
 <td class="num">614</td><td class="num">55.5</td><td class="num">21.0</td><td class="num">18.8</td><td class="num">10.3</td><td class="num">0.0</td><td class="num">8.5</td><td class="num">3</td></tr>
@@ -161,7 +182,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">9</td></tr>
 <tr><td>almond flour (blanched, finely ground)</td>
 <td>FDC 170568<br><span class="small">Nuts, almonds, blanched</span></td>
-<td class="num">590</td><td class="num">52.5</td><td class="num">21.4</td><td class="num">18.7</td><td class="num">9.9</td><td class="num">0.0</td><td class="num">8.8</td><td class="num">92</td></tr>
+<td class="num">590</td><td class="num">52.5</td><td class="num">21.4</td><td class="num">18.7</td><td class="num">9.9</td><td class="num">0.0</td><td class="num">8.8</td><td class="num">97</td></tr>
 <tr><td>almonds</td>
 <td>FDC 170567<br><span class="small">Nuts, almonds</span></td>
 <td class="num">579</td><td class="num">49.9</td><td class="num">21.1</td><td class="num">21.6</td><td class="num">12.5</td><td class="num">0.0</td><td class="num">9.1</td><td class="num">16</td></tr>
@@ -176,22 +197,25 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">52</td><td class="num">0.2</td><td class="num">0.3</td><td class="num">13.8</td><td class="num">2.4</td><td class="num">0.0</td><td class="num">11.4</td><td class="num">1</td></tr>
 <tr><td>apple cider vinegar</td>
 <td>FDC 173469<br><span class="small">Vinegar, cider</span></td>
-<td class="num">21</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.9</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.9</td><td class="num">14</td></tr>
+<td class="num">21</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.9</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.9</td><td class="num">15</td></tr>
+<tr><td>aquafaba (liquid from a can of unsalted chickpeas)</td>
+<td>label<br><span class="small">typical of published analyses of canned chickpea liquid; it varies from can to can</span></td>
+<td class="num">18</td><td class="num">0.2</td><td class="num">1.2</td><td class="num">2.9</td><td class="num">0.6</td><td class="num">0.0</td><td class="num">2.3</td><td class="num">26</td></tr>
 <tr><td>asparagus spear</td>
 <td>FDC 168389<br><span class="small">Asparagus, raw</span></td>
 <td class="num">20</td><td class="num">0.1</td><td class="num">2.2</td><td class="num">3.9</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">1.8</td><td class="num">1</td></tr>
 <tr><td>avocado oil</td>
 <td>FDC 173573<br><span class="small">Oil, avocado</span></td>
-<td class="num">884</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">3</td></tr>
+<td class="num">884</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">5</td></tr>
 <tr><td>baby back ribs (edible meat)</td>
 <td>FDC 168299<br><span class="small">Pork, fresh, backribs, separable lean and fat, raw</span></td>
 <td class="num">224</td><td class="num">16.3</td><td class="num">19.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1</td></tr>
 <tr><td>baking powder</td>
 <td>FDC 172804<br><span class="small">Leavening agents, baking powder, double-acting, straight phosphate</span></td>
-<td class="num">51</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">24.1</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">23.9</td><td class="num">41</td></tr>
+<td class="num">51</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">24.1</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">23.9</td><td class="num">43</td></tr>
 <tr><td>baking soda</td>
 <td>FDC 175040<br><span class="small">Leavening agents, baking soda</span></td>
-<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">12</td></tr>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">13</td></tr>
 <tr><td>bay leaf</td>
 <td>FDC 170917<br><span class="small">Spices, bay leaf</span></td>
 <td class="num">313</td><td class="num">8.4</td><td class="num">7.6</td><td class="num">75.0</td><td class="num">26.3</td><td class="num">0.0</td><td class="num">48.7</td><td class="num">1</td></tr>
@@ -257,13 +281,13 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">330</td><td class="num">35.0</td><td class="num">3.3</td><td class="num">6.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">6.7</td><td class="num">44</td></tr>
 <tr><td>coconut flour</td>
 <td>label</td>
-<td class="num">400</td><td class="num">13.3</td><td class="num">20.0</td><td class="num">60.0</td><td class="num">33.3</td><td class="num">0.0</td><td class="num">26.7</td><td class="num">40</td></tr>
+<td class="num">400</td><td class="num">13.3</td><td class="num">20.0</td><td class="num">60.0</td><td class="num">33.3</td><td class="num">0.0</td><td class="num">26.7</td><td class="num">42</td></tr>
 <tr><td>coconut oil</td>
 <td>FDC 171412<br><span class="small">Oil, coconut</span></td>
-<td class="num">892</td><td class="num">99.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">26</td></tr>
+<td class="num">892</td><td class="num">99.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">27</td></tr>
 <tr><td>cream of tartar</td>
 <td>FDC 175041<br><span class="small">Leavening agents, cream of tartar</span></td>
-<td class="num">258</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">61.5</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">61.3</td><td class="num">10</td></tr>
+<td class="num">258</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">61.5</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">61.3</td><td class="num">11</td></tr>
 <tr><td>cucumber</td>
 <td>FDC 168409<br><span class="small">Cucumber, with peel, raw</span></td>
 <td class="num">15</td><td class="num">0.1</td><td class="num">0.7</td><td class="num">3.6</td><td class="num">0.5</td><td class="num">0.0</td><td class="num">3.1</td><td class="num">1</td></tr>
@@ -278,7 +302,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">290</td><td class="num">25.0</td><td class="num">5.0</td><td class="num">10.0</td><td class="num">1.0</td><td class="num">0.0</td><td class="num">9.0</td><td class="num">18</td></tr>
 <tr><td>dark chocolate, 85% cacao</td>
 <td>FDC 170273<br><span class="small">Chocolate, dark, 70-85% cacao solids</span></td>
-<td class="num">598</td><td class="num">42.6</td><td class="num">7.8</td><td class="num">45.9</td><td class="num">10.9</td><td class="num">0.0</td><td class="num">35.0</td><td class="num">6</td></tr>
+<td class="num">598</td><td class="num">42.6</td><td class="num">7.8</td><td class="num">45.9</td><td class="num">10.9</td><td class="num">0.0</td><td class="num">35.0</td><td class="num">7</td></tr>
 <tr><td>dill pickle</td>
 <td>FDC 168558<br><span class="small">Pickles, cucumber, dill or kosher dill</span></td>
 <td class="num">12</td><td class="num">0.3</td><td class="num">0.5</td><td class="num">2.4</td><td class="num">1.0</td><td class="num">0.0</td><td class="num">1.4</td><td class="num">2</td></tr>
@@ -303,6 +327,9 @@ ol.steps li { margin: 0 0 10px; }
 <tr><td>dry white wine</td>
 <td>FDC 174837<br><span class="small">Alcoholic beverage, wine, table, white</span></td>
 <td class="num">82</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">2.6</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2.6</td><td class="num">4</td></tr>
+<tr><td>egg-free mayonnaise (tofu-based)</td>
+<td>FDC 167695<br><span class="small">Mayonnaise, made with tofu</span></td>
+<td class="num">322</td><td class="num">31.8</td><td class="num">6.0</td><td class="num">3.1</td><td class="num">1.1</td><td class="num">0.0</td><td class="num">2.0</td><td class="num">5</td></tr>
 <tr><td>eggplant</td>
 <td>FDC 169228<br><span class="small">Eggplant, raw</span></td>
 <td class="num">25</td><td class="num">0.2</td><td class="num">1.0</td><td class="num">5.9</td><td class="num">3.0</td><td class="num">0.0</td><td class="num">2.9</td><td class="num">1</td></tr>
@@ -314,13 +341,19 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">265</td><td class="num">21.5</td><td class="num">14.2</td><td class="num">3.9</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">3.9</td><td class="num">1</td></tr>
 <tr><td>fine salt</td>
 <td>FDC 173468<br><span class="small">Salt, table</span></td>
-<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">200</td></tr>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">210</td></tr>
+<tr><td>firm tofu</td>
+<td>FDC 172475<br><span class="small">Tofu, raw, firm, prepared with calcium sulfate</span></td>
+<td class="num">144</td><td class="num">8.7</td><td class="num">17.3</td><td class="num">2.8</td><td class="num">2.3</td><td class="num">0.0</td><td class="num">0.5</td><td class="num">2</td></tr>
 <tr><td>flaky sea salt</td>
 <td>FDC 173468<br><span class="small">Salt, table</span></td>
 <td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">3</td></tr>
 <tr><td>flank steak</td>
 <td>FDC 169563<br><span class="small">Beef, flank, steak, separable lean and fat, trimmed to 0&#34; fat, all grades, raw</span></td>
 <td class="num">155</td><td class="num">7.2</td><td class="num">21.2</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1</td></tr>
+<tr><td>flax egg (1 tbsp golden flaxseed meal + 3 tbsp water, rested 10 min)</td>
+<td>made from 7 g golden flaxseed meal + 45 g water</td>
+<td class="num">72</td><td class="num">5.7</td><td class="num">2.5</td><td class="num">3.9</td><td class="num">3.7</td><td class="num">0.0</td><td class="num">0.2</td><td class="num">46</td></tr>
 <tr><td>fresh apricot</td>
 <td>FDC 171697<br><span class="small">Apricots, raw</span></td>
 <td class="num">48</td><td class="num">0.4</td><td class="num">1.4</td><td class="num">11.1</td><td class="num">2.0</td><td class="num">0.0</td><td class="num">9.1</td><td class="num">2</td></tr>
@@ -329,7 +362,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">23</td><td class="num">0.6</td><td class="num">3.1</td><td class="num">2.6</td><td class="num">1.6</td><td class="num">0.0</td><td class="num">1.0</td><td class="num">3</td></tr>
 <tr><td>fresh chives, chopped</td>
 <td>FDC 169994<br><span class="small">Chives, raw</span></td>
-<td class="num">30</td><td class="num">0.7</td><td class="num">3.3</td><td class="num">4.3</td><td class="num">2.5</td><td class="num">0.0</td><td class="num">1.8</td><td class="num">4</td></tr>
+<td class="num">30</td><td class="num">0.7</td><td class="num">3.3</td><td class="num">4.3</td><td class="num">2.5</td><td class="num">0.0</td><td class="num">1.8</td><td class="num">5</td></tr>
 <tr><td>fresh cilantro, chopped</td>
 <td>FDC 169997<br><span class="small">Coriander (cilantro) leaves, raw</span></td>
 <td class="num">23</td><td class="num">0.5</td><td class="num">2.1</td><td class="num">3.7</td><td class="num">2.8</td><td class="num">0.0</td><td class="num">0.9</td><td class="num">1</td></tr>
@@ -347,7 +380,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">80</td><td class="num">0.8</td><td class="num">1.8</td><td class="num">17.8</td><td class="num">2.0</td><td class="num">0.0</td><td class="num">15.8</td><td class="num">3</td></tr>
 <tr><td>fresh lemon juice</td>
 <td>FDC 167747<br><span class="small">Lemon juice, raw</span></td>
-<td class="num">22</td><td class="num">0.2</td><td class="num">0.3</td><td class="num">6.9</td><td class="num">0.3</td><td class="num">0.0</td><td class="num">6.6</td><td class="num">46</td></tr>
+<td class="num">22</td><td class="num">0.2</td><td class="num">0.3</td><td class="num">6.9</td><td class="num">0.3</td><td class="num">0.0</td><td class="num">6.6</td><td class="num">48</td></tr>
 <tr><td>fresh lime juice</td>
 <td>FDC 168156<br><span class="small">Lime juice, raw</span></td>
 <td class="num">25</td><td class="num">0.1</td><td class="num">0.4</td><td class="num">8.4</td><td class="num">0.4</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">6</td></tr>
@@ -362,7 +395,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">131</td><td class="num">5.9</td><td class="num">3.3</td><td class="num">20.7</td><td class="num">14.1</td><td class="num">0.0</td><td class="num">6.6</td><td class="num">5</td></tr>
 <tr><td>fresh spinach</td>
 <td>FDC 168462<br><span class="small">Spinach, raw</span></td>
-<td class="num">23</td><td class="num">0.4</td><td class="num">2.9</td><td class="num">3.6</td><td class="num">2.2</td><td class="num">0.0</td><td class="num">1.4</td><td class="num">3</td></tr>
+<td class="num">23</td><td class="num">0.4</td><td class="num">2.9</td><td class="num">3.6</td><td class="num">2.2</td><td class="num">0.0</td><td class="num">1.4</td><td class="num">4</td></tr>
 <tr><td>fresh thyme leaves</td>
 <td>FDC 173470<br><span class="small">Thyme, fresh</span></td>
 <td class="num">101</td><td class="num">1.7</td><td class="num">5.6</td><td class="num">24.4</td><td class="num">14.0</td><td class="num">0.0</td><td class="num">10.4</td><td class="num">1</td></tr>
@@ -374,16 +407,16 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">350</td><td class="num">34.4</td><td class="num">6.2</td><td class="num">5.5</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">5.5</td><td class="num">16</td></tr>
 <tr><td>garlic clove</td>
 <td>FDC 169230<br><span class="small">Garlic, raw</span></td>
-<td class="num">149</td><td class="num">0.5</td><td class="num">6.4</td><td class="num">33.1</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">31.0</td><td class="num">29</td></tr>
+<td class="num">149</td><td class="num">0.5</td><td class="num">6.4</td><td class="num">33.1</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">31.0</td><td class="num">31</td></tr>
 <tr><td>garlic powder</td>
 <td>FDC 171325<br><span class="small">Spices, garlic powder</span></td>
 <td class="num">331</td><td class="num">0.7</td><td class="num">16.6</td><td class="num">72.7</td><td class="num">9.0</td><td class="num">0.0</td><td class="num">63.7</td><td class="num">12</td></tr>
 <tr><td>golden flaxseed meal</td>
 <td>FDC 169414<br><span class="small">Seeds, flaxseed</span></td>
-<td class="num">534</td><td class="num">42.2</td><td class="num">18.3</td><td class="num">28.9</td><td class="num">27.3</td><td class="num">0.0</td><td class="num">1.6</td><td class="num">4</td></tr>
+<td class="num">534</td><td class="num">42.2</td><td class="num">18.3</td><td class="num">28.9</td><td class="num">27.3</td><td class="num">0.0</td><td class="num">1.6</td><td class="num">5</td></tr>
 <tr><td>granulated erythritol</td>
 <td>label</td>
-<td class="num">20</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">123</td></tr>
+<td class="num">20</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">127</td></tr>
 <tr><td>grated parmesan</td>
 <td>FDC 171247<br><span class="small">Cheese, parmesan, grated</span></td>
 <td class="num">420</td><td class="num">27.8</td><td class="num">28.4</td><td class="num">13.9</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">13.9</td><td class="num">4</td></tr>
@@ -404,7 +437,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">254</td><td class="num">20.0</td><td class="num">17.2</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2</td></tr>
 <tr><td>ground black pepper</td>
 <td>FDC 170931<br><span class="small">Spices, pepper, black</span></td>
-<td class="num">251</td><td class="num">3.3</td><td class="num">10.4</td><td class="num">64.0</td><td class="num">25.3</td><td class="num">0.0</td><td class="num">38.7</td><td class="num">48</td></tr>
+<td class="num">251</td><td class="num">3.3</td><td class="num">10.4</td><td class="num">64.0</td><td class="num">25.3</td><td class="num">0.0</td><td class="num">38.7</td><td class="num">50</td></tr>
 <tr><td>ground cardamom</td>
 <td>FDC 170919<br><span class="small">Spices, cardamom</span></td>
 <td class="num">311</td><td class="num">6.7</td><td class="num">10.8</td><td class="num">68.5</td><td class="num">28.0</td><td class="num">0.0</td><td class="num">40.5</td><td class="num">9</td></tr>
@@ -425,10 +458,10 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">335</td><td class="num">4.2</td><td class="num">9.0</td><td class="num">71.6</td><td class="num">14.1</td><td class="num">0.0</td><td class="num">57.5</td><td class="num">10</td></tr>
 <tr><td>ground nutmeg</td>
 <td>FDC 171326<br><span class="small">Spices, nutmeg, ground</span></td>
-<td class="num">525</td><td class="num">36.3</td><td class="num">5.8</td><td class="num">49.3</td><td class="num">20.8</td><td class="num">0.0</td><td class="num">28.5</td><td class="num">13</td></tr>
+<td class="num">525</td><td class="num">36.3</td><td class="num">5.8</td><td class="num">49.3</td><td class="num">20.8</td><td class="num">0.0</td><td class="num">28.5</td><td class="num">14</td></tr>
 <tr><td>ground turmeric</td>
 <td>FDC 172231<br><span class="small">Spices, turmeric, ground</span></td>
-<td class="num">312</td><td class="num">3.2</td><td class="num">9.7</td><td class="num">67.1</td><td class="num">22.7</td><td class="num">0.0</td><td class="num">44.4</td><td class="num">1</td></tr>
+<td class="num">312</td><td class="num">3.2</td><td class="num">9.7</td><td class="num">67.1</td><td class="num">22.7</td><td class="num">0.0</td><td class="num">44.4</td><td class="num">7</td></tr>
 <tr><td>hazelnut flour (ground hazelnuts)</td>
 <td>FDC 170582<br><span class="small">Nuts, hazelnuts or filberts, blanched</span></td>
 <td class="num">629</td><td class="num">61.1</td><td class="num">13.7</td><td class="num">17.0</td><td class="num">11.0</td><td class="num">0.0</td><td class="num">6.0</td><td class="num">4</td></tr>
@@ -446,7 +479,10 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">11</td><td class="num">0.4</td><td class="num">0.5</td><td class="num">1.8</td><td class="num">0.3</td><td class="num">0.0</td><td class="num">1.4</td><td class="num">4</td></tr>
 <tr><td>instant espresso powder</td>
 <td>FDC 171893<br><span class="small">Beverages, coffee, instant, regular, powder</span></td>
-<td class="num">353</td><td class="num">0.5</td><td class="num">12.2</td><td class="num">75.4</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">75.4</td><td class="num">5</td></tr>
+<td class="num">353</td><td class="num">0.5</td><td class="num">12.2</td><td class="num">75.4</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">75.4</td><td class="num">6</td></tr>
+<tr><td>kala namak (Indian black salt)</td>
+<td>FDC 173468<br><span class="small">Salt, table (Same food as table salt for nutrition; its sulphur compounds give an egg-like smell)</span></td>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2</td></tr>
 <tr><td>kirsch (cherry brandy)</td>
 <td>FDC 174815<br><span class="small">Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof (SR Legacy lists no kirsch; an unsweetened 40% spirit is the nearest food)</span></td>
 <td class="num">231</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2</td></tr>
@@ -470,7 +506,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">29</td><td class="num">0.3</td><td class="num">1.1</td><td class="num">9.3</td><td class="num">2.8</td><td class="num">0.0</td><td class="num">6.5</td><td class="num">4</td></tr>
 <tr><td>lemon zest</td>
 <td>FDC 167749<br><span class="small">Lemon peel, raw</span></td>
-<td class="num">47</td><td class="num">0.3</td><td class="num">1.5</td><td class="num">16.0</td><td class="num">10.6</td><td class="num">0.0</td><td class="num">5.4</td><td class="num">32</td></tr>
+<td class="num">47</td><td class="num">0.3</td><td class="num">1.5</td><td class="num">16.0</td><td class="num">10.6</td><td class="num">0.0</td><td class="num">5.4</td><td class="num">35</td></tr>
 <tr><td>lime zest</td>
 <td>FDC 167749<br><span class="small">Lemon peel, raw (SR Legacy lists no lime peel; lemon peel is the nearest food)</span></td>
 <td class="num">47</td><td class="num">0.3</td><td class="num">1.5</td><td class="num">16.0</td><td class="num">10.6</td><td class="num">0.0</td><td class="num">5.4</td><td class="num">3</td></tr>
@@ -494,10 +530,10 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">400</td><td class="num">3.3</td><td class="num">53.0</td><td class="num">33.0</td><td class="num">20.0</td><td class="num">0.0</td><td class="num">13.0</td><td class="num">5</td></tr>
 <tr><td>olive oil</td>
 <td>FDC 171413<br><span class="small">Oil, olive, salad or cooking</span></td>
-<td class="num">884</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">29</td></tr>
+<td class="num">884</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">31</td></tr>
 <tr><td>onion</td>
 <td>FDC 170000<br><span class="small">Onions, raw</span></td>
-<td class="num">40</td><td class="num">0.1</td><td class="num">1.1</td><td class="num">9.3</td><td class="num">1.7</td><td class="num">0.0</td><td class="num">7.6</td><td class="num">13</td></tr>
+<td class="num">40</td><td class="num">0.1</td><td class="num">1.1</td><td class="num">9.3</td><td class="num">1.7</td><td class="num">0.0</td><td class="num">7.6</td><td class="num">15</td></tr>
 <tr><td>onion powder</td>
 <td>FDC 171327<br><span class="small">Spices, onion powder</span></td>
 <td class="num">341</td><td class="num">1.0</td><td class="num">10.4</td><td class="num">79.1</td><td class="num">15.2</td><td class="num">0.0</td><td class="num">63.9</td><td class="num">7</td></tr>
@@ -533,7 +569,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">236</td><td class="num">18.0</td><td class="num">17.2</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1</td></tr>
 <tr><td>powdered erythritol (confectioners&#39; style)</td>
 <td>label</td>
-<td class="num">20</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">71</td></tr>
+<td class="num">20</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">100.0</td><td class="num">0.0</td><td class="num">74</td></tr>
 <tr><td>prepared horseradish</td>
 <td>FDC 173472<br><span class="small">Horseradish, prepared</span></td>
 <td class="num">48</td><td class="num">0.7</td><td class="num">1.2</td><td class="num">11.3</td><td class="num">3.3</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">2</td></tr>
@@ -542,7 +578,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">60</td><td class="num">3.3</td><td class="num">3.7</td><td class="num">5.8</td><td class="num">4.0</td><td class="num">0.0</td><td class="num">1.8</td><td class="num">15</td></tr>
 <tr><td>psyllium husk powder</td>
 <td>label</td>
-<td class="num">200</td><td class="num">0.5</td><td class="num">2.0</td><td class="num">88.0</td><td class="num">80.0</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">15</td></tr>
+<td class="num">200</td><td class="num">0.5</td><td class="num">2.0</td><td class="num">88.0</td><td class="num">80.0</td><td class="num">0.0</td><td class="num">8.0</td><td class="num">18</td></tr>
 <tr><td>pumpkin purée (canned, unsweetened)</td>
 <td>FDC 168450<br><span class="small">Pumpkin, canned, without salt</span></td>
 <td class="num">34</td><td class="num">0.3</td><td class="num">1.1</td><td class="num">8.1</td><td class="num">2.9</td><td class="num">0.0</td><td class="num">5.2</td><td class="num">2</td></tr>
@@ -551,7 +587,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">559</td><td class="num">49.0</td><td class="num">30.2</td><td class="num">10.7</td><td class="num">6.0</td><td class="num">0.0</td><td class="num">4.7</td><td class="num">2</td></tr>
 <tr><td>pure vanilla extract</td>
 <td>FDC 173471<br><span class="small">Vanilla extract</span></td>
-<td class="num">288</td><td class="num">0.1</td><td class="num">0.1</td><td class="num">12.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">12.7</td><td class="num">113</td></tr>
+<td class="num">288</td><td class="num">0.1</td><td class="num">0.1</td><td class="num">12.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">12.7</td><td class="num">119</td></tr>
 <tr><td>raspberries</td>
 <td>FDC 167755<br><span class="small">Raspberries, raw</span></td>
 <td class="num">52</td><td class="num">0.7</td><td class="num">1.2</td><td class="num">11.9</td><td class="num">6.5</td><td class="num">0.0</td><td class="num">5.4</td><td class="num">15</td></tr>
@@ -584,7 +620,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4</td></tr>
 <tr><td>rum extract</td>
 <td>label</td>
-<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">3</td></tr>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">4</td></tr>
 <tr><td>saffron threads</td>
 <td>FDC 170934<br><span class="small">Spices, saffron</span></td>
 <td class="num">310</td><td class="num">5.8</td><td class="num">11.4</td><td class="num">65.4</td><td class="num">3.9</td><td class="num">0.0</td><td class="num">61.5</td><td class="num">2</td></tr>
@@ -603,6 +639,9 @@ ol.steps li { margin: 0 0 10px; }
 <tr><td>sharp cheddar, shredded</td>
 <td>FDC 170899<br><span class="small">Cheese, cheddar, sharp, sliced</span></td>
 <td class="num">410</td><td class="num">33.8</td><td class="num">24.2</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">2.1</td><td class="num">1</td></tr>
+<tr><td>silken tofu, firm</td>
+<td>FDC 172461<br><span class="small">MORI-NU, Tofu, silken, firm</span></td>
+<td class="num">62</td><td class="num">2.7</td><td class="num">6.9</td><td class="num">2.4</td><td class="num">0.1</td><td class="num">0.0</td><td class="num">2.3</td><td class="num">19</td></tr>
 <tr><td>slice of bacon</td>
 <td>FDC 168277<br><span class="small">Pork, cured, bacon, unprepared</span></td>
 <td class="num">393</td><td class="num">37.1</td><td class="num">13.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">3</td></tr>
@@ -617,7 +656,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.3</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.3</td><td class="num">4</td></tr>
 <tr><td>strong brewed coffee or espresso</td>
 <td>FDC 171891<br><span class="small">Beverages, coffee, brewed, espresso, restaurant-prepared</span></td>
-<td class="num">9</td><td class="num">0.2</td><td class="num">0.1</td><td class="num">1.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1.7</td><td class="num">4</td></tr>
+<td class="num">9</td><td class="num">0.2</td><td class="num">0.1</td><td class="num">1.7</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1.7</td><td class="num">5</td></tr>
 <tr><td>sugar-free dark chocolate chips (stevia or erythritol sweetened)</td>
 <td>label</td>
 <td class="num">400</td><td class="num">33.0</td><td class="num">7.0</td><td class="num">60.0</td><td class="num">13.0</td><td class="num">37.0</td><td class="num">10.0</td><td class="num">9</td></tr>
@@ -629,7 +668,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">63</td><td class="num">0.2</td><td class="num">1.1</td><td class="num">16.0</td><td class="num">2.1</td><td class="num">0.0</td><td class="num">13.9</td><td class="num">3</td></tr>
 <tr><td>sweet or smoked paprika</td>
 <td>FDC 171329<br><span class="small">Spices, paprika</span></td>
-<td class="num">282</td><td class="num">12.9</td><td class="num">14.1</td><td class="num">54.0</td><td class="num">34.9</td><td class="num">0.0</td><td class="num">19.1</td><td class="num">10</td></tr>
+<td class="num">282</td><td class="num">12.9</td><td class="num">14.1</td><td class="num">54.0</td><td class="num">34.9</td><td class="num">0.0</td><td class="num">19.1</td><td class="num">11</td></tr>
 <tr><td>tahini</td>
 <td>FDC 169410<br><span class="small">Seeds, sesame butter, tahini, from raw and stone ground kernels</span></td>
 <td class="num">570</td><td class="num">48.0</td><td class="num">17.8</td><td class="num">26.2</td><td class="num">9.3</td><td class="num">0.0</td><td class="num">16.9</td><td class="num">1</td></tr>
@@ -650,28 +689,34 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">717</td><td class="num">81.1</td><td class="num">0.8</td><td class="num">0.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">98</td></tr>
 <tr><td>unsweetened almond milk</td>
 <td>FDC 174832<br><span class="small">Beverages, almond milk, unsweetened, shelf stable</span></td>
-<td class="num">15</td><td class="num">1.0</td><td class="num">0.4</td><td class="num">1.3</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">1.1</td><td class="num">28</td></tr>
+<td class="num">15</td><td class="num">1.0</td><td class="num">0.4</td><td class="num">1.3</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">1.1</td><td class="num">35</td></tr>
 <tr><td>unsweetened baking chocolate (100% cacao)</td>
 <td>label</td>
 <td class="num">570</td><td class="num">50.0</td><td class="num">13.0</td><td class="num">30.0</td><td class="num">17.0</td><td class="num">0.0</td><td class="num">13.0</td><td class="num">19</td></tr>
 <tr><td>unsweetened cocoa powder</td>
 <td>FDC 169593<br><span class="small">Cocoa, dry powder, unsweetened</span></td>
-<td class="num">228</td><td class="num">13.7</td><td class="num">19.6</td><td class="num">57.9</td><td class="num">37.0</td><td class="num">0.0</td><td class="num">20.9</td><td class="num">16</td></tr>
+<td class="num">228</td><td class="num">13.7</td><td class="num">19.6</td><td class="num">57.9</td><td class="num">37.0</td><td class="num">0.0</td><td class="num">20.9</td><td class="num">19</td></tr>
 <tr><td>unsweetened coconut yogurt</td>
 <td>label</td>
 <td class="num">150</td><td class="num">13.0</td><td class="num">1.0</td><td class="num">6.0</td><td class="num">2.0</td><td class="num">0.0</td><td class="num">4.0</td><td class="num">11</td></tr>
 <tr><td>unsweetened shredded coconut</td>
 <td>FDC 170170<br><span class="small">Nuts, coconut meat, dried (desiccated), not sweetened</span></td>
 <td class="num">660</td><td class="num">64.5</td><td class="num">6.9</td><td class="num">23.6</td><td class="num">16.3</td><td class="num">0.0</td><td class="num">7.3</td><td class="num">9</td></tr>
+<tr><td>vegan Worcestershire sauce (no anchovy)</td>
+<td>label</td>
+<td class="num">78</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">19.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">19.0</td><td class="num">2</td></tr>
+<tr><td>vegetable broth</td>
+<td>FDC 171583<br><span class="small">Soup, vegetable broth, ready to serve</span></td>
+<td class="num">5</td><td class="num">0.1</td><td class="num">0.2</td><td class="num">0.9</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.9</td><td class="num">2</td></tr>
 <tr><td>walnuts</td>
 <td>FDC 170187<br><span class="small">Nuts, walnuts, english</span></td>
 <td class="num">654</td><td class="num">65.2</td><td class="num">15.2</td><td class="num">13.7</td><td class="num">6.7</td><td class="num">0.0</td><td class="num">7.0</td><td class="num">5</td></tr>
 <tr><td>water</td>
 <td>label</td>
-<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">48</td></tr>
+<td class="num">0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">50</td></tr>
 <tr><td>white or cremini mushrooms, sliced</td>
 <td>FDC 169251<br><span class="small">Mushrooms, white, raw</span></td>
-<td class="num">22</td><td class="num">0.3</td><td class="num">3.1</td><td class="num">3.3</td><td class="num">1.0</td><td class="num">0.0</td><td class="num">2.3</td><td class="num">2</td></tr>
+<td class="num">22</td><td class="num">0.3</td><td class="num">3.1</td><td class="num">3.3</td><td class="num">1.0</td><td class="num">0.0</td><td class="num">2.3</td><td class="num">3</td></tr>
 <tr><td>whole chicken (edible meat and skin)</td>
 <td>FDC 171047<br><span class="small">Chicken, broilers or fryers, meat and skin and giblets and neck, raw</span></td>
 <td class="num">213</td><td class="num">14.8</td><td class="num">18.3</td><td class="num">0.1</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.1</td><td class="num">1</td></tr>
@@ -686,7 +731,7 @@ ol.steps li { margin: 0 0 10px; }
 <td class="num">150</td><td class="num">10.2</td><td class="num">7.5</td><td class="num">7.3</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">7.3</td><td class="num">1</td></tr>
 <tr><td>xanthan gum</td>
 <td>label</td>
-<td class="num">330</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">78.0</td><td class="num">78.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">17</td></tr>
+<td class="num">330</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">78.0</td><td class="num">78.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">19</td></tr>
 <tr><td>yellow summer squash</td>
 <td>FDC 170487<br><span class="small">Squash, summer, all varieties, raw</span></td>
 <td class="num">16</td><td class="num">0.2</td><td class="num">1.2</td><td class="num">3.4</td><td class="num">1.1</td><td class="num">0.0</td><td class="num">2.2</td><td class="num">1</td></tr>
@@ -703,7 +748,7 @@ ol.steps li { margin: 0 0 10px; }
 </ul>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vegan tiramisù — The Low-Carb Kitchen</title>
+<meta name="description" content="Two thin almond sponges raised with whipped aquafaba, soaked in rum-scented espresso and layered with a coconut and cream-cheese &#39;mascarpone&#39; under a dusting of cocoa; vegan as written. 6.7 g net carbs per serving; dairy-free.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.facts .conv { color: var(--muted); font-style: italic; }
+.facts th .small { display: block; font-weight: normal; }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="../index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="../index.html#recipes" >Recipes</a>
+    <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
+    <a href="../book.html" >The whole book</a>
+    <a href="../about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<p class="small noprint"><a href="../index.html#recipes">Recipes</a> › <a href="../book.html#ch-mousses">Mousses &amp; creams</a></p>
+<h1>Vegan tiramisù</h1>
+<p class="lede">Two thin almond sponges raised with whipped aquafaba, soaked in rum-scented espresso and layered with a coconut and cream-cheese &#39;mascarpone&#39; under a dusting of cocoa; vegan as written.</p>
+<p class="sans">
+  <span class="badge df">Dairy-free</span> <span class="badge vg">Vegan</span> <span class="badge net">6.7 g net carbs</span>
+  <span class="chip">Serves 9 · 1 square</span>
+<span class="chip">prep 50 min · cook 20 min · rest 8 h</span></p>
+<div class="two">
+  <div>
+    <h2>Ingredients</h2>
+    <h3>Almond sponge</h3>  <ul class="ing">
+<li><span class="m">½ cup</span> aquafaba (liquid from a can of unsalted chickpeas) (120 g), from an unsalted can of chickpeas, at room temperature</li><li><span class="m">½ tsp</span> cream of tartar</li><li><span class="m">⅓ cup</span> granulated erythritol (63 g)</li><li><span class="m">1½ cups</span> almond flour (blanched, finely ground) (144 g)</li><li><span class="m">1½ tsp</span> baking powder</li><li><span class="m">¼ tsp</span> xanthan gum</li><li><span class="m">⅛ tsp</span> fine salt</li><li><span class="m">¼ cup</span> unsweetened almond milk (60 g)</li><li><span class="m">2 tbsp</span> avocado oil (28 g)</li><li><span class="m">1 tsp</span> pure vanilla extract</li>  </ul>
+<h3>Coffee soak</h3>  <ul class="ing">
+<li><span class="m">¾ cup</span> strong brewed coffee or espresso (178 g), strong espresso, cooled</li><li><span class="m">1 tsp</span> rum extract</li><li><span class="m">1 tbsp</span> granulated erythritol (12 g)</li>  </ul>
+<h3>Vegan mascarpone cream</h3>  <ul class="ing">
+<li><span class="m">1¼ cups</span> coconut cream (canned, unsweetened) (300 g), the firm part only, from cans chilled overnight</li><li><span class="m">170 g</span> dairy-free cream cheese (cashew or almond based), firm block style, cold</li><li><span class="m">½ cup</span> powdered erythritol (confectioners&#39; style) (60 g)</li><li><span class="m">1 tsp</span> pure vanilla extract</li>  </ul>
+<h3>To finish</h3>  <ul class="ing">
+<li><span class="m">2 tbsp</span> unsweetened cocoa powder (11 g)</li>  </ul>
+
+  </div>
+  <div>
+    <h2>Nutrition</h2>
+    <table class="facts">
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
+  <tbody>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">6.7 g</td><td class="num conv">27.6 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">24.1 g</td><td class="num conv">28.8 g</td></tr>
+    <tr><td>Fibre</td><td class="num">2.4 g</td><td class="num conv">1.2 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">15.0 g</td><td class="num conv">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">2.5 g</td><td class="num conv">12.2 g</td></tr>
+    <tr><td>Fat</td><td class="num">28.2 g</td><td class="num conv">19.9 g</td></tr>
+    <tr><td>Protein</td><td class="num">5.9 g</td><td class="num conv">4.1 g</td></tr>
+    <tr><td>Energy</td><td class="num">301 kcal</td><td class="num conv">303 kcal</td></tr>
+  </tbody>
+</table>
+<p class="small"><strong>Not low-carb</strong> is a rough estimate of a conventional version, not a tested recipe: sugar for granulated erythritol (0.7 × by weight); all-purpose wheat flour for almond flour (blanched, finely ground); no xanthan gum; powdered sugar for powdered erythritol (confectioners&#39; style) (0.7 × by weight). Everything else is as written. Sweeteners are matched for sweetness, and ordinary recipes are often sweeter, so the real difference is usually larger. </p>
+
+    <p class="small">Contains: coconut, tree nuts.</p>
+<p class="small">From typical product labels, which vary by brand: aquafaba (liquid from a can of unsalted chickpeas), coconut cream (canned, unsweetened), dairy-free cream cheese (cashew or almond based), granulated erythritol, powdered erythritol (confectioners&#39; style), rum extract, xanthan gum.</p>  </div>
+</div>
+<h2>Method</h2>
+<ol class="steps"><li>Heat the oven to 175 °C (350 °F). Line the bases of two 20 cm (8 in) square pans, the same size as the dish you will assemble in, with parchment and oil the sides. (With one pan, bake the batter in two batches.)</li><li>Whisk the almond flour, baking powder, xanthan and salt together. In a second bowl stir the almond milk, oil and vanilla together.</li><li>In a clean, grease-free bowl, whisk the aquafaba and cream of tartar with a stand or hand mixer on high until it forms soft peaks, about 4 minutes. Add the erythritol a spoonful at a time and keep whisking until the foam is glossy and holds stiff peaks when the whisk is lifted, 6–10 minutes in all.</li><li>Stir the almond-milk mixture into the dry ingredients to make a thick paste. Stir in a quarter of the aquafaba foam to loosen it, then fold in the rest in two additions, gently, until no white streaks remain. Fat collapses aquafaba quickly, so work without delay.</li><li>Divide between the pans, spread level (each layer is about 1.5 cm deep) and bake 16–20 minutes, until golden, firm at the centre and just pulling away from the sides. Cool 10 minutes in the pans, then turn out and cool completely. Rinse and dry the pan if you will assemble in it.</li><li>Stir the coffee, rum extract and 1 tbsp erythritol together.</li><li>Beat the cold vegan cream cheese with the powdered erythritol and vanilla just until smooth. In a chilled bowl, whip the firm coconut cream to soft, holding peaks, 2–3 minutes; stop as soon as it holds its shape, or it turns grainy. Fold the coconut cream into the cream cheese.</li><li>Lay one sponge in the 20 cm (8 in) square dish and brush it evenly with half the coffee, letting each pass soak in before the next. Spread over half the cream. Repeat with the second sponge, the rest of the coffee and the rest of the cream, and smooth the top.</li><li>Cover and refrigerate at least 8 hours, until the cream is firm enough to cut. Sift the cocoa over just before serving.</li></ol>
+<p class="sans"><span class="badge df">Dairy-free as written</span></p>
+
+<p class="sans"><span class="badge vg">Vegan as written</span></p>
+
+<h2>Tips</h2><ul><li>The original&#39;s cream is built on cooked egg yolks and mascarpone; this one sets only by chilling the coconut fat, so it is softer at room temperature and tastes faintly of coconut and of the tang of the cream cheese. Serve it straight from the fridge.</li><li>Baking the sponge in the same size pan as the dish means no trimming and no gaps for the coffee to pool in. Brush the coffee on rather than pouring; the almond sponge soaks it up faster than ladyfingers, and a soggy bottom layer cannot be undone.</li><li>Some cans of coconut cream will not whip, usually ones with added stabilisers or that were not chilled long enough. Chill a spare can, and whip only the firm part, keeping the thin liquid for another use.</li></ul><aside class="origin">
+  <h2>Where it comes from</h2>
+  <p class="sans"><strong>Tiramisù</strong> · Treviso · Southern Europe · 1960s–1970s</p>
+  <p>Tiramisù, coffee-soaked biscuits layered with a cream of egg yolks, sugar and mascarpone, is a recent dessert whose invention is disputed between Treviso in the Veneto and towns in neighbouring Friuli, with dates from the 1950s to the early 1970s. It spread through Italy and abroad in the 1980s. Egg-free and dairy-free versions are more recent still; they appear to have become common only after aquafaba was popularised as an egg-white substitute around 2015, alongside commercial plant-based cream cheeses.</p>
+  <p class="sans noprint"><a href="../index.html?focus=vegan-tiramisu#map">See it on the map</a></p>
+</aside>
+<p class="sans noprint">
+← <a href="tiramisu.html">Tiramisù</a> · <a href="affogato.html">Affogato</a> →</p>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>

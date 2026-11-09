@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Shakshuka</h1>
 <p class="lede">Eggs poached right in a skillet of tomato and red pepper sauce warmed with cumin, paprika and a little heat.</p>
 <p class="sans">
-  <span class="badge df">Dairy-free</span> <span class="badge net">5.2 g net carbs</span>
+  <span class="badge df">Dairy-free</span> <span class="badge vgopt">Vegan option</span> <span class="badge net">5.2 g net carbs</span>
   <span class="chip">Serves 4 · 2 eggs with sauce</span>
 <span class="chip">prep 10 min · cook 30 min</span></p>
 <div class="two">
@@ -109,16 +115,16 @@ ol.steps li { margin: 0 0 10px; }
   <div>
     <h2>Nutrition</h2>
     <table class="facts">
-  <thead><tr><th>Per serving</th><th class="num">As written</th></tr></thead>
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num">Vegan</th></tr></thead>
   <tbody>
-    <tr style="font-weight:600"><td>Net carbs</td><td class="num">5.2 g</td></tr>
-    <tr><td>Total carbohydrate</td><td class="num">8.4 g</td></tr>
-    <tr><td>Fibre</td><td class="num">3.2 g</td></tr>
-    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">0.0 g</td></tr>
-    <tr><td>Sugars</td><td class="num">4.6 g</td></tr>
-    <tr><td>Fat</td><td class="num">20.3 g</td></tr>
-    <tr><td>Protein</td><td class="num">14.2 g</td></tr>
-    <tr><td>Energy</td><td class="num">268 kcal</td></tr>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">5.2 g</td><td class="num">7.4 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">8.4 g</td><td class="num">10.7 g</td></tr>
+    <tr><td>Fibre</td><td class="num">3.2 g</td><td class="num">3.3 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">0.0 g</td><td class="num">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">4.6 g</td><td class="num">5.9 g</td></tr>
+    <tr><td>Fat</td><td class="num">20.3 g</td><td class="num">14.2 g</td></tr>
+    <tr><td>Protein</td><td class="num">14.2 g</td><td class="num">10.3 g</td></tr>
+    <tr><td>Energy</td><td class="num">268 kcal</td><td class="num">204 kcal</td></tr>
   </tbody>
 </table>
 <p class="small">Nothing here is a low-carb stand-in, so a conventional version would be much the same.</p>
@@ -128,6 +134,19 @@ ol.steps li { margin: 0 0 10px; }
 <h2>Method</h2>
 <ol class="steps"><li>Warm the olive oil in a 25–28 cm (10–11 in) skillet over medium heat. Add the onion and pepper and cook 8–10 minutes, stirring now and then, until the pepper is soft and starting to colour.</li><li>Stir in the garlic, cumin, paprika and cayenne and cook 1 minute, just until fragrant; do not let the spices scorch.</li><li>Add the tomatoes with their juice, the salt and the pepper. Simmer uncovered 10–12 minutes, stirring occasionally, until thick enough that a spoon dragged through leaves a trail. Taste and adjust the seasoning.</li><li>Make 8 hollows in the sauce with the back of a spoon and crack an egg into each. Lower the heat, cover and cook 6–8 minutes, until the whites are set but the yolks still run.</li><li>Scatter with parsley and serve straight from the pan.</li></ol>
 <p class="sans"><span class="badge df">Dairy-free as written</span></p>
+
+<section class="dfree vfree">
+  <h2>Vegan version</h2>
+  <p class="small">Make the dairy-free swaps above (none are needed), and also:</p>
+  <ul>
+<li>Use <strong>silken tofu, firm</strong> instead of large egg (1.26 × the weight) — about 2 cups silken tofu for the 8 eggs, in large spoonfuls.</li>  </ul>
+<p>Instead of cracking in eggs, spoon the tofu into the hollows in large pieces, salt it lightly, cover and warm through 4–5 minutes. This is warm tofu in a spiced tomato sauce, not a poached egg: soft and mild, with no runny yolk.</p>  <p class="small">Vegan version contains: soy.</p>
+</section>
+<section class="dfree vfree">
+  <h2>Another vegan choice</h2>
+  <p>For a version closer to egg than tofu poached in the sauce, spoon the tofu scramble into the hot tomato sauce at the end.</p>
+  <p class="sans">→ <a href="../recipes/tofu-scramble.html">Tofu scramble</a> <span class="small">(vegan as written)</span></p>
+</section>
 
 <h2>Tips</h2><ul><li>Simmering the sauce until thick matters: a watery sauce lets the whites spread and turn rubbery before the yolks are done.</li><li>Canned tomatoes carry most of the carbs here; if you swap in fresh tomatoes, weigh them rather than counting by the piece.</li><li>Crumbled feta is a common topping, but it is not part of this dairy-free version.</li></ul><aside class="origin">
   <h2>Where it comes from</h2>
@@ -139,7 +158,7 @@ ol.steps li { margin: 0 0 10px; }
 ← <a href="quiche-lorraine.html">Quiche Lorraine</a> · <a href="spinach-frittata.html">Spinach and zucchini frittata</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>

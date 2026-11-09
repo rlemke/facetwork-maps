@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vegan crêpes — The Low-Carb Kitchen</title>
+<meta name="description" content="Thin, flexible egg-free crêpes held together with flaxseed and psyllium, for folding around sweet or savoury fillings; vegan as written. 2.0 g net carbs per serving; dairy-free.">
+<style>
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
+  --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
+  --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+    --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+    --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
+  --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
+  --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--panel); }
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding-top: 12px; padding-bottom: 12px; }
+header.site .brand { font-weight: bold; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+nav a { margin-right: 16px; text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+nav a.on { font-weight: 600; text-decoration: underline; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 28px 0 8px; }
+h2 { font-size: 1.5rem; margin: 36px 0 12px; }
+h3 { font-size: 1.15rem; margin: 20px 0 8px; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 16px; }
+.sans, .chip, .badge, table, .filters, .card .meta, .facts { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 4px; font-size: .95rem; }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 2px 0; }
+.badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; }
+.badge.df { background: var(--good-soft); color: var(--good); }
+.facts .conv { color: var(--muted); font-style: italic; }
+.facts th .small { display: block; font-weight: normal; }
+.badge.opt { background: var(--accent-soft); color: var(--accent); }
+.badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+footer { margin: 48px 0 0; padding: 20px 0 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; font-family: system-ui, sans-serif; }
+@media print {
+  header.site, footer, .noprint, .filters { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: #000; text-decoration: none; }
+}
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; }
+h1, h2, h3, p, li, td { overflow-wrap: break-word; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 0; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } ul.ing .m { min-width: 4.5em; } }
+ul.ing { list-style: none; padding: 0; margin: 0; }
+ul.ing li { padding: 4px 0; border-bottom: 1px dotted var(--line); }
+ul.ing .m { font-family: system-ui, sans-serif; font-weight: 600; display: inline-block; min-width: 5.5em; }
+ol.steps li { margin: 0 0 10px; }
+.small { font-size: .85rem; color: var(--muted); font-family: system-ui, sans-serif; }
+.origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
+.dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
+.dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
+.menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
+.menu-card:hover { border-color: var(--accent); }
+.menu-card h3 { margin: 0 0 4px; }
+.course { margin: 20px 0; }
+.course ul { list-style: none; padding: 0; margin: 0; }
+.course li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course li.alt { padding-left: 18px; color: var(--muted); }
+.plan dt { font-weight: 600; margin-top: 10px; font-family: system-ui, sans-serif; }
+.plan dd { margin: 2px 0 0; }
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="../index.html">The Low-Carb Kitchen</a>
+  <nav>
+    <a href="../index.html#recipes" >Recipes</a>
+    <a href="../index.html#origins">Origins map</a>
+    <a href="../menus.html" >Dinner menus</a>
+    <a href="../book.html" >The whole book</a>
+    <a href="../about.html" >Method &amp; guides</a>
+  </nav>
+</div></header>
+<main class="wrap">
+<p class="small noprint"><a href="../index.html#recipes">Recipes</a> › <a href="../book.html#ch-breakfast">Breakfast</a></p>
+<h1>Vegan crêpes</h1>
+<p class="lede">Thin, flexible egg-free crêpes held together with flaxseed and psyllium, for folding around sweet or savoury fillings; vegan as written.</p>
+<p class="sans">
+  <span class="badge df">Dairy-free</span> <span class="badge vg">Vegan</span> <span class="badge net">2.0 g net carbs</span>
+  <span class="chip">Serves 4 · 2 crêpes</span>
+<span class="chip">prep 5 min · cook 25 min · rest 15 min</span></p>
+<div class="two">
+  <div>
+    <h2>Ingredients</h2>
+      <ul class="ing">
+<li><span class="m">1¼ cups</span> unsweetened almond milk (300 g)</li><li><span class="m">3 tbsp</span> golden flaxseed meal (21 g)</li><li><span class="m">¼ cup</span> almond flour (blanched, finely ground) (24 g)</li><li><span class="m">1 tbsp</span> coconut flour</li><li><span class="m">2 tsp</span> psyllium husk powder</li><li><span class="m">⅛ tsp</span> fine salt</li><li><span class="m">2 tbsp</span> dairy-free butter (stick, plant-based) (28 g), melted, plus extra for the pan</li>  </ul>
+
+  </div>
+  <div>
+    <h2>Nutrition</h2>
+    <table class="facts">
+  <thead><tr><th>Per serving</th><th class="num">As written</th><th class="num conv">Not low-carb<span class="small">rough estimate</span></th></tr></thead>
+  <tbody>
+    <tr style="font-weight:600"><td>Net carbs</td><td class="num">2.0 g</td><td class="num conv">9.2 g</td></tr>
+    <tr><td>Total carbohydrate</td><td class="num">6.0 g</td><td class="num conv">11.1 g</td></tr>
+    <tr><td>Fibre</td><td class="num">4.0 g</td><td class="num conv">1.9 g</td></tr>
+    <tr><td>Sugar alcohols &amp; allulose</td><td class="num">0.0 g</td><td class="num conv">0.0 g</td></tr>
+    <tr><td>Sugars</td><td class="num">1.2 g</td><td class="num conv">0.7 g</td></tr>
+    <tr><td>Fat</td><td class="num">11.9 g</td><td class="num conv">8.6 g</td></tr>
+    <tr><td>Protein</td><td class="num">2.9 g</td><td class="num conv">2.4 g</td></tr>
+    <tr><td>Energy</td><td class="num">135 kcal</td><td class="num conv">130 kcal</td></tr>
+  </tbody>
+</table>
+<p class="small"><strong>Not low-carb</strong> is a rough estimate of a conventional version, not a tested recipe: all-purpose wheat flour for almond flour (blanched, finely ground); all-purpose wheat flour for coconut flour (3 × by weight); no psyllium husk powder. Everything else is as written. Sweeteners are matched for sweetness, and ordinary recipes are often sweeter, so the real difference is usually larger. </p>
+
+    <p class="small">Contains: coconut, tree nuts.</p>
+<p class="small">From typical product labels, which vary by brand: coconut flour, dairy-free butter (stick, plant-based), psyllium husk powder.</p>  </div>
+</div>
+<h2>Method</h2>
+<ol class="steps"><li>Blend all the ingredients until completely smooth, about 45 seconds.</li><li>Rest the batter 15 minutes so the flax and psyllium gel; it thickens noticeably. It should flow like thin cream, so blend in water a tablespoon at a time if it is thicker.</li><li>Heat a 20 cm (8 in) non-stick pan over medium heat and brush lightly with vegan butter.</li><li>Pour in 4 tablespoons of batter and tilt and swirl at once to coat the base thinly and evenly.</li><li>Cook 1½–2 minutes, without moving it, until the surface looks matt and dry and the edge lifts and is lightly browned. Loosen all round with a thin spatula, flip and cook 30 seconds more.</li><li>Stack on a plate and repeat, stirring the batter each time and thinning it with a little water if it thickens as it stands.</li></ol>
+<p class="sans"><span class="badge df">Dairy-free as written</span></p>
+
+<p class="sans"><span class="badge vg">Vegan as written</span></p>
+
+<h2>Tips</h2><ul><li>Without egg there is nothing to set the crêpe quickly, so patience is the method: wait until the top is fully dry before flipping, or it tears. The first one is usually a test.</li><li>They are a little thicker, nuttier and speckled compared with egg crêpes, and they stay pliable when cold, so they fold and roll well for wraps.</li><li>Fill with coconut yogurt and berries, or with sautéed mushrooms and spinach for a savoury version.</li></ul><aside class="origin">
+  <h2>Where it comes from</h2>
+  <p class="sans"><strong>Crêpe</strong> · Quimper, Brittany · Western Europe · medieval</p>
+  <p>Brittany is the home of the crêpe: buckwheat spread there in the late Middle Ages, thin buckwheat galettes became a staple, and sweeter wheat crêpes followed as white flour became affordable. Traditional Breton galettes are often made with little or no egg, so egg-free crêpes are not a modern novelty. Flax- and psyllium-bound versions like this one are a recent, grain-free adaptation from low-carb and vegan home cooking.</p>
+  <p class="sans noprint"><a href="../index.html?focus=vegan-crepes#map">See it on the map</a></p>
+</aside>
+<p class="sans noprint">
+← <a href="tofu-scramble.html">Tofu scramble</a> · <a href="almond-flour-sandwich-loaf.html">Almond-flour sandwich loaf</a> →</p>
+</main>
+<footer><div class="wrap">
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+  Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
+</div></footer>
+</body>
+</html>

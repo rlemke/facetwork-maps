@@ -10,18 +10,21 @@
   --bg: #fbf8f3; --panel: #ffffff; --ink: #2b2420; --muted: #6f625a; --line: #e6ddd2;
   --accent: #a4452c; --accent-soft: #f6e4dc; --good: #2f6b3a; --good-soft: #e1f0e2;
   --warn: #8a5a00; --warn-soft: #fbeccc; --chip: #f1ebe3;
+  --veg: #1f6763; --veg-soft: #dcefee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
     --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
     --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
   }
 }
 :root[data-theme="dark"] {
   --bg: #1b1715; --panel: #241f1c; --ink: #eee6de; --muted: #b3a69b; --line: #3a322d;
   --accent: #e48a6c; --accent-soft: #3b2721; --good: #8fd19b; --good-soft: #1f3324;
   --warn: #f0c062; --warn-soft: #3a2f17; --chip: #302925;
+    --veg: #7fd1cb; --veg-soft: #183331;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, "Iowan Old Style", "Palatino Linotype", serif; }
@@ -45,6 +48,8 @@ h3 { font-size: 1.15rem; margin: 20px 0 8px; }
 .facts th .small { display: block; font-weight: normal; }
 .badge.opt { background: var(--accent-soft); color: var(--accent); }
 .badge.net { background: var(--chip); color: var(--ink); }
+.badge.vg { background: var(--veg-soft); color: var(--veg); }
+.badge.vgopt { background: transparent; color: var(--veg); border: 1px solid var(--veg); padding: 1px 7px; }
 table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
@@ -68,6 +73,7 @@ ol.steps li { margin: 0 0 10px; }
 .origin { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 18px 8px; margin: 28px 0; }
 .dfree { background: var(--good-soft); border-radius: 8px; padding: 4px 18px 8px; margin: 24px 0; }
 .dfree h2 { margin-top: 12px; }
+.vfree { background: var(--veg-soft); }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 18px 0; }
 .menu-card { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); color: inherit; text-decoration: none; }
 .menu-card:hover { border-color: var(--accent); }
@@ -96,7 +102,7 @@ ol.steps li { margin: 0 0 10px; }
 <h1>Tres leches cake</h1>
 <p class="lede">A light almond sponge soaked through with three plant milks and topped with whipped coconut cream and a dusting of cinnamon.</p>
 <p class="sans">
-  <span class="badge df">Dairy-free</span> <span class="badge net">5.0 g net carbs</span>
+  <span class="badge df">Dairy-free</span>  <span class="badge net">5.0 g net carbs</span>
   <span class="chip">Serves 12 · 1 square</span>
 <span class="chip">prep 30 min · cook 30 min · rest 6 h</span></p>
 <div class="two">
@@ -134,6 +140,12 @@ ol.steps li { margin: 0 0 10px; }
 <ol class="steps"><li>Heat the oven to 175 °C (350 °F). Grease a 23 × 33 cm (9 × 13 in) baking dish; glass or ceramic is fine.</li><li>Whisk the yolks with half the erythritol until thick and pale, then whisk in the vanilla and almond milk.</li><li>Whisk the almond flour, coconut flour, baking powder and salt together and fold into the yolks.</li><li>Whisk the whites with the cream of tartar to soft peaks, add the rest of the erythritol and whisk to firm peaks. Fold into the batter in three additions.</li><li>Spread in the dish and bake 25–30 minutes, until golden and springy. Cool for 15 minutes in the dish.</li><li>Warm the three milks with the allulose and vanilla just until the allulose dissolves; let it cool to lukewarm.</li><li>Prick the cake all over with a fork, right to the bottom. Pour the milk mixture over slowly in three or four rounds, letting each soak in.</li><li>Cover and refrigerate at least 6 hours, or overnight, so the milk is fully absorbed.</li><li>Whip the coconut cream with the powdered erythritol until thick, spread over the cake and dust with cinnamon. Serve cold, in squares.</li></ol>
 <p class="sans"><span class="badge df">Dairy-free as written</span></p>
 
+<section class="dfree vfree">
+  <h2>Vegan instead</h2>
+  <p>The sponge is lifted by five whipped eggs and has to soak up the milks without collapsing, which egg replacers cannot do. The vegan almond basbousa is the book&#39;s other soaked cake, soaked in syrup instead of milk.</p>
+  <p class="sans">→ <a href="../recipes/almond-basbousa.html">Almond basbousa</a> <span class="small">(make its vegan version)</span></p>
+</section>
+
 <h2>Tips</h2><ul><li>Allulose is used in the soak because it dissolves fully and does not crystallise in the fridge.</li><li>The cake will look flooded at first; it absorbs the milk overnight.</li></ul><aside class="origin">
   <h2>Where it comes from</h2>
   <p class="sans"><strong>Soaked sponge cake</strong> · Mexico · Latin America &amp; Caribbean · 1900s</p>
@@ -141,10 +153,10 @@ ol.steps li { margin: 0 0 10px; }
   <p class="sans noprint"><a href="../index.html?focus=tres-leches-cake#map">See it on the map</a></p>
 </aside>
 <p class="sans noprint">
-← <a href="torta-caprese.html">Torta caprese</a> · <a href="victoria-sponge.html">Victoria sponge</a> →</p>
+← <a href="torta-caprese.html">Torta caprese</a> · <a href="vegan-chocolate-layer-cake.html">Vegan chocolate layer cake</a> →</p>
 </main>
 <footer><div class="wrap">
-  The Low-Carb Kitchen — 206 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
+  The Low-Carb Kitchen — 215 recipes. Nutrition from USDA FoodData Central (SR Legacy, public domain) and typical product labels; recipes are not kitchen-tested.
   Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
   Built with <a href="https://github.com/rlemke/fwh_cookbook">fwh_cookbook</a>.
 </div></footer>
