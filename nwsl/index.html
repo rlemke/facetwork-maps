@@ -139,10 +139,31 @@ footer a{color:var(--muted)}
   <div class="panel-head">
     <h2>Games</h2>
     <div class="tabs" role="tablist">
-<button type="button" data-tab="recent" class="cur">Recent results</button>    </div>
+<button type="button" data-tab="up" class="cur">Upcoming</button><button type="button" data-tab="recent">Recent results</button>    </div>
     <span class="t">Up to 7 days of games</span>
   </div>
-  <div class="overflow-x gtab" data-tab="recent">
+  <div class="overflow-x gtab" data-tab="up">
+  <table class="dtable">
+    <thead><tr><th>Game</th><th>When (ET)</th><th>Model</th><th class="num">Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> <span class="t">at</span> <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a>
+<div class="t">Semifinals</div></td>
+        <td class="t">Sat 14 Nov, 12:00 PM</td>
+        <td><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 56%<span class="pbar"><b style="width:56.4%"></b></span><div class="p3">H 56% &middot; D 22% &middot; A 22%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+      <tr>
+        <td><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> <span class="t">at</span> <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a>
+<div class="t">Semifinals</div></td>
+        <td class="t">Sun 15 Nov, 3:00 PM</td>
+        <td><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> 46%<span class="pbar"><b style="width:45.8%"></b></span><div class="p3">H 46% &middot; D 24% &middot; A 30%</div></td>
+        <td class="num"><span class="t">&mdash;</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="overflow-x gtab" data-tab="recent" hidden>
   <table class="dtable">
     <thead><tr><th>Game</th><th>When (ET)</th><th>Model</th><th class="num">Result</th></tr></thead>
     <tbody>
@@ -199,6 +220,14 @@ footer a{color:var(--muted)}
       <td><a class="tm" href="teams/POR.html" title="Portland Thorns FC"><i style="background:#000000"></i>POR</a> at <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a></td>
       <td class="t">2026-11-08</td>
       <td class="num">1&ndash;4<span class="good" title="model's most likely result happened">&#10003;</span></td></tr>
+    <tr><td class="t">Semifinals</td>
+      <td><a class="tm" href="teams/UTA.html" title="Utah Royals"><i style="background:#ae122a"></i>UTA</a> at <a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a></td>
+      <td class="t">2026-11-14</td>
+      <td class="num"><a class="tm" href="teams/WAS.html" title="Washington Spirit"><i style="background:#000000"></i>WAS</a> 56%<span class="pbar"><b style="width:56.4%"></b></span><div class="p3">H 56% &middot; D 22% &middot; A 22%</div></td></tr>
+    <tr><td class="t"></td>
+      <td><a class="tm" href="teams/KC.html" title="Kansas City Current"><i style="background:#cf3339"></i>KC</a> at <a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a></td>
+      <td class="t">2026-11-15</td>
+      <td class="num"><a class="tm" href="teams/GFC.html" title="Gotham FC"><i style="background:#a9f1fd"></i>GFC</a> 46%<span class="pbar"><b style="width:45.8%"></b></span><div class="p3">H 46% &middot; D 24% &middot; A 30%</div></td></tr>
   </tbody></table>
   </div>
 </section>
