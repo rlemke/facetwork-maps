@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Euclid DR1 sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root {
+    --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "Source Serif 4", Georgia, serif;
+    --bg: #f6f7f9; --panel: #ffffff; --fg: #1c2230; --muted: #5d6676; --line: #dde1e8;
+    --accent: #2563c9; --chip: #eef2f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1118; --panel: #151b26; --fg: #e6e9ef; --muted: #9aa3b2; --line: #283041;
+            --accent: #7fb0ff; --chip: #1d2533; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); line-height: 1.5; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-left)) 48px; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: 2rem; margin: 0 0 4px; line-height: 1.2; }
+  h2 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; margin: 32px 0 8px; }
+  .lede { color: var(--muted); max-width: 80ch; margin: 0 0 20px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 20px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+  .stat b { display: block; font-size: 1.45rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: .85rem; }
+  .viewer { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; }
+  #sky { width: 100%; height: min(78vh, 760px); min-height: 420px; border-radius: 8px; overflow: hidden; background: #000; }
+  .side { display: flex; flex-direction: column; gap: 14px; }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .box h3 { margin: 0 0 8px; font-size: .95rem; font-weight: 600; }
+  label { display: flex; gap: 8px; align-items: center; font-size: .92rem; margin: 4px 0; cursor: pointer; }
+  select, input[type=range] { width: 100%; }
+  select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  .bar { height: 12px; border-radius: 3px; margin: 6px 0 2px; }
+  .ticks { display: flex; justify-content: space-between; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .unit { font-size: .78rem; color: var(--muted); }
+  .jump { display: flex; flex-wrap: wrap; gap: 6px; }
+  .jump button { font: inherit; font-size: .85rem; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--chip); color: var(--fg); cursor: pointer; }
+  .jump button:hover { border-color: var(--accent); }
+  #info { font-size: .88rem; min-height: 4.5em; }
+  #info dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0; }
+  #info dt { color: var(--muted); }
+  #info dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .hint { color: var(--muted); font-size: .82rem; }
+  .prose { max-width: 80ch; }
+  .prose p, .prose li { margin: 0 0 10px; }
+  table { border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .qbars { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 14px; max-width: 720px; }
+  .qbar { display: grid; grid-template-columns: 70px minmax(0, 1fr) 44px; gap: 10px; align-items: center; font-size: .92rem; }
+  .qtrack { height: 14px; background: var(--chip); border-radius: 4px; overflow: hidden; }
+  .qfill { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+  .qval { font-variant-numeric: tabular-nums; text-align: right; }
+  .qnote { grid-column: 2 / 4; color: var(--muted); font-size: .8rem; margin-top: -4px; }
+  .qnote:empty { display: none; }
+  .prose table { margin: 6px 0; }
+  .foot { color: var(--muted); font-size: .82rem; max-width: 80ch; margin-top: 32px; }
+  .foot a, .prose a { color: var(--accent); }
+  @media (max-width: 860px) {
+    .viewer { grid-template-columns: 1fr; }
+    #sky { height: 68vh; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Euclid's first data release on the sky</h1>
+  <p class="lede" id="lede">Every object in ESA Euclid's DR1 wide-survey catalogue, counted on the sky
+  as you would see it from Earth: drag to look around, scroll to zoom. The coloured patches are where
+  Euclid has looked, and their colour is how many galaxies it found there.</p>
+  <div class="stats" id="stats"></div>
+
+  <div class="viewer">
+    <div id="sky" role="application" aria-label="Interactive sky map"></div>
+    <div class="side">
+      <div class="box">
+        <h3>Colour the survey by</h3>
+        <select id="layer" aria-label="Map layer"></select>
+        <div class="bar" id="bar"></div>
+        <div class="ticks" id="ticks"></div>
+        <div class="unit" id="unit"></div>
+        <div class="hint" id="deep" hidden>Zoomed in past the map's 3-arcminute cells: the colour is hidden; zoom out to see it. Galaxy markers and outlines may not draw closer than about 1 degree.</div>
+        <label style="margin-top:8px">Opacity <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.75"></label>
+      </div>
+      <div class="box">
+        <h3>Show</h3>
+        <label><input type="checkbox" id="gal" checked> Brightest galaxies (zoom in)</label>
+        <label><input type="checkbox" id="outl" checked> Tile outlines (zoom in)</label>
+        <label><input type="checkbox" id="q1"> Euclid's own images (Q1 areas only)</label>
+        <h3 style="margin-top:10px">Background sky</h3>
+        <select id="bg" aria-label="Background sky">
+          <option value="https://skies.esac.esa.int/DSSColor/">Optical photographs (DSS2 colour)</option>
+          <option value="CDS/P/Mellinger/color">Optical, as the eye sees it (Mellinger)</option>
+          <option value="https://skies.esac.esa.int/2MASSColor/">Near-infrared (2MASS)</option>
+          <option value="https://skies.esac.esa.int/AllWISEColor/">Mid-infrared (WISE)</option>
+        </select>
+      </div>
+      <div class="box">
+        <h3>Go to</h3>
+        <div class="jump" id="jump"></div>
+      </div>
+      <div class="box">
+        <h3>Here</h3>
+        <div id="info"><span class="hint">Click inside the survey to see that tile.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose" id="prose"></div>
+
+  <p class="foot">Data: <a href="https://www.cosmos.esa.int/web/euclid/data-release-dr1">ESA Euclid DR1</a>
+  (ESA/Euclid/Euclid Consortium), queried from the ESA Euclid Science Archive, used under
+  CC BY-NC 3.0 IGO. Background skies: HiPS from ESA ESASky and CDS (DSS2, Mellinger, 2MASS, WISE). Viewer:
+  <a href="https://aladin.cds.unistra.fr/AladinLite/">Aladin Lite</a>. This is an independent
+  summary of the public catalogue, not a product of the Euclid Consortium.</p>
+</div>
+
+<script type="module">
+import A from "https://cdn.jsdelivr.net/npm/aladin-lite@3.8.2/dist/aladin.js";
+const SUMMARY = {"totals":{"objects":876850540,"galaxies":134555541,"area_deg2":2311.43201,"tiles":9547,"tiles_with_data":9359,"first":"2023-10-01","last":"2025-05-21","galaxy_markers":118165},"gal_mag_limit":24,"layers":[{"key":"galaxies","title":"Galaxies brighter than mag 24","unit":"per deg\u00b2","vmin":20000.0,"vmax":220000.0,"log":true,"cmap":"magma","stops":["#000003","#0b0824","#1f114b","#3b0f6f","#57147d","#711f81","#8c2980","#a7317d","#c33b74","#dd4968","#f0605d","#fa7f5e","#fd9f6c","#febe83","#fddd9f","#fbfcbf"],"ticks":["20k","36k","66k","121k","220k"]},{"key":"all","title":"All detected objects","unit":"per deg\u00b2","vmin":50000.0,"vmax":600000.0,"log":true,"cmap":"viridis","stops":["#440154","#48196b","#462f7c","#404387","#38568b","#30678d","#29788e","#23888d","#1e988a","#22a784","#35b778","#53c567","#79d151","#a5da35","#d2e11b","#fde724"],"ticks":["50k","93k","173k","322k","600k"]},{"key":"stars","title":"Point-like objects (mostly Milky Way stars)","unit":"per deg\u00b2","vmin":1000.0,"vmax":200000.0,"log":true,"cmap":"cividis","stops":["#00224d","#002e6b","#1d396e","#35456c","#47516b","#575d6d","#666970","#747575","#848178","#948e77","#a59b73","#b6a96e","#c8b765","#dac65a","#edd648","#fde737"],"ticks":["1k","4k","14k","53k","200k"]},{"key":"observed","title":"When Euclid first observed the tile","unit":"days since 2023-10-01","vmin":0,"vmax":600,"log":false,"cmap":"turbo","stops":["#30123b","#4043a6","#4670e8","#3e9bfe","#21c4e1","#1ae4b6","#46f783","#87fe4d","#b9f534","#e1dc37","#f9ba38","#fd8c27","#ef5a11","#d63405","#ae1801","#7a0402"],"ticks":["Oct 2023","Feb 2024","Jul 2024","Dec 2024","May 2025"]}],"gal_boxes":["0_20","0_30","10_20","10_30","10_40","120_150","130_150","130_160","140_150","140_160","150_150","150_160","160_150","160_160","170_150","170_160","180_150","180_160","190_150","190_160","200_150","200_160","20_20","20_30","20_40","210_150","210_160","220_150","220_160","230_150","230_160","240_160","250_140","250_150","260_140","260_150","260_160","270_140","270_150","270_160","280_150","280_160","30_20","30_30","30_40","30_50","30_60","350_20","350_30","40_20","40_30","40_40","40_50","50_20","50_30","50_40","50_50","50_60","60_20","60_30","60_40","60_50","60_60","60_70","70_20","70_30","70_40","70_50","70_60","70_70","80_20","80_30","80_40","80_50","80_60","90_30","90_40","90_50","90_60"],"jumps":[{"name":"Whole north","ra":205.0,"dec":66.0,"fov":75},{"name":"Whole south","ra":55.0,"dec":-48.0,"fov":80},{"name":"Deep Field North","ra":269.733,"dec":66.018,"fov":3},{"name":"Deep Field South","ra":61.241,"dec":-48.423,"fov":3},{"name":"Deep Field Fornax","ra":52.932,"dec":-28.088,"fov":3},{"name":"Large Magellanic Cloud edge","ra":80.9,"dec":-62.0,"fov":20},{"name":"All sky","ra":180.0,"dec":0.0,"fov":200}],"prose_html":"\n<h2>What you are looking at</h2>\n<p>The map is the inside of the celestial sphere, as seen from Earth: north is up, east is to the\nleft, and the background is a photograph of the real night sky. Euclid looks at patches of it far\nfrom the Milky Way's dusty plane, where the view out of our galaxy is clearest. Those patches are\nthe coloured areas. DR1 covers about 2,311 square degrees in\n9,359 tiles of roughly half a degree, about the size of the full Moon.</p>\n<p>The default colour is the number of galaxies brighter than magnitude 24 per square degree.\nA typical tile has 62,164 of them per square degree (the middle 80% of tiles range from\n35,696 to 69,363): about 17 in a patch of sky one arcminute across, the size of\na grain of rice held at arm's length. The colour is smooth because the universe is nearly uniform\non these scales. The variations that remain come mostly from the survey, not from cosmic\nstructure: shallower exposures, bright stars masking their surroundings, and dust.</p>\n<p>Zoom in below about 8 degrees and the brightest galaxies of each tile appear as ellipses with\nEuclid's measured size and shape, coloured by their photometric redshift (blue nearest, then green,\nyellow, red farther than about z = 1.2). Click one for its numbers. These are a sample, 30 per tile\n(118,165 in all), not the 135 million galaxies\ncounted.</p>\n\n<h2>How it was made</h2>\n<ul>\n<li>Nothing was downloaded in bulk. The ESA Euclid Science Archive was asked, one tile at a time,\nto count its own catalogue (<code>dr1.mer_catalogue_wide_survey</code>, 876,850,540\nobjects after removing those flagged spurious) on a 10 x 10 grid laid over each tile, about 3\narcminutes a cell.</li>\n<li>Tiles overlap their neighbours a little. Only each tile's core was counted, so every object is\ncounted once.</li>\n<li>A galaxy here is an object Euclid measured as extended (point-like probability below 0.5) and\nbrighter than magnitude 24 in its detection image. The magnitude cut keeps the count\ncomparable between deep and shallow tiles. Point-like objects are mostly Milky Way stars: their\ndensity is 10,305 per square degree in a typical tile and up to 900,555 near the plane of\nthe Galaxy and the Magellanic Clouds.</li>\n<li>188 tiles in the archive's tile list have no objects in the wide catalogue. They are shown\nin their outline only.</li>\n</ul>\n\n<h2>Caveats</h2>\n<ul>\n<li>This is DR1-Foundation, released on 12 November 2026. Some catalogue fields are\ndocumented inconsistently in the archive: the archive's column description of the star/galaxy\nclass flag gives star and galaxy the opposite way round from the data product document. The\ndocument's coding matches the data and is the one used here.</li>\n<li>The galaxy layer does not correct for depth, masking or dust, so it is a map of what Euclid\ndetected, not of how galaxies are distributed in space.</li>\n</ul>\n\n<h2>Does Euclid recognise quasars that are already known?</h2>\n<p>ESA's release counts \"over 60 million quasar candidates\". No table in the public archive\nmarks such a set, so this checks the labels the archive does carry against\n6,715 quasars whose spectra other telescopes have already taken (the Million\nQuasars catalogue, type-1 quasars only), at places where Euclid has data.\nEuclid detects 97% of them\nwithin 1 arcsecond, so finding them is not the problem. Labelling them is.</p>\n<ul>\n<li><b>The photometric classifier never says quasar.</b> None of the 6,523 detected\nquasars has the quasar bit of its class flag set, and every quasar probability is 0\n(the threshold is 1.0). It calls 88%\nof them galaxies; 655 have no photometric class at all.</li>\n<li><b>A quasar template is fitted to the photometry</b> of 81%\nof them anyway. Its redshift is within 10% (in 1+z) for 53% of 5,300,\nagainst 8% for the galaxy redshift the catalogue reports.</li>\n<li><b>Euclid's own spectrum</b> exists for 4,661 of them. Its classifier calls them:</li>\n</ul>\n<div class=\"qbars\"><div class=\"qbar\" title=\"galaxy: 4,279 of 4,661 (91.8%)\"><span class=\"qlab\">galaxy</span><span class=\"qtrack\"><span class=\"qfill\" style=\"width:91.8%\"></span></span><span class=\"qval\">92%</span><span class=\"qnote\"></span></div><div class=\"qbar\" title=\"quasar: 376 of 4,661 (8.1%)\"><span class=\"qlab\">quasar</span><span class=\"qtrack\"><span class=\"qfill\" style=\"width:8.1%\"></span></span><span class=\"qval\">8%</span><span class=\"qnote\"></span></div><div class=\"qbar\" title=\"star: 6 of 4,661 (0.1%)\"><span class=\"qlab\">star</span><span class=\"qtrack\"><span class=\"qfill\" style=\"width:0.1%\"></span></span><span class=\"qval\">0%</span><span class=\"qnote\"></span></div></div>\n<p>When the spectrum does say quasar, its redshift is right (within 1% in 1+z) for\n93%. But that is 8% of them.\nFor all 4,661, the redshift Euclid reports, from whichever template its classifier chose,\nis right for 40%; refitting with the quasar template would make it\n55%. The gain is in the bright ones (quasar-template redshift right for\n63% brighter than magnitude 19, 24%\nfainter than 22): for those, the spectrum holds the quasar's lines and the classifier\nmostly picks the galaxy template instead. For the faint ones the spectrum is too noisy\nfor any template.</p>\n\n<p><b>The other direction.</b> In the 200 tiles where known quasars are densest,\nEuclid's spectra call 11,485 objects quasars. Only 162\n(1%) are confirmed active nuclei in the reference.\n8,186 of them are brighter than magnitude 20, and 6,286\nof those are point-like or saturated, which is how stars look; a quasar that bright would\nvery likely have been catalogued already. 2,788 are fainter than magnitude 22,\nbelow what the reference covers, so for those this check can say nothing. The quasar label in\nDR1 cannot be taken to mean \"a quasar\" without a second test.</p>\n<table>\n<thead><tr><th>Known quasar, r magnitude</th><th>Known</th><th>Detected</th><th>Has a Euclid spectrum</th>\n<th>Spectrum says quasar</th><th>Quasar-template z right</th></tr></thead>\n<tbody><tr><td>brighter than 19</td><td>1,721</td><td>98%</td><td>73%</td><td>15%</td><td>63%</td></tr><tr><td>19\u201320</td><td>1,605</td><td>97%</td><td>72%</td><td>11%</td><td>68%</td></tr><tr><td>20\u201321</td><td>1,454</td><td>96%</td><td>72%</td><td>5%</td><td>60%</td></tr><tr><td>21\u201322</td><td>1,109</td><td>97%</td><td>69%</td><td>1%</td><td>37%</td></tr><tr><td>fainter than 22</td><td>825</td><td>97%</td><td>69%</td><td>0%</td><td>24%</td></tr></tbody></table>\n<p style=\"margin-top:12px\"></p>\n<table>\n<thead><tr><th>Known redshift</th><th>With a Euclid spectrum</th><th>Spectrum says quasar</th></tr></thead>\n<tbody><tr><td>0.0\u20130.5</td><td>184</td><td>23%</td></tr><tr><td>0.5\u20131.0</td><td>713</td><td>6%</td></tr><tr><td>1.0\u20131.5</td><td>890</td><td>7%</td></tr><tr><td>1.5\u20132.0</td><td>1,013</td><td>13%</td></tr><tr><td>2.0\u20132.5</td><td>1,009</td><td>5%</td></tr><tr><td>2.5\u20133.0</td><td>486</td><td>7%</td></tr><tr><td>3.0+</td><td>366</td><td>7%</td></tr></tbody></table>\n<p class=\"hint\">Euclid's slitless spectra cover 1.2\u20131.9 \u00b5m. A quasar's broad lines fall in\nthat window only at some redshifts, which is why the classification changes with z.\nReference: Milliquas (Flesch), entries confirmed by a spectrum, via NASA HEASARC.\nMatching: the nearest Euclid object within 1 arcsec.</p>\n"};
+const fmt = (x) => x.toLocaleString('en-US');
+const big = (x) => x >= 1e9 ? (x / 1e9).toFixed(2) + ' billion' : x >= 1e6 ? (x / 1e6).toFixed(1) + ' million' : fmt(Math.round(x));
+
+(function stats() {
+  const s = SUMMARY.totals;
+  const items = [
+    [big(s.objects), 'objects counted'],
+    [big(s.galaxies), `galaxies brighter than mag ${SUMMARY.gal_mag_limit}`],
+    [fmt(Math.round(s.area_deg2)) + ' deg²', 'of sky with data'],
+    [fmt(s.tiles_with_data), 'tiles with data'],
+    [s.first + ' – ' + s.last, 'observed'],
+  ];
+  document.getElementById('stats').innerHTML = items.map(([b, t]) => `<div class="stat"><b>${b}</b><span>${t}</span></div>`).join('');
+  document.getElementById('prose').innerHTML = SUMMARY.prose_html;
+})();
+
+const base = new URL('.', location.href).href;
+let aladin, overlay, outlines, galCat;
+let tiles = [];
+const hipsLayers = {};
+const galBoxes = new Map();
+
+function legend(L) {
+  const stops = L.stops.map((c, i) => `${c} ${(100 * i / (L.stops.length - 1)).toFixed(1)}%`).join(',');
+  document.getElementById('bar').style.background = `linear-gradient(90deg, ${stops})`;
+  document.getElementById('ticks').innerHTML = L.ticks.map((t) => `<span>${t}</span>`).join('');
+  document.getElementById('unit').textContent = L.unit;
+}
+
+function tileAt(ra, dec) {
+  for (const t of tiles) {
+    if (dec < t.dl || dec >= t.dl + 0.5) continue;
+    const x = ((ra - t.rl + 720) % 360);
+    if (x >= 0 && x < t.dr) return t;
+  }
+  return null;
+}
+
+function showInfo(ra, dec) {
+  const el = document.getElementById('info');
+  const t = tileAt(ra, dec);
+  if (!t) { el.innerHTML = `<span class="hint">RA ${ra.toFixed(3)}°, Dec ${dec.toFixed(3)}°: outside the DR1 wide survey.</span>`; return; }
+  el.innerHTML = `<dl>
+    <dt>Tile</dt><dd>${t.id}</dd>
+    <dt>Centre</dt><dd>RA ${t.ra.toFixed(2)}°, Dec ${t.dec.toFixed(2)}°</dd>
+    <dt>Observed</dt><dd>${t.first}${t.last !== t.first ? ' to ' + t.last : ''}</dd>
+    <dt>Objects</dt><dd>${t.n ? fmt(t.n) : 'none in the catalogue'}</dd>
+    <dt>Galaxies</dt><dd>${t.n ? fmt(Math.round(t.g)) + ' per deg²' : '–'}</dd>
+    <dt>Stars</dt><dd>${t.n ? fmt(Math.round(t.s)) + ' per deg²' : '–'}</dd></dl>`;
+}
+
+function boxKeys(ra, dec, r) {
+  const keys = [];
+  const d0 = Math.max(-90, dec - r), d1 = Math.min(90, dec + r);
+  const cosd = Math.max(Math.cos(Math.max(Math.abs(d0), Math.abs(d1)) * Math.PI / 180), 0.05);
+  const span = Math.min(180, r / cosd);
+  for (let d = Math.floor((d0 + 90) / 10) * 10; d <= d1 + 90; d += 10) {
+    if (span >= 180) { for (let a = 0; a < 360; a += 10) keys.push(`${a}_${d}`); continue; }
+    for (let a = Math.floor((ra - span) / 10) * 10; a <= ra + span; a += 10) keys.push(`${((a % 360) + 360) % 360}_${d}`);
+  }
+  return [...new Set(keys)].filter((k) => SUMMARY.gal_boxes.includes(k));
+}
+
+function drawGalaxy(s, ctx) {
+  const fov = aladin.getFov()[0], w = aladin.getSize()[0];
+  const pxPerArcsec = w / (fov * 3600);
+  const a = Math.max(2.5, (s.data.a || 1) * pxPerArcsec * 2.5);
+  const b = Math.max(1.5, a * (1 - (s.data.e || 0)));
+  ctx.beginPath();
+  // PA is counter-clockwise from north through east; with north up and
+  // east left on screen, the canvas rotation of the major axis is PA - 90.
+  ctx.ellipse(s.x, s.y, a, b, ((s.data.pa || 0) - 90) * Math.PI / 180, 0, 2 * Math.PI);
+  const z = s.data.z;
+  ctx.strokeStyle = z == null ? '#cccccc' : z < 0.3 ? '#7fd3ff' : z < 0.7 ? '#a6f0a0' : z < 1.2 ? '#ffd166' : '#ff7a7a';
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+}
+
+async function loadBox(k) {
+  if (galBoxes.has(k)) return;
+  galBoxes.set(k, null);
+  const rows = await (await fetch(`${base}gal/${k}.json`)).json();
+  const src = rows.map(([ra, dec, mag, z, a, e, pa]) => A.source(ra, dec, { mag, z, a, e, pa,
+    name: `galaxy, mag ${mag}${z == null ? '' : ', photometric z ' + z}` }));
+  galBoxes.set(k, true);
+  galCat.addSources(src);
+}
+
+let pending;
+function refresh() {
+  clearTimeout(pending);
+  pending = setTimeout(() => {
+    const [ra, dec] = aladin.getRaDec();
+    const fov = aladin.getFov()[0];
+    const r = fov * 0.75;
+    // The counts are ~3 arcmin cells: below 2 degrees they are coarser than
+    // the view, so the colour steps aside for the galaxies and the sky.
+    const cur = hipsLayers[document.getElementById('layer').value];
+    const deep = fov < 2;
+    if (cur) cur.setOpacity(deep ? 0 : +document.getElementById('opacity').value);
+    document.getElementById('deep').hidden = !deep;
+    outlines.removeAll();
+    if (document.getElementById('outl').checked && fov <= 6) {
+      const cosd = Math.max(Math.cos(dec * Math.PI / 180), 0.05);
+      const near = tiles.filter((t) => Math.abs(t.dec - dec) < r + 0.5 && Math.abs(((t.ra - ra + 540) % 360) - 180) * cosd < r + 0.5);
+      for (const t of near.slice(0, 600)) {
+        const p = [];
+        for (let i = 0; i < 8; i += 2) p.push([t.fov[i], t.fov[i + 1]]);
+        outlines.add(A.polygon(p));
+      }
+    }
+    if (document.getElementById('gal').checked && fov <= 8) {
+      galCat.show();
+      boxKeys(ra, dec, r).forEach(loadBox);
+    } else galCat.hide();
+  }, 150);
+}
+
+const qs = new URLSearchParams(location.search);
+const start = { ra: +(qs.get('ra') ?? 55), dec: +(qs.get('dec') ?? -48), fov: +(qs.get('fov') ?? 140) };
+
+A.init.then(async () => {
+  aladin = A.aladin('#sky', {
+    survey: 'https://skies.esac.esa.int/DSSColor/', fov: start.fov, target: `${start.ra} ${start.dec}`, cooFrame: 'ICRSd',
+    projection: 'SIN', showCooGridControl: true, showSimbadPointerControl: false,
+    showProjectionControl: true, showFullscreenControl: true, showLayersControl: false,
+    showGotoControl: true, showShareControl: false, showContextMenu: false,
+    showCooLocation: true, showFrame: true,
+  });
+  tiles = await (await fetch(base + 'tiles.json')).json();
+  const layers = SUMMARY.layers;
+  const sel = document.getElementById('layer');
+  sel.innerHTML = layers.map((L) => `<option value="${L.key}">${L.title}</option>`).join('');
+  const hips = hipsLayers;
+  const setLayer = (key) => {
+    const L = layers.find((x) => x.key === key);
+    if (!hips[key]) hips[key] = aladin.newImageSurvey(`${base}hips/${key}`, { name: L.title, imgFormat: 'png' });
+    aladin.setOverlayImageLayer(hips[key], 'euclid');
+    hips[key].setOpacity(+document.getElementById('opacity').value);
+    legend(L);
+  };
+  setLayer(layers[0].key);
+  sel.onchange = () => { setLayer(sel.value); refresh(); };
+  document.getElementById('opacity').oninput = (e) => { if (aladin.getFov()[0] >= 2) hips[sel.value].setOpacity(+e.target.value); };
+  document.getElementById('bg').onchange = (e) => aladin.setBaseImageLayer(aladin.newImageSurvey(e.target.value));
+  let q1;
+  document.getElementById('q1').onchange = (e) => {
+    if (e.target.checked) {
+      q1 = q1 || aladin.newImageSurvey('CDS/P/Euclid/Q1/color', { name: 'Euclid Q1 colour' });
+      aladin.setOverlayImageLayer(q1, 'q1');
+    } else aladin.removeImageLayer('q1');
+  };
+  outlines = A.graphicOverlay({ color: '#9ec9ff', lineWidth: 1 });
+  aladin.addOverlay(outlines);
+  galCat = A.catalog({ name: 'Brightest galaxies', shape: drawGalaxy, onClick: 'showPopup' });
+  aladin.addCatalog(galCat);
+  document.getElementById('gal').onchange = refresh;
+  document.getElementById('outl').onchange = refresh;
+  aladin.on('positionChanged', refresh);
+  aladin.on('zoomChanged', refresh);
+  document.getElementById('jump').innerHTML = SUMMARY.jumps.map((j, i) => `<button data-i="${i}">${j.name}</button>`).join('');
+  document.getElementById('jump').onclick = (e) => {
+    const j = SUMMARY.jumps[+e.target.dataset.i];
+    if (!j) return;
+    aladin.gotoRaDec(j.ra, j.dec);
+    aladin.setFoV(j.fov);
+  };
+  document.getElementById('sky').addEventListener('click', (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const w = aladin.pix2world(e.clientX - r.left, e.clientY - r.top);
+    if (w) showInfo(w[0], w[1]);
+  });
+  refresh();
+});
+</script>
+</body>
+</html>

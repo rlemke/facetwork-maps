@@ -1,0 +1,11 @@
+creator_did          = ivo://fwh-euclid/P/Euclid/DR1/galaxies
+obs_title            = Euclid DR1 wide: Galaxies brighter than mag 24
+dataproduct_type     = image
+hips_version         = 1.4
+hips_frame           = equatorial
+hips_order           = 2
+hips_order_min       = 0
+hips_tile_width      = 512
+hips_tile_format     = png
+hips_pixel_scale     = 0.028629
+obs_copyright        = ESA/Euclid/Euclid Consortium, CC BY-NC 3.0 IGO
